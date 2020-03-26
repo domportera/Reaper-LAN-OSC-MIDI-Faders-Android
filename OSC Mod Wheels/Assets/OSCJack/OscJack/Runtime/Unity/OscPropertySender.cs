@@ -28,12 +28,21 @@ namespace OscJack
 
         void UpdateSettings()
         {
-            _client = OscMaster.GetSharedClient(_ipAddress, _udpPort);
+            try
+            {
+                _client = OscMaster.GetSharedClient(_ipAddress, _udpPort);
 
-            if (_dataSource != null && !string.IsNullOrEmpty(_propertyName))
-                _propertyInfo = _dataSource.GetType().GetProperty(_propertyName);
-            else
-                _propertyInfo = null;
+                if (_dataSource != null && !string.IsNullOrEmpty(_propertyName))
+                    _propertyInfo = _dataSource.GetType().GetProperty(_propertyName);
+                else
+                    _propertyInfo = null;
+
+                SendMessage("SetConnected"); //let IPSetter know the client is connected
+            }
+            catch
+            {
+                SendMessage("InvalidClient"); //let IPSetter know that the client is invalid
+            }
         }
 
         #endregion
@@ -157,5 +166,17 @@ namespace OscJack
         }
 
         #endregion
+
+        #region Added Methods
+
+        public void ChangeConnection(string _ip, int _port)
+        {
+            _ipAddress = _ip;
+            _udpPort = _port;
+            UpdateSettings();
+        }
+
+        #endregion
+
     }
 }

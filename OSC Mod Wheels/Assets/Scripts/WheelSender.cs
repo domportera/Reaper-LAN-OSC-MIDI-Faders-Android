@@ -7,14 +7,15 @@ using UnityEngine.UI;
 public class WheelSender : MonoBehaviour
 {
     [SerializeField] OscPropertySender sender;
+    [SerializeField] IPSetter ipSetter;
     [SerializeField] Slider slider;
 
     enum SliderState {Slide, Idle, End};
     SliderState state = SliderState.Idle;
 
-    enum ValueMode { Integer, FloatingPoint };
+    enum WheelMode { Pitch, Mod };
 
-    [SerializeField] ValueMode mode = ValueMode.FloatingPoint;
+    [SerializeField] WheelMode mode = WheelMode.Mod;
 
     float zeroValue; //value slider returns to when released
     float modValue;
@@ -25,13 +26,13 @@ public class WheelSender : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(mode == ValueMode.FloatingPoint)
+        if(mode == WheelMode.Mod)
         {
             slider.minValue = 0;
-            slider.maxValue = 1;
-            zeroValue = 0.5f;
+            slider.maxValue = 16383;
+            zeroValue = 8191;
         }
-        else if (mode == ValueMode.Integer)
+        else if (mode == WheelMode.Pitch)
         {
             slider.minValue = 0;
             slider.maxValue = 16383;
@@ -89,17 +90,22 @@ public class WheelSender : MonoBehaviour
         state = SliderState.End;
     }
 
+
+    //needs to tween towards value
     public void SendPitch(float _val)
     {
         modValue = _val;
 
-        if (mode == ValueMode.Integer)
+        if (ipSetter.IsConnected())
         {
-            sender.Send((int)modValue);
-        }
-        else if (mode == ValueMode.FloatingPoint)
-        {
-            sender.Send(modValue);
+            if (mode == WheelMode.Pitch)
+            {
+                sender.Send((int)modValue);
+            }
+            else if (mode == WheelMode.Mod)
+            {
+                sender.Send((int)modValue);
+            }
         }
     }
 }

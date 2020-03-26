@@ -64,7 +64,9 @@
   <ItemGroup>
     <Compile Include="Assets\OSCJack\Test\ClientTest.cs" />
     <Compile Include="Assets\OSCJack\Test\ServerTest.cs" />
+    <Compile Include="Assets\Scripts\IPSetter.cs" />
     <Compile Include="Assets\Scripts\WheelSender.cs" />
+    <None Include="Assets\StreamingAssets\IPAddress.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Github Repos/OSC-Mod-Wheels/OSC Mod Wheels/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
