@@ -4,10 +4,9 @@ using OscJack;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WheelSender : MonoBehaviour
+public class WheelControl : MonoBehaviour
 {
     [SerializeField] OscPropertySender sender;
-    [SerializeField] IPSetter ipSetter;
     [SerializeField] Slider slider;
 
     enum SliderState {Slide, Idle};
@@ -100,12 +99,21 @@ public class WheelSender : MonoBehaviour
         slider.SetValueWithoutNotify(modValue);
 
         SendPitch();
+    }
 
+    void SetConnected()
+    {
+        IPSetter.SetConnected();
+    }
+
+    void InvalidClient()
+    {
+        IPSetter.InvalidClient();
     }
 
     void SendPitch()
     {
-        if (ipSetter.IsConnected())
+        if (IPSetter.IsConnected())
         {
             if (mode == WheelMode.Pitch)
             {

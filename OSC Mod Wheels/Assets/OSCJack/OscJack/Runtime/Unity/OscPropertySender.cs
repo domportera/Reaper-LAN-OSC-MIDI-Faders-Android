@@ -48,17 +48,7 @@ namespace OscJack
         #endregion
 
         #region MonoBehaviour implementation
-
-        void Start()
-        {
-            UpdateSettings();
-        }
-
-        void OnValidate()
-        {
-            if (Application.isPlaying) UpdateSettings();
-        }
-
+        
         void Update()
         {
             if (_propertyInfo == null) return;

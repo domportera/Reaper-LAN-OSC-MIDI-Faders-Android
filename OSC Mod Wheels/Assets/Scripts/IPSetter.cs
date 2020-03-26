@@ -8,7 +8,7 @@ using System.IO;
 
 public class IPSetter : MonoBehaviour
 {
-    [SerializeField] OscPropertySender sender;
+    [SerializeField] List<OscPropertySender> senders;
     [SerializeField] Text errorText;
 
     [SerializeField] InputField ipAddressField;
@@ -16,7 +16,7 @@ public class IPSetter : MonoBehaviour
 
     string currentIP;
     int currentPort = int.MinValue;
-    bool ipSet = false;
+    static bool ipSet = false;
 
     string fileName = "/IPAddress.txt";
 
@@ -78,17 +78,17 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    public void SetConnected()
+    public static void SetConnected()
     {
         ipSet = true;
     }
 
-    public bool IsConnected()
+    public static bool IsConnected()
     {
         return ipSet;
     }
 
-    void InvalidClient()
+    public static void InvalidClient()
     {
         //error message for invalid client
         Debug.LogError("Error creating client - check IP");
@@ -139,7 +139,11 @@ public class IPSetter : MonoBehaviour
         //only connect if we have a port and an IP
         if(currentPort != int.MinValue && currentIP != null)
         {
-            sender.ChangeConnection(currentIP, currentPort);
+            foreach (OscPropertySender send in senders)
+            {
+                send.ChangeConnection(currentIP, currentPort);
+            }
+
             Save();
         }
     }
