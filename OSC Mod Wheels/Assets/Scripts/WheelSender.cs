@@ -34,8 +34,8 @@ public class WheelSender : MonoBehaviour
         else if (mode == ValueMode.Integer)
         {
             slider.minValue = 0;
-            slider.maxValue = 127;
-            zeroValue = 64;
+            slider.maxValue = 16383;
+            zeroValue = 8191;
         }
 
         modValue = zeroValue;
