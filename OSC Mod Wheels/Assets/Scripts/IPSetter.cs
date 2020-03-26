@@ -23,8 +23,8 @@ public class IPSetter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        errorText.text = "";
         Load();
-        Debug.Log(Application.streamingAssetsPath + fileName);
     }
 
     // Update is called once per frame

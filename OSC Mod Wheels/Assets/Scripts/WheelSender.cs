@@ -10,7 +10,7 @@ public class WheelSender : MonoBehaviour
     [SerializeField] IPSetter ipSetter;
     [SerializeField] Slider slider;
 
-    enum SliderState {Slide, Idle, End};
+    enum SliderState {Slide, Idle};
     SliderState state = SliderState.Idle;
 
     enum WheelMode { Pitch, Mod };
@@ -19,9 +19,11 @@ public class WheelSender : MonoBehaviour
 
     float zeroValue; //value slider returns to when released
     float modValue;
+    float targetModValue;
     
 
-    [SerializeField] float releaseTime = 0.1f; //time it takes to release from max slide value to zeroValue
+    [SerializeField] float releaseTime = 0.05f; //time it takes to release from max slide value to zeroValue
+    [SerializeField] float rampUpTime = 0.05f;
 
     // Start is called before the first frame update
     void Start()
@@ -40,44 +42,14 @@ public class WheelSender : MonoBehaviour
         }
 
         modValue = zeroValue;
-        SendPitch(modValue);
+        SendPitch();
         slider.value = modValue;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(state == SliderState.End)
-        {
-            ReturnToMidpoint();
-        }
-    }
-
-    void ReturnToMidpoint()
-    {
-        float difference = (slider.maxValue - zeroValue) * Time.deltaTime / releaseTime;
-
-        //set to idle if close enough to zero
-        if (Mathf.Abs(modValue - zeroValue) < difference)
-        {
-            modValue = zeroValue;
-            SendPitch(modValue);
-            state = SliderState.Idle;
-        }
-        else
-        {
-            //approach zerovalue
-            if (modValue > zeroValue)
-            {
-                modValue -= difference;
-            }
-            else
-            {
-                modValue += difference;
-            }
-        }
-
-        slider.value = modValue;
+        TweenModValue();
     }
 
     public void StartSliding()
@@ -87,15 +59,52 @@ public class WheelSender : MonoBehaviour
 
     public void EndSliding()
     {
-        state = SliderState.End;
+        state = SliderState.Idle;
+        targetModValue = zeroValue;
     }
 
-
-    //needs to tween towards value
-    public void SendPitch(float _val)
+    public void SetPitch(float _val)
     {
-        modValue = _val;
+        targetModValue = _val;
+    }
 
+    void TweenModValue()
+    {
+        if(modValue == targetModValue)
+        {
+            return;
+        }
+
+        float time = state == SliderState.Idle ? releaseTime : rampUpTime;
+        float difference = (slider.maxValue - zeroValue) * Time.deltaTime / time;
+
+        //set to idle if close enough to zero
+        if (Mathf.Abs(modValue - targetModValue) < difference)
+        {
+            modValue = targetModValue;
+            state = SliderState.Idle;
+        }
+        else
+        {
+            //approach zerovalue
+            if (modValue > targetModValue)
+            {
+                modValue -= difference;
+            }
+            else
+            {
+                modValue += difference;
+            }
+        }
+
+        slider.SetValueWithoutNotify(modValue);
+
+        SendPitch();
+
+    }
+
+    void SendPitch()
+    {
         if (ipSetter.IsConnected())
         {
             if (mode == WheelMode.Pitch)
@@ -108,4 +117,5 @@ public class WheelSender : MonoBehaviour
             }
         }
     }
+    
 }
