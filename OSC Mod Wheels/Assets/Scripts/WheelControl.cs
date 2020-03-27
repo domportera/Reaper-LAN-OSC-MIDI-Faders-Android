@@ -30,8 +30,8 @@ public class WheelControl : MonoBehaviour
         if(mode == WheelMode.Mod)
         {
             slider.minValue = 0;
-            slider.maxValue = 16383;
-            zeroValue = 8191;
+            slider.maxValue = 127;
+            zeroValue = 64;
         }
         else if (mode == WheelMode.Pitch)
         {
