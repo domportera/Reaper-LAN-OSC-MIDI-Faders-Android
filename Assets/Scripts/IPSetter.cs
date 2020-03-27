@@ -8,11 +8,11 @@ using System.IO;
 
 public class IPSetter : MonoBehaviour
 {
-    [SerializeField] List<OscPropertySender> senders;
-    [SerializeField] Text errorText;
+    [SerializeField] List<OscPropertySender> senders = null;
+    [SerializeField] Text errorText = null;
 
-    [SerializeField] InputField ipAddressField;
-    [SerializeField] InputField portField;
+    [SerializeField] InputField ipAddressField = null;
+    [SerializeField] InputField portField = null;
 
     string currentIP;
     int currentPort = int.MinValue;

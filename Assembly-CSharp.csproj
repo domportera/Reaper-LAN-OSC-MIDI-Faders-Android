@@ -2,8 +2,6 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <CscToolPath>D:\Program Files\Unity\2019.3.6f1\Editor\Data\Tools\RoslynScripts</CscToolPath>
-    <CscToolExe>unity_csc.bat</CscToolExe>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{C7863DE2-84CA-DEAD-A1B8-F4A26A185DC7}</ProjectGuid>
+    <ProjectGuid>{e23d86c7-ca84-adde-a1b8-f4a26a185dc7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -47,19 +45,13 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="UnityEngine">
-      <HintPath>D:\Program Files\Unity\2019.3.6f1\Editor\Data\Managed/UnityEngine/UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor">
-      <HintPath>D:\Program Files\Unity\2019.3.6f1\Editor\Data\Managed/UnityEditor.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
      <Compile Include="Assets\OSCJack\Test\ClientTest.cs" />
      <Compile Include="Assets\OSCJack\Test\ServerTest.cs" />
      <Compile Include="Assets\Scripts\IPSetter.cs" />
      <Compile Include="Assets\Scripts\WheelControl.cs" />
-     <Compile Include="Assets\Scripts\WheelSender.cs" />
+ <Reference Include="UnityEngine">
+ <HintPath>D:/Program Files/Unity/2019.3.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>D:/Program Files/Unity/2019.3.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
  </Reference>
@@ -230,6 +222,9 @@
  </Reference>
  <Reference Include="UnityEngine.XRModule">
  <HintPath>D:/Program Files/Unity/2019.3.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEditor">
+ <HintPath>D:/Program Files/Unity/2019.3.6f1/Editor/Data/Managed/UnityEditor.dll</HintPath>
  </Reference>
  <Reference Include="mscorlib">
  <HintPath>D:/Program Files/Unity/2019.3.6f1/Editor/Data/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -588,52 +583,52 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Unity.Timeline.Editor.csproj">
-      <Project>{70160A17-7695-07C1-F3E5-C1DDEA568E6D}</Project>
+      <Project>{170a1670-9576-c107-f3e5-c1ddea568e6d}</Project>
       <Name>Unity.Timeline.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="jp.keijiro.osc-jack.Editor.csproj">
-      <Project>{6007B1D5-2D0B-4C1A-AACA-8B3F983C2D17}</Project>
+      <Project>{d5b10760-0b2d-1a4c-aaca-8b3f983c2d17}</Project>
       <Name>jp.keijiro.osc-jack.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VSCode.Editor.csproj">
-      <Project>{211145B6-E1EA-A37B-3F65-0294B2EC08A6}</Project>
+      <Project>{b6451121-eae1-7ba3-3f65-0294b2ec08a6}</Project>
       <Name>Unity.VSCode.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="jp.keijiro.osc-jack.Runtime.csproj">
-      <Project>{59014203-4BD2-B928-30A8-307E3E0EA5AF}</Project>
+      <Project>{03420159-d24b-28b9-30a8-307e3e0ea5af}</Project>
       <Name>jp.keijiro.osc-jack.Runtime</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
-      <Project>{2C563C40-BBC9-47DC-EF4D-6168FAAC0852}</Project>
+      <Project>{403c562c-c9bb-dc47-ef4d-6168faac0852}</Project>
       <Name>Unity.TextMeshPro.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{4F02498A-192F-31F4-DFF1-7AC632B3B535}</Project>
+      <Project>{8a49024f-2f19-f431-dff1-7ac632b3b535}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Timeline.csproj">
-      <Project>{0C02FC6F-1A43-AFDA-6498-C15357EEE94D}</Project>
+      <Project>{6ffc020c-431a-daaf-6498-c15357eee94d}</Project>
       <Name>Unity.Timeline</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.CollabProxy.Editor.csproj">
-      <Project>{39F87069-1839-3EE3-CCF4-31B321DA45E1}</Project>
+      <Project>{6970f839-3918-e33e-ccf4-31b321da45e1}</Project>
       <Name>Unity.CollabProxy.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Rider.Editor.csproj">
-      <Project>{89557FC7-7297-F7EA-803F-AA9ADF0AE0F6}</Project>
+      <Project>{c77f5589-9772-eaf7-803f-aa9adf0ae0f6}</Project>
       <Name>Unity.Rider.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.csproj">
-      <Project>{A1B0A14B-7A30-1A07-692B-281420BEA4D7}</Project>
+      <Project>{4ba1b0a1-307a-071a-692b-281420bea4d7}</Project>
       <Name>Unity.TextMeshPro</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.UI.csproj">
-      <Project>{92E5F4DF-78E2-FFCB-A0F9-920395182383}</Project>
+      <Project>{dff4e592-e278-cbff-a0f9-920395182383}</Project>
       <Name>UnityEditor.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

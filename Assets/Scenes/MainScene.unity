@@ -146,6 +146,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 209596105}
     m_Modifications:
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3056751681169597961, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -204,12 +219,12 @@ PrefabInstance:
     - target: {fileID: 3056751681169597961, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 207
+      value: 243
       objectReference: {fileID: 0}
     - target: {fileID: 3056751681169597961, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -76
+      value: -81
       objectReference: {fileID: 0}
     - target: {fileID: 3056751681169597961, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
@@ -256,11 +271,6 @@ PrefabInstance:
       propertyPath: _oscAddress
       value: /vkb_midi/cc/1
       objectReference: {fileID: 0}
-    - target: {fileID: 3056751681169597962, guid: 38ea4e76350f5de49a9dcbc5d9027434,
-        type: 3}
-      propertyPath: _dataSource
-      value: 
-      objectReference: {fileID: 460327340}
     - target: {fileID: 3056751681169597966, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
       propertyPath: m_Name
@@ -529,7 +539,7 @@ MonoBehaviour:
   m_ContentType: 9
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 11
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_CharacterValidation: 0
@@ -571,7 +581,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -653,18 +663,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1e43cc78b62f2184d8bebe41bd574f9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &460327340 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3056751681169597973, guid: 38ea4e76350f5de49a9dcbc5d9027434,
-    type: 3}
-  m_PrefabInstance: {fileID: 75183999}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb1e800d2b9815346aa499553901ed76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &929608444
@@ -794,7 +792,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1372,6 +1370,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 209596105}
     m_Modifications:
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3056751680715239554, guid: 38ea4e76350f5de49a9dcbc5d9027434,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3056751681169597961, guid: 38ea4e76350f5de49a9dcbc5d9027434,
         type: 3}
       propertyPath: m_LocalPosition.x

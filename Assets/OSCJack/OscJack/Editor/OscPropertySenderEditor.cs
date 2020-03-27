@@ -54,22 +54,6 @@ namespace OscJack
             EditorGUILayout.DelayedTextField(_ipAddress, Labels.IPAddress);
             EditorGUILayout.DelayedIntField(_udpPort, Labels.UDPPortNumber);
             EditorGUILayout.PropertyField(_oscAddress, Labels.OSCAddress);
-            EditorGUILayout.PropertyField(_dataSource);
-
-            if (!_dataSource.hasMultipleDifferentValues &&
-                !_propertyName.hasMultipleDifferentValues)
-            {
-                // Custom drop-down UI
-                ShowComponentSelector();
-                ShowPropertySelector();
-            }
-            else
-            {
-                // Normal text field
-                EditorGUILayout.PropertyField(_propertyName);
-            }
-
-            EditorGUILayout.PropertyField(_keepSending);
 
             serializedObject.ApplyModifiedProperties();
         }

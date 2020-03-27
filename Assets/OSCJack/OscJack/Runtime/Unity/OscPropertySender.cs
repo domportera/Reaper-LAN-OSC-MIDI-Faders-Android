@@ -15,8 +15,6 @@ namespace OscJack
         [SerializeField] string _ipAddress = "127.0.0.1";
         [SerializeField] int _udpPort = 9000;
         [SerializeField] string _oscAddress = "/unity";
-        [SerializeField] Component _dataSource = null;
-        [SerializeField] string _propertyName = "";
         [SerializeField] bool _keepSending = false;
 
         #endregion
@@ -32,11 +30,6 @@ namespace OscJack
             {
                 _client = OscMaster.GetSharedClient(_ipAddress, _udpPort);
 
-                if (_dataSource != null && !string.IsNullOrEmpty(_propertyName))
-                    _propertyInfo = _dataSource.GetType().GetProperty(_propertyName);
-                else
-                    _propertyInfo = null;
-
                 SendMessage("SetConnected"); //let IPSetter know the client is connected
             }
             catch
@@ -51,19 +44,7 @@ namespace OscJack
         
         void Update()
         {
-            if (_propertyInfo == null) return;
-
-            var type = _propertyInfo.PropertyType;
-            var value = _propertyInfo.GetValue(_dataSource, null); // boxing!!
-
-                 if (type == typeof(int       )) Send((int       )value);
-            else if (type == typeof(float     )) Send((float     )value);
-            else if (type == typeof(string    )) Send((string    )value);
-            else if (type == typeof(Vector2   )) Send((Vector2   )value);
-            else if (type == typeof(Vector3   )) Send((Vector3   )value);
-            else if (type == typeof(Vector4   )) Send((Vector4   )value);
-            else if (type == typeof(Vector2Int)) Send((Vector2Int)value);
-            else if (type == typeof(Vector3Int)) Send((Vector3Int)value);
+            
         }
 
         #endregion

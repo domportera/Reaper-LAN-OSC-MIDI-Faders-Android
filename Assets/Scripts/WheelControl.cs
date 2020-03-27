@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class WheelControl : MonoBehaviour
 {
-    [SerializeField] OscPropertySender sender;
-    [SerializeField] Slider slider;
+    [SerializeField] OscPropertySender sender = null;
+    [SerializeField] Slider slider = null;
 
     enum SliderState {Slide, Idle};
     SliderState state = SliderState.Idle;
@@ -16,7 +16,7 @@ public class WheelControl : MonoBehaviour
 
     [SerializeField] WheelMode mode = WheelMode.Mod;
 
-    float zeroValue; //value slider returns to when released
+    float centerValue; //value slider returns to when released
     float modValue;
     float targetModValue;
     
@@ -31,18 +31,19 @@ public class WheelControl : MonoBehaviour
         {
             slider.minValue = 0;
             slider.maxValue = 127;
-            zeroValue = 64;
+            centerValue = 64;
         }
         else if (mode == WheelMode.Pitch)
         {
             slider.minValue = 0;
             slider.maxValue = 16383;
-            zeroValue = 8191;
+            centerValue = 8191;
         }
 
-        modValue = zeroValue;
-        SendPitch();
+        modValue = centerValue;
+        targetModValue = modValue;
         slider.value = modValue;
+        SendModValue();
     }
 
     // Update is called once per frame
@@ -59,7 +60,7 @@ public class WheelControl : MonoBehaviour
     public void EndSliding()
     {
         state = SliderState.Idle;
-        targetModValue = zeroValue;
+        targetModValue = centerValue;
     }
 
     public void SetPitch(float _val)
@@ -75,7 +76,7 @@ public class WheelControl : MonoBehaviour
         }
 
         float time = state == SliderState.Idle ? releaseTime : rampUpTime;
-        float difference = (slider.maxValue - zeroValue) * Time.deltaTime / time;
+        float difference = (slider.maxValue - centerValue) * Time.deltaTime / time;
 
         //set to idle if close enough to zero
         if (Mathf.Abs(modValue - targetModValue) < difference)
@@ -98,7 +99,7 @@ public class WheelControl : MonoBehaviour
 
         slider.SetValueWithoutNotify(modValue);
 
-        SendPitch();
+        SendModValue();
     }
 
     void SetConnected()
@@ -111,7 +112,7 @@ public class WheelControl : MonoBehaviour
         IPSetter.InvalidClient();
     }
 
-    void SendPitch()
+    void SendModValue()
     {
         if (IPSetter.IsConnected())
         {
@@ -125,5 +126,4 @@ public class WheelControl : MonoBehaviour
             }
         }
     }
-    
 }
