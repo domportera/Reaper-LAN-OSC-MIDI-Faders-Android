@@ -12,9 +12,9 @@ public class WheelControl : MonoBehaviour
     enum SliderState {Slide, Idle};
     SliderState state = SliderState.Idle;
 
-    enum WheelMode { Pitch, Mod };
+    enum WheelMode { Pitch, CC, ChannelPressure };
 
-    [SerializeField] WheelMode mode = WheelMode.Mod;
+    [SerializeField] WheelMode mode = WheelMode.CC;
 
     float defaultValue; //value slider returns to when released
     float modValue;
@@ -27,7 +27,13 @@ public class WheelControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(mode == WheelMode.Mod)
+        if(mode == WheelMode.CC)
+        {
+            slider.minValue = 0;
+            slider.maxValue = 127;
+            defaultValue = 0;
+        }
+        else if (mode == WheelMode.ChannelPressure)
         {
             slider.minValue = 0;
             slider.maxValue = 127;
@@ -50,6 +56,7 @@ public class WheelControl : MonoBehaviour
     void Update()
     {
         TweenModValue();
+        SendModValue();
     }
 
     public void StartSliding()
@@ -102,8 +109,6 @@ public class WheelControl : MonoBehaviour
         }
 
         slider.SetValueWithoutNotify(modValue);
-
-        SendModValue();
     }
 
     void SetConnected()
@@ -120,14 +125,7 @@ public class WheelControl : MonoBehaviour
     {
         if (IPSetter.IsConnected())
         {
-            if (mode == WheelMode.Pitch)
-            {
-                sender.Send((int)modValue);
-            }
-            else if (mode == WheelMode.Mod)
-            {
-                sender.Send((int)modValue);
-            }
+            sender.Send((int)modValue);
         }
     }
 }
