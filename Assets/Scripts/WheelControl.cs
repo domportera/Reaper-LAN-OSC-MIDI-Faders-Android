@@ -16,7 +16,7 @@ public class WheelControl : MonoBehaviour
 
     [SerializeField] WheelMode mode = WheelMode.Mod;
 
-    float centerValue; //value slider returns to when released
+    float defaultValue; //value slider returns to when released
     float modValue;
     float targetModValue;
     
@@ -31,16 +31,16 @@ public class WheelControl : MonoBehaviour
         {
             slider.minValue = 0;
             slider.maxValue = 127;
-            centerValue = 64;
+            defaultValue = 0;
         }
         else if (mode == WheelMode.Pitch)
         {
             slider.minValue = 0;
             slider.maxValue = 16383;
-            centerValue = 8191;
+            defaultValue = 8191;
         }
 
-        modValue = centerValue;
+        modValue = defaultValue;
         targetModValue = modValue;
         slider.value = modValue;
         SendModValue();
@@ -60,7 +60,11 @@ public class WheelControl : MonoBehaviour
     public void EndSliding()
     {
         state = SliderState.Idle;
-        targetModValue = centerValue;
+
+        if(mode == WheelMode.Pitch)
+        {
+            targetModValue = defaultValue;
+        }
     }
 
     public void SetPitch(float _val)
@@ -76,7 +80,7 @@ public class WheelControl : MonoBehaviour
         }
 
         float time = state == SliderState.Idle ? releaseTime : rampUpTime;
-        float difference = (slider.maxValue - centerValue) * Time.deltaTime / time;
+        float difference = (slider.maxValue - defaultValue) * Time.deltaTime / time;
 
         //set to idle if close enough to zero
         if (Mathf.Abs(modValue - targetModValue) < difference)

@@ -39,7 +39,7 @@ public class IPSetter : MonoBehaviour
         string port = null;
         try
         {
-            StreamReader sr = new StreamReader(Application.streamingAssetsPath + fileName);
+            StreamReader sr = new StreamReader(Application.persistentDataPath + fileName);
             ip = sr.ReadLine();
             port = sr.ReadLine();
             sr.Close();
@@ -67,7 +67,7 @@ public class IPSetter : MonoBehaviour
     {
         try
         {
-            StreamWriter sw = new StreamWriter(Application.streamingAssetsPath + fileName);
+            StreamWriter sw = new StreamWriter(Application.persistentDataPath + fileName);
             sw.WriteLine(currentIP);
             sw.WriteLine(currentPort);
             sw.Close();
