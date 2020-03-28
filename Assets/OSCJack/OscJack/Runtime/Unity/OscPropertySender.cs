@@ -147,6 +147,11 @@ namespace OscJack
             UpdateSettings();
         }
 
+        public void SetAddress(string _address)
+        {
+            _oscAddress = _address;
+        }
+
         #endregion
 
     }

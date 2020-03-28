@@ -5,17 +5,45 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
+[RequireComponent(typeof(Slider))]
 public class WheelControl : MonoBehaviour
 {
+
+    [SerializeField] Text label;
+
     OscPropertySender sender = null;
-    [SerializeField] Slider slider = null;
+    Slider slider = null;
 
     enum SliderState {Slide, Idle};
     SliderState state = SliderState.Idle;
 
-    enum WheelMode { Pitch, CC, ChannelPressure };
+    enum ControlType { Pitch, CC, ChannelPressure };
 
-    [SerializeField] WheelMode mode = WheelMode.CC;
+    enum MIDIControl { Pitch, Mod, FootPedal, Expression, BreathControl, ChannelPressure, Volume};
+
+    Dictionary<MIDIControl, string> addresses = new Dictionary<MIDIControl, string>()
+    {
+        { MIDIControl.Pitch, "/vkb_midi/pitch"},
+        { MIDIControl.Mod, "/vkb_midi/cc/1"},
+        { MIDIControl.FootPedal, "/vkb_midi/cc/4"},
+        { MIDIControl.Expression, "/vkb_midi/cc/11"},
+        { MIDIControl.BreathControl, "/vkb_midi/cc/2"},
+        { MIDIControl.ChannelPressure, "/vkb_midi/channelpressure"},
+        { MIDIControl.Volume, "/vkb_midi/cc/7"}
+    };
+
+    Dictionary<MIDIControl, string> labels = new Dictionary<MIDIControl, string>()
+    {
+        { MIDIControl.Pitch, "Pitch"},
+        { MIDIControl.Mod, "Mod"},
+        { MIDIControl.FootPedal, "Foot Pedal"},
+        { MIDIControl.Expression, "Expression"},
+        { MIDIControl.BreathControl, "Breath Control"},
+        { MIDIControl.ChannelPressure, "Channel Pressure"},
+        { MIDIControl.Volume, "Volume"}
+    };
+
+    [SerializeField] MIDIControl midiMode;
 
     float defaultValue; //value slider returns to when released
     float modValue;
@@ -32,31 +60,20 @@ public class WheelControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        slider = GetComponent<Slider>();
         sender = GetComponent<OscPropertySender>();
 
-        if(mode == WheelMode.CC)
-        {
-            slider.minValue = 0;
-            slider.maxValue = 127;
-            defaultValue = 0;
-        }
-        else if (mode == WheelMode.ChannelPressure)
-        {
-            slider.minValue = 0;
-            slider.maxValue = 127;
-            defaultValue = 0;
-        }
-        else if (mode == WheelMode.Pitch)
-        {
-            slider.minValue = 0;
-            slider.maxValue = 16383;
-            defaultValue = 8191;
-        }
+        sender.SetAddress(addresses[midiMode]);
+        label.text = labels[midiMode];
+        name = labels[midiMode] + " Slider";
 
+        SetControlMode();
+
+        //load default values
         modValue = defaultValue;
-        pModValue = modValue;
-        targetModValue = modValue;
-        slider.value = modValue;
+        pModValue = defaultValue;
+        targetModValue = defaultValue;
+        slider.value = defaultValue;
     }
 
     // Update is called once per frame
@@ -93,7 +110,7 @@ public class WheelControl : MonoBehaviour
     {
         state = SliderState.Idle;
 
-        if(mode == WheelMode.Pitch)
+        if(midiMode == MIDIControl.Pitch)
         {
             targetModValue = defaultValue;
         }
@@ -155,6 +172,24 @@ public class WheelControl : MonoBehaviour
         if (IPSetter.IsConnected())
         {
             sender.Send((int)modValue);
+        }
+    }
+
+    void SetControlMode()
+    {
+        switch(midiMode)
+        {
+            case MIDIControl.Pitch:
+                slider.minValue = 0;
+                slider.maxValue = 16383;
+                defaultValue = 8191;
+                break;
+
+            default:
+                slider.minValue = 0;
+                slider.maxValue = 127;
+                defaultValue = 0;
+                break;
         }
     }
 }
