@@ -8,7 +8,7 @@ Communicates over UDP. Both your phone and your PC must be on the same network, 
 Let me know anything you think should change or be included!
 
 Planned Features:
-Options menu with per-track options
-Saved fader positions
-Enable/disable faders to free up space
-Resize faders
+-Options menu with per-track options
+-Saved fader positions
+-Enable/disable faders to free up space
+-Resize faders
