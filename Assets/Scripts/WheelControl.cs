@@ -33,6 +33,7 @@ public class WheelControl : MonoBehaviour
     void Start()
     {
         sender = GetComponent<OscPropertySender>();
+
         if(mode == WheelMode.CC)
         {
             slider.minValue = 0;
@@ -56,7 +57,6 @@ public class WheelControl : MonoBehaviour
         pModValue = modValue;
         targetModValue = modValue;
         slider.value = modValue;
-        SendModValue();
     }
 
     // Update is called once per frame
