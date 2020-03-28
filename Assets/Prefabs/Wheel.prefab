@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.9994812, y: -880}
-  m_SizeDelta: {x: 338.3, y: 197.5}
+  m_AnchoredPosition: {x: 1.9994812, y: -862}
+  m_SizeDelta: {x: 480.9, y: 150.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1404397037
 CanvasRenderer:
@@ -67,18 +67,16 @@ MonoBehaviour:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 91
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 0
-    m_MaxSize: 300
+    m_MaxSize: 105
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'PITCH
-
-'
+  m_Text: PITCH
 --- !u!1 &1606229508262912722
 GameObject:
   m_ObjectHideFlags: 0

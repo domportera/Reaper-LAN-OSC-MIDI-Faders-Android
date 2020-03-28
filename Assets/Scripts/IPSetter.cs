@@ -8,7 +8,7 @@ using System.IO;
 
 public class IPSetter : MonoBehaviour
 {
-    [SerializeField] List<OscPropertySender> senders = null;
+    OscPropertySender[] senders;
     [SerializeField] Text errorText = null;
 
     [SerializeField] InputField ipAddressField = null;
@@ -24,6 +24,7 @@ public class IPSetter : MonoBehaviour
     void Start()
     {
         errorText.text = "";
+        FindSenders();
         Load();
     }
 
@@ -31,6 +32,11 @@ public class IPSetter : MonoBehaviour
     void Update()
     {
 
+    }
+
+    void FindSenders()
+    {
+        senders = FindObjectsOfType<OscPropertySender>();
     }
 
     void Load()

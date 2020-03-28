@@ -4,9 +4,10 @@ using OscJack;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(OscPropertySender))]
 public class WheelControl : MonoBehaviour
 {
-    [SerializeField] OscPropertySender sender = null;
+    OscPropertySender sender = null;
     [SerializeField] Slider slider = null;
 
     enum SliderState {Slide, Idle};
@@ -18,15 +19,20 @@ public class WheelControl : MonoBehaviour
 
     float defaultValue; //value slider returns to when released
     float modValue;
+    float pModValue;
     float targetModValue;
+    float startingPoint;
     
-
     [SerializeField] float releaseTime = 0.05f; //time it takes to release from max slide value to zeroValue
     [SerializeField] float rampUpTime = 0.05f;
+
+    const int FRAMES_TO_SEND_DUPLICATES = 10;
+    int dupeCount = 10; //so it doesnt send anything out before it's touched
 
     // Start is called before the first frame update
     void Start()
     {
+        sender = GetComponent<OscPropertySender>();
         if(mode == WheelMode.CC)
         {
             slider.minValue = 0;
@@ -47,6 +53,7 @@ public class WheelControl : MonoBehaviour
         }
 
         modValue = defaultValue;
+        pModValue = modValue;
         targetModValue = modValue;
         slider.value = modValue;
         SendModValue();
@@ -56,7 +63,25 @@ public class WheelControl : MonoBehaviour
     void Update()
     {
         TweenModValue();
-        SendModValue();
+
+        if (modValue == pModValue)
+        {
+            dupeCount++;
+
+            if (dupeCount > FRAMES_TO_SEND_DUPLICATES) //prevent int overflow
+            {
+                dupeCount = FRAMES_TO_SEND_DUPLICATES;
+            }
+        }
+        else
+        {
+            dupeCount = 0;
+        }
+
+        if (dupeCount < FRAMES_TO_SEND_DUPLICATES)
+        {
+            SendModValue();
+        }
     }
 
     public void StartSliding()
@@ -81,7 +106,9 @@ public class WheelControl : MonoBehaviour
 
     void TweenModValue()
     {
-        if(modValue == targetModValue)
+        pModValue = modValue;
+
+        if (modValue == targetModValue)
         {
             return;
         }
@@ -107,6 +134,8 @@ public class WheelControl : MonoBehaviour
                 modValue += difference;
             }
         }
+
+        
 
         slider.SetValueWithoutNotify(modValue);
     }
