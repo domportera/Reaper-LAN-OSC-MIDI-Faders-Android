@@ -8,24 +8,29 @@ public class ControlsManager : MonoBehaviour
 {
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
+    [SerializeField] GameObject faderOptionsPrefab = null;
+    [SerializeField] GameObject optionsPanel = null;
 
     readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
-        new ControllerSettings("Pitch",             ControlType.Wheel, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All),
-        new ControllerSettings("Mod",               ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, 1),
-        new ControllerSettings("Foot Pedal",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, 4),
-        new ControllerSettings("Expression",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, 11),
-        new ControllerSettings("Breath Control",    ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, 2),
-        new ControllerSettings("Aftertouch",        ControlType.Fader, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All),
-        new ControllerSettings("Volume",            ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, 7)
+        new ControllerSettings("Pitch",             ControlType.Wheel, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Mod",               ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
+        new ControllerSettings("Foot Pedal",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
+        new ControllerSettings("Expression",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
+        new ControllerSettings("Breath Control",    ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
+        new ControllerSettings("Aftertouch",        ControlType.Fader, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Volume",            ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
     };
 
     [SerializeField] ControllerType[] controllerTypes = null;
+    [SerializeField] ValueCurve[] valueCurves = null;
 
     List<ControllerSettings> controllers = new List<ControllerSettings>();
 
+    Dictionary<ControllerSettings, GameObject> controllerObjects = new Dictionary<ControllerSettings, GameObject>();
+
     void Start()
-    {  
+    {
         //load controllers
         //needs to load defaults
 
@@ -42,34 +47,59 @@ public class ControlsManager : MonoBehaviour
     {
         foreach(ControllerSettings set in controllers)
         {
-            bool error = true;
-            string errorDebug = "doesn't exist!";
-            foreach (ControllerType t in controllerTypes)
+            SpawnController(set);
+        }
+    }
+
+    public void SpawnController (ControllerSettings _config)
+    {
+        bool error = true;
+        string errorDebug = "doesn't exist!";
+        foreach (ControllerType t in controllerTypes)
+        {
+            if (t.controlType == _config.controlType)
             {
-                if(t.controlType == set.controlType)
+                //spawn this type
+                if (t.controlObject != null)
                 {
-                    //spawn this type
-                    if(t.controlObject != null)
-                    {
-                        GameObject control = Instantiate(t.controlObject);
-                        control.transform.SetParent(controllerParent, false);
-                        control.GetComponentInChildren<WheelControl>().Initialize(set);
-                        error = false;
-                        break;
-                    }
-                    else
-                    {
-                        //let it continue looking for one that does have a game object if it exists, but throw an appropriate error
-                        errorDebug = "exists, but doesn't have a game object!";
-                    }
+                    GameObject control = Instantiate(t.controlObject);
+                    control.transform.SetParent(controllerParent, false);
+                    control.GetComponentInChildren<WheelControl>().Initialize(_config, valueCurves);
+                    error = false;
+                    break;
+                }
+                else
+                {
+                    //let it continue looking for one that does have a game object if it exists, but throw an appropriate error
+                    errorDebug = "exists, but doesn't have a game object!";
                 }
             }
+        }
+       
+        if (error)
+        {
+            Debug.LogError($"{typeof(ControllerType).ToString()} for {_config.controlType.ToString()} {errorDebug}!");
+        }
+        
+        GameObject options = Instantiate(faderOptionsPrefab);
+        options.name = _config.name + " Options";
+        options.transform.SetParent(optionsPanel.transform, false);
+        options.GetComponent<FaderOptions>().controllerConfig = _config;
+    }
 
-            if(error)
+    public void RespawnController(ControllerSettings _config)
+    {
+        foreach(KeyValuePair<ControllerSettings, GameObject> pair in controllerObjects)
+        {
+            if(_config == pair.Key)
             {
-                Debug.LogError($"{typeof(ControllerType).ToString()} for {set.controlType.ToString()} {errorDebug}!");
+                Destroy(pair.Value);
+                SpawnController(_config);
+                return;
             }
         }
+
+        Debug.LogError("Fader didn't exist already!");
     }
 
     //used to pair prefabs with their control type
@@ -79,4 +109,11 @@ public class ControlsManager : MonoBehaviour
         public ControlType controlType;
         public GameObject controlObject;
     }
+}
+
+[Serializable]
+public struct ValueCurve
+{
+    public CurveType curveType;
+    public AnimationCurve curve;
 }

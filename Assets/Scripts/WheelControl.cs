@@ -24,14 +24,13 @@ public class WheelControl : MonoBehaviour
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
 
-    public void Initialize(ControllerSettings _controller)
+    public void Initialize(ControllerSettings _controller, ValueCurve[] _curves)
     {
         slider = GetComponent<Slider>();
         sender = GetComponent<OscPropertySender>();
-
         myController = _controller;
 
-        sender.SetAddress(myController.address);
+        sender.SetAddress(myController.GetAddress());
         label.text = myController.name;
         name = myController.name + " " + myController.controlType;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] GameObject optionsPanel;
+    [SerializeField] GameObject optionsPanel = null;
 
     // Start is called before the first frame update
     void Start()

@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class ControllerSettings
 {
     public ControlType controlType;
-    public string address;
+    string address;
     public string name;
     string controlObjectName;
     public MIDIChannel channel;
@@ -17,8 +18,17 @@ public class ControllerSettings
     public int mid;
     public int defaultValue;
     public float smoothTime;
+    public CurveType curveType;
+    public AnimationCurve valueCurve;
+    public UnityEvent OnUpdate = new UnityEvent();
+    public AddressType addressType;
 
-    public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType, MIDIChannel _channel, int _ccNumber = int.MinValue, float _smoothTime = 0.1f)
+    public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType, MIDIChannel _channel, CurveType _curveType, int _ccNumber = int.MinValue, float _smoothTime = 0.1f)
+    {
+        SetVariables(_name, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
+    }
+
+    void SetVariables(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType, MIDIChannel _channel, CurveType _curveType, int _ccNumber = int.MinValue, float _smoothTime = 0.1f)
     {
         //add channel if not set to all channels
         address = "/vkb_midi/" + (_channel == MIDIChannel.All ? "" : (int)_channel + "/");
@@ -34,11 +44,13 @@ public class ControllerSettings
 
         channel = _channel;
         name = _name;
-        controlObjectName = _name + " " + _controlType; 
+        controlObjectName = _name + " " + _controlType;
         controlType = _controlType;
         range = _range;
         defaultType = _defaultValueType;
         smoothTime = _smoothTime;
+        curveType = _curveType;
+        addressType = _addressType;
     }
 
     void SetAddress(AddressType _type, int _ccNumber)
@@ -115,5 +127,10 @@ public class ControllerSettings
     public int GetRange()
     {
         return Mathf.Abs(max - mid);
+    }
+
+    public string GetAddress()
+    {
+        return address;
     }
 }
