@@ -9,7 +9,6 @@ using System.IO;
 public class IPSetter : MonoBehaviour
 {
     OscPropertySender[] senders;
-    [SerializeField] Text errorText = null;
 
     [SerializeField] InputField ipAddressField = null;
     [SerializeField] InputField portField = null;
@@ -20,10 +19,12 @@ public class IPSetter : MonoBehaviour
 
     string fileName = "/IPAddress.txt";
 
+    Utilities util;
+
     // Start is called before the first frame update
     void Start()
     {
-        errorText.text = "";
+        util = FindObjectOfType<Utilities>();
         FindSenders();
         Load();
     }
@@ -113,7 +114,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            SetErrorText("Invalid IP Address");
+            util.SetErrorText("Invalid IP Address");
         }
     }
 
@@ -136,7 +137,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            SetErrorText("Invalid Port");
+            util.SetErrorText("Invalid Port");
         }
     }
 
@@ -154,14 +155,4 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    void SetErrorText(string _text)
-    {
-        errorText.text = _text;
-        Invoke("ClearErrorText", 5f);
-    }
-
-    void ClearErrorText()
-    {
-        errorText.text = "";
-    }
 }

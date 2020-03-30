@@ -1,0 +1,15 @@
+Per-fader smoothing options
+faders remember values
+custom ranges in percentages - like i want this fader to only go from 25% - 75% of the range, so if 0-127, then like 32-95 or something
+put ip/port in options menu
+
+Planned Features:
+Options menu with per-track options  
+Saved fader positions  
+Enable/disable faders to free up space  
+Resize faders
+mapping to different curves
+reset controls to default
+a way to display parameters (curves?) unobtrusively on faders
+export and import user data
+save boards
