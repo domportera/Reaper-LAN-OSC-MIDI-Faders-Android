@@ -50,7 +50,7 @@ public class WheelControl : MonoBehaviour
     {
         if(myController == null)
         {
-            Debug.LogError("Null controller!");
+            Debug.LogError("Null controller on " + gameObject.name);
             return;
         }
 

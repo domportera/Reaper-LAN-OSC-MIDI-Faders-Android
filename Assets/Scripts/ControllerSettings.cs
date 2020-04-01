@@ -22,6 +22,7 @@ public class ControllerSettings
     public AnimationCurve valueCurve;
     public UnityEvent OnUpdate = new UnityEvent();
     public AddressType addressType;
+    public int ccNumber;
 
     public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType, MIDIChannel _channel, CurveType _curveType, int _ccNumber = int.MinValue, float _smoothTime = 0.1f)
     {
@@ -75,6 +76,8 @@ public class ControllerSettings
                 Debug.LogError("Address type not implemented!");
                 break;
         }
+
+        ccNumber = _ccNumber;
     }
 
     void SetRange(ValueRange _range)

@@ -30,6 +30,7 @@ public class FaderOptions : MonoBehaviour
         gameObject.SetActive(false);
 
         PopulateDropdowns();
+        SetFieldsToControllerValues();
 
         if(controllerConfig.addressType != AddressType.CC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
         {
@@ -37,11 +38,24 @@ public class FaderOptions : MonoBehaviour
         }
     }
 
+    void SetFieldsToControllerValues()
+    {
+        controlTypeDropdown.SetValueWithoutNotify((int)controllerConfig.controlType);
+        midiChannelDropdown.SetValueWithoutNotify((int)controllerConfig.channel);
+        addressTypeDropdown.SetValueWithoutNotify((int)controllerConfig.addressType);
+        valueRangeDropdown.SetValueWithoutNotify((int)controllerConfig.range);
+        defaultValueDropdown.SetValueWithoutNotify((int)controllerConfig.defaultType);
+        curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.curveType);
+
+        smoothnessField.SetValueWithoutNotify(controllerConfig.smoothTime);
+        nameField.SetTextWithoutNotify(controllerConfig.name);
+        ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
+    }
+
     void PopulateDropdowns()
     {
         dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlType)));
         dropDownEntryNames.Add(addressTypeDropdown, Enum.GetNames(typeof(AddressType)));
-        dropDownEntryNames.Add(valueRangeDropdown, Enum.GetNames(typeof(ValueRange)));
         dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
 
@@ -66,9 +80,20 @@ public class FaderOptions : MonoBehaviour
             "Channel 16"
         };
 
-        dropDownEntryNames.Add(midiChannelDropdown, midiChannelNames);
+        string[] valueRangeNames = new string[]
+        {
+            "7-bit (0-127)",
+            "14-bit (0-16383)",
+            "8-bit (0-255)",
+            "7-bit (-64-63)",
+            "14-bit(-16384-16383)",
+            "8-bit(-128-127)"
+        };
 
-        foreach(KeyValuePair<Dropdown, string[]> pair in dropDownEntryNames)
+        dropDownEntryNames.Add(midiChannelDropdown, midiChannelNames);
+        dropDownEntryNames.Add(valueRangeDropdown, valueRangeNames);
+
+        foreach (KeyValuePair<Dropdown, string[]> pair in dropDownEntryNames)
         {
             pair.Key.ClearOptions();
             foreach (string s in pair.Value)
