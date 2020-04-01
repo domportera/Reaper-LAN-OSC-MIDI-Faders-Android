@@ -443,6 +443,7 @@ GameObject:
   - component: {fileID: 367776138}
   - component: {fileID: 367776141}
   - component: {fileID: 367776140}
+  - component: {fileID: 367776142}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -615,6 +616,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ipAddressField: {fileID: 328740436}
   portField: {fileID: 929608446}
+--- !u!114 &367776142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367776137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43cbe064549623e4280747248ecd2df8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  errorText: {fileID: 1517911926}
 --- !u!1 &929608444
 GameObject:
   m_ObjectHideFlags: 0
