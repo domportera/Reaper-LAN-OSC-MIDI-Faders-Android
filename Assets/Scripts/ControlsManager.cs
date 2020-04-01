@@ -29,6 +29,8 @@ public class ControlsManager : MonoBehaviour
 
     Dictionary<ControllerSettings, GameObject> controllerObjects = new Dictionary<ControllerSettings, GameObject>();
 
+    static int uniqueIDGen;
+
     void Start()
     {
         //load controllers
@@ -41,6 +43,11 @@ public class ControlsManager : MonoBehaviour
         }
 
         SpawnControllers();
+    }
+
+    public static int GetUniqueID()
+    {
+        return uniqueIDGen++;
     }
 
     void SpawnControllers()
@@ -65,6 +72,7 @@ public class ControlsManager : MonoBehaviour
                     GameObject control = Instantiate(t.controlObject);
                     control.transform.SetParent(controllerParent, false);
                     control.GetComponentInChildren<WheelControl>().Initialize(_config, valueCurves);
+                    controllerObjects.Add(_config, control);
                     error = false;
                     break;
                 }
@@ -89,17 +97,10 @@ public class ControlsManager : MonoBehaviour
 
     public void RespawnController(ControllerSettings _config)
     {
-        foreach(KeyValuePair<ControllerSettings, GameObject> pair in controllerObjects)
-        {
-            if(_config == pair.Key)
-            {
-                Destroy(pair.Value);
-                SpawnController(_config);
-                return;
-            }
-        }
-
-        Debug.LogError("Fader didn't exist already!");
+        Destroy(controllerObjects[_config]);
+        controllerObjects.Remove(_config);
+        SpawnController(_config);
+        FindObjectOfType<IPSetter>().TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
     }
 
     //used to pair prefabs with their control type

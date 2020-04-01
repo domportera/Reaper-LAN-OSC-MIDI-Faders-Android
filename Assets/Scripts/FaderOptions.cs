@@ -52,6 +52,25 @@ public class FaderOptions : MonoBehaviour
         ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
     }
 
+    void SetControllerValuesToFields()
+    {
+        ControlType controlType = (ControlType)controlTypeDropdown.value;
+        AddressType addressType = (AddressType)addressTypeDropdown.value;
+        DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
+        CurveType curveType = (CurveType)curveTypeDropdown.value;
+        MIDIChannel midiChannel = (MIDIChannel)(midiChannelDropdown.value - 1); //-1 becaise all channels is -1 in the enum, channel 1 is 0 in the enum, etc
+        ValueRange valueRange = (ValueRange)(valueRangeDropdown.value);
+
+        float smoothTime = smoothnessField.value;
+        string controllerName = nameField.text;
+
+        int ccNumber = int.Parse(ccChannelField.text); //this number should be validated by text field, so it should always be ok if text field is set up properly
+
+        controllerConfig.SetVariables(controllerName, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
+
+        manager.RespawnController(controllerConfig);
+    }
+
     void PopulateDropdowns()
     {
         dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlType)));
@@ -59,7 +78,7 @@ public class FaderOptions : MonoBehaviour
         dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
 
-        string[] midiChannelNames = new string[]
+        string[] midiChannelNames = new string[] //pair with enum
         {
             "All Channels",
             "Channel 1",
@@ -105,13 +124,7 @@ public class FaderOptions : MonoBehaviour
 
     public void ApplyAndQuit()
     {
-        //validate values, else display an error
-
-        //change values in controllerConfig
-
-
-        //needs to destroy old slider prefab and create a new one
-        //manager.RespawnController(controllerConfig);
+        SetControllerValuesToFields();
 
         //creating a slider creates an options panel for it, so this one can be destroyed.
         Destroy(this.gameObject);

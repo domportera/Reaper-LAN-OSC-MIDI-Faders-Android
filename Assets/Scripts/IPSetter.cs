@@ -8,8 +8,6 @@ using System.IO;
 
 public class IPSetter : MonoBehaviour
 {
-    OscPropertySender[] senders;
-
     [SerializeField] InputField ipAddressField = null;
     [SerializeField] InputField portField = null;
 
@@ -25,7 +23,6 @@ public class IPSetter : MonoBehaviour
     void Start()
     {
         util = FindObjectOfType<Utilities>();
-        FindSenders();
         Load();
     }
 
@@ -33,11 +30,6 @@ public class IPSetter : MonoBehaviour
     void Update()
     {
 
-    }
-
-    void FindSenders()
-    {
-        senders = FindObjectsOfType<OscPropertySender>();
     }
 
     void Load()
@@ -141,10 +133,12 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    void TryConnect()
+    public void TryConnect()
     {
+        OscPropertySender[] senders = FindObjectsOfType<OscPropertySender>();
+
         //only connect if we have a port and an IP
-        if(currentPort != int.MinValue && currentIP != null)
+        if (currentPort != int.MinValue && currentIP != null)
         {
             foreach (OscPropertySender send in senders)
             {
