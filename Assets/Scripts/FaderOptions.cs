@@ -32,10 +32,29 @@ public class FaderOptions : MonoBehaviour
         PopulateDropdowns();
         SetFieldsToControllerValues();
 
+        addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
+
         if(controllerConfig.addressType != AddressType.CC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
         {
             ccChannelField.gameObject.SetActive(false);
         }
+    }
+
+    public void CheckForCCControl(int _value)
+    {
+        if ((AddressType)_value == AddressType.CC)
+        {
+            ccChannelField.gameObject.SetActive(true);
+        }
+        else
+        {
+            ccChannelField.gameObject.SetActive(false);
+        }
+    }
+    
+    private void OnEnable()
+    {
+        SetFieldsToControllerValues();
     }
 
     void SetFieldsToControllerValues()
@@ -50,6 +69,15 @@ public class FaderOptions : MonoBehaviour
         smoothnessField.SetValueWithoutNotify(controllerConfig.smoothTime);
         nameField.SetTextWithoutNotify(controllerConfig.name);
         ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
+
+        if (controllerConfig.addressType != AddressType.CC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
+        {
+            ccChannelField.gameObject.SetActive(false);
+        }
+        else
+        {
+            ccChannelField.gameObject.SetActive(true);
+        }
     }
 
     void SetControllerValuesToFields()
@@ -122,11 +150,18 @@ public class FaderOptions : MonoBehaviour
         }
     }
 
+    public void Close()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void ResetValues()
+    {
+        SetFieldsToControllerValues();
+    }
+
     public void ApplyAndQuit()
     {
         SetControllerValuesToFields();
-
-        //creating a slider creates an options panel for it, so this one can be destroyed.
-        Destroy(this.gameObject);
     }
 }

@@ -8,8 +8,6 @@ public class ControlsManager : MonoBehaviour
 {
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
-    [SerializeField] GameObject faderOptionsPrefab = null;
-    [SerializeField] GameObject optionsPanel = null;
 
     readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
@@ -31,6 +29,8 @@ public class ControlsManager : MonoBehaviour
 
     static int uniqueIDGen;
 
+    UIManager uiManager;
+
     void Start()
     {
         //load controllers
@@ -42,6 +42,7 @@ public class ControlsManager : MonoBehaviour
             controllers.Add(set);
         }
 
+        uiManager = FindObjectOfType<UIManager>();
         SpawnControllers();
     }
 
@@ -62,6 +63,7 @@ public class ControlsManager : MonoBehaviour
     {
         bool error = true;
         string errorDebug = "doesn't exist!";
+        GameObject control = null;
         foreach (ControllerType t in controllerTypes)
         {
             if (t.controlType == _config.controlType)
@@ -69,7 +71,7 @@ public class ControlsManager : MonoBehaviour
                 //spawn this type
                 if (t.controlObject != null)
                 {
-                    GameObject control = Instantiate(t.controlObject);
+                    control = Instantiate(t.controlObject);
                     control.transform.SetParent(controllerParent, false);
                     control.GetComponentInChildren<WheelControl>().Initialize(_config, valueCurves);
                     controllerObjects.Add(_config, control);
@@ -88,11 +90,13 @@ public class ControlsManager : MonoBehaviour
         {
             Debug.LogError($"{typeof(ControllerType).ToString()} for {_config.controlType.ToString()} {errorDebug}!");
         }
-        
-        GameObject options = Instantiate(faderOptionsPrefab);
-        options.name = _config.name + " Options";
-        options.transform.SetParent(optionsPanel.transform, false);
-        options.GetComponent<FaderOptions>().controllerConfig = _config;
+
+        if(control == null)
+        {
+            Debug.LogError("Null control object! not in controller types?");
+        }
+
+        uiManager.SpawnFaderOptions(_config, control);
     }
 
     public void RespawnController(ControllerSettings _config)
