@@ -141,7 +141,10 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        Debug.LogError("Didn't find a match for button group! Returning empty.");
+        if (Time.time > 5f) //if this isn't right in the start of the app. this will always happen for new controls
+        {
+            Debug.LogError("Didn't find a match for button group! Returning empty.");
+        }
         return null;
     }
 
@@ -205,12 +208,18 @@ public class UIManager : MonoBehaviour
             faderMenuButton.onClick.AddListener(DisplayFaderOptions);
 
             activationToggle = faderMenuButton.GetComponentInChildren<Toggle>();
+            activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             controlObject = _controlObject;
         }
 
-        public void DisplayFaderOptions()
+        void DisplayFaderOptions()
         {
             faderOptions.gameObject.SetActive(true);
+        }
+
+        void ToggleControlVisibility(bool _b)
+        {
+            controlObject.SetActive(_b);
         }
 
         public void SelfDestruct()

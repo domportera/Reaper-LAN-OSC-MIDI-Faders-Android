@@ -1,4 +1,4 @@
-﻿public enum ControlType { Fader, Wheel, Knob };
+﻿public enum ControlType { Fader, Wheel };
 public enum ValueRange { SevenBit, FourteenBit, EightBit, SevenBitHalfNegative, FourteenBitHalfNegative, EightBitHalfNegative };
 public enum DefaultValueType { Min, Mid, Max };
 public enum AddressType { CC, Pitch, Aftertouch };
