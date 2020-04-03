@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject faderOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
 
-    const int sliderButtonLayoutCapacity = 8;
+    const int sliderButtonLayoutCapacity = 7;
 
     List<ControllerButtonGroup> controllerButtons = new List<ControllerButtonGroup>();
     List<LayoutGroupButtonCount> layoutCounts = new List<LayoutGroupButtonCount>();
@@ -141,10 +141,10 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        if (Time.time > 5f) //if this isn't right in the start of the app. this will always happen for new controls
-        {
-            Debug.LogError("Didn't find a match for button group! Returning empty.");
-        }
+        //if (Time.time > 1f) //if this isn't right in the start of the app. this will always happen for new controls
+        //{
+        //    Debug.LogError("Didn't find a match for button group! Returning empty.");
+        //}
         return null;
     }
 

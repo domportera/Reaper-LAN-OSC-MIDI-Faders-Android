@@ -36,7 +36,7 @@ public class ControlsManager : MonoBehaviour
         //load controllers
         //needs to load defaults
 
-        //spawn defaults
+        //spawn defaults if no save data
         foreach(ControllerSettings set in defaultControllers)
         {
             controllers.Add(set);
@@ -57,6 +57,13 @@ public class ControlsManager : MonoBehaviour
         {
             SpawnController(set);
         }
+    }
+
+    public void NewController()
+    {
+        ControllerSettings newControl = new ControllerSettings("New Controller", ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        controllers.Add(newControl);
+        SpawnController(newControl);
     }
 
     public void SpawnController (ControllerSettings _config)
