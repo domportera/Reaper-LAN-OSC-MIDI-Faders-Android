@@ -33,9 +33,9 @@ RectTransform:
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -501.53}
-  m_SizeDelta: {x: 0, y: -813.06}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 0, y: -63.53003}
+  m_SizeDelta: {x: 0, y: 62.940002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1404397037
 CanvasRenderer:
@@ -383,7 +383,7 @@ GameObject:
   - component: {fileID: 3056751681169597960}
   - component: {fileID: 3056751681169597963}
   m_Layer: 5
-  m_Name: Wheel
+  m_Name: Fader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -407,11 +407,11 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -7}
-  m_SizeDelta: {x: 200, y: 876.4}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 857.6}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &3056751681169597973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,9 +425,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: {fileID: 1404397036}
-  midiMode: 0
-  releaseTime: 0.05
-  rampUpTime: 0.05
 --- !u!114 &3056751681169597962
 MonoBehaviour:
   m_ObjectHideFlags: 0

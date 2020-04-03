@@ -6,6 +6,7 @@ using UnityEngine.Events;
 [System.Serializable]
 public class ControllerSettings
 {
+    //these should all be public get private set but I'm lazy rn
     public ControlType controlType;
     string address;
     public string name;
@@ -19,7 +20,6 @@ public class ControllerSettings
     public int defaultValue;
     public float smoothTime;
     public CurveType curveType;
-    public AnimationCurve valueCurve;
     public UnityEvent OnUpdate = new UnityEvent();
     public AddressType addressType;
     public int ccNumber;
@@ -144,7 +144,7 @@ public class ControllerSettings
 
     public int GetRange()
     {
-        return Mathf.Abs(max - mid);
+        return Mathf.Abs(max - min);
     }
 
     public string GetAddress()

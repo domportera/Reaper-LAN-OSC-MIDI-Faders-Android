@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
 [RequireComponent(typeof(Slider))]
-public class WheelControl : MonoBehaviour
+public class FaderControl : MonoBehaviour
 {
 
     [SerializeField] Text label = null;
@@ -23,6 +23,8 @@ public class WheelControl : MonoBehaviour
 
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
+
+    AnimationCurve valueCurve;
 
     public void Initialize(ControllerSettings _controller, ValueCurve[] _curves)
     {
@@ -42,7 +44,22 @@ public class WheelControl : MonoBehaviour
 
         slider.maxValue = myController.max;
         slider.minValue = myController.min;
-        slider.SetValueWithoutNotify(defaultValue);
+        
+        if(_curves == null || _curves.Length < System.Enum.GetValues(typeof(CurveType)).Length)
+        {
+            Debug.LogError($"Not all curves are present! Null? {_curves == null }");
+        }
+
+        foreach(ValueCurve c in _curves)
+        {
+            if(c.curveType == myController.curveType)
+            {
+                valueCurve = c.curve;
+                break;
+            }
+        }
+
+        slider.SetValueWithoutNotify(MapValueToCurve(defaultValue));
     }
 
     // Update is called once per frame
@@ -86,7 +103,7 @@ public class WheelControl : MonoBehaviour
 
         if(myController.controlType == ControlType.Wheel)
         {
-            targetModValue = myController.defaultValue;
+            targetModValue = MapValueToCurve(myController.defaultValue);
         }
     }
 
@@ -148,7 +165,25 @@ public class WheelControl : MonoBehaviour
     {
         if (IPSetter.IsConnected())
         {
-            sender.Send((int)modValue);
+            sender.Send(MapValueToCurve(modValue));
         }
+    }
+
+    int MapValueToCurve(float _value)
+    {
+        if (myController.curveType != CurveType.Linear)
+        {
+            int range = myController.GetRange();
+            float tempVal = _value - myController.min;
+            float ratio = tempVal / range;
+            float mappedRatio = valueCurve.Evaluate(ratio);
+
+            return (int)(mappedRatio * range + myController.min);
+        }
+        else
+        {
+            return (int)_value;
+        }
+        
     }
 }

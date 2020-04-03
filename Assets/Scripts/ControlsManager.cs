@@ -80,7 +80,7 @@ public class ControlsManager : MonoBehaviour
                 {
                     control = Instantiate(t.controlObject);
                     control.transform.SetParent(controllerParent, false);
-                    control.GetComponentInChildren<WheelControl>().Initialize(_config, valueCurves);
+                    control.GetComponentInChildren<FaderControl>().Initialize(_config, valueCurves);
                     controllerObjects.Add(_config, control);
                     error = false;
                     break;
