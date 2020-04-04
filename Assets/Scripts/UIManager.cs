@@ -6,20 +6,21 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject optionsPanel = null;
-    [SerializeField] GameObject[] sliderOptionsButtonLayoutGroups = null;
+    [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
+    [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
 
-    const int sliderButtonLayoutCapacity = 7;
+    const int sliderButtonLayoutCapacity = 5;
 
     List<ControllerButtonGroup> controllerButtons = new List<ControllerButtonGroup>();
     List<LayoutGroupButtonCount> layoutCounts = new List<LayoutGroupButtonCount>();
+    List<GameObject> sliderOptionsButtonLayoutGroups = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         optionsPanel.SetActive(false);
-
     }
 
     // Update is called once per frame
@@ -64,7 +65,10 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        Debug.LogError("All layouts are full! Layout count: " + layoutCounts.Count); //this should actually be handled before it ever gets here, or allow layout groups to be infinite
+        //all layouts full, create a new one
+
+        AddNewLayoutCount();
+        AddOptionsButtonToLayout(_button);
     }
 
     void DestroyControllerGroup(ControllerButtonGroup _buttonGroup)
@@ -77,6 +81,23 @@ public class UIManager : MonoBehaviour
 
         //remove from list
         controllerButtons.Remove(_buttonGroup);
+
+        //check for empty layouts, and destroy it
+        DestroyEmptyLayouts();
+    }
+
+    void DestroyEmptyLayouts()
+    {
+        for(int i = 0; i < layoutCounts.Count; i++)
+        {
+            if(layoutCounts[i].count == 0)
+            {
+                //destroy
+                Destroy(layoutCounts[i].layoutGroup);
+                layoutCounts.RemoveAt(i);
+                i--;
+            }
+        }
     }
 
     public void DestroyControllerObjects(ControllerSettings _config)
@@ -101,26 +122,15 @@ public class UIManager : MonoBehaviour
 
     List<LayoutGroupButtonCount> GetLayoutCounts()
     {
-        if(layoutCounts.Count < sliderOptionsButtonLayoutGroups.Length)
-        {
-            PopulateLayoutCounts();
-        }
-
         return layoutCounts;
     }
 
-    void PopulateLayoutCounts()
+    void AddNewLayoutCount()
     {
-        layoutCounts = new List<LayoutGroupButtonCount>();
-
-        for (int i = 0; i < sliderOptionsButtonLayoutGroups.Length; i++)
-        {
-            LayoutGroupButtonCount lay = new LayoutGroupButtonCount();
-            lay.layoutGroup = sliderOptionsButtonLayoutGroups[i];
-            layoutCounts.Add(lay);
-        }
-
-        Debug.Log("LayoutCounts: " + layoutCounts.Count);
+        LayoutGroupButtonCount lay = new LayoutGroupButtonCount();
+        lay.layoutGroup = Instantiate(sliderOptionsButtonLayoutPrefab);
+        lay.layoutGroup.transform.SetParent(sliderButtonVerticalLayoutParent.transform);
+        layoutCounts.Add(lay);
     }
 
     bool GetControllerEnabled(FaderOptions _faderOptions)
@@ -146,11 +156,6 @@ public class UIManager : MonoBehaviour
                 return cbg;
             }
         }
-
-        //if (Time.time > 1f) //if this isn't right in the start of the app. this will always happen for new controls
-        //{
-        //    Debug.LogError("Didn't find a match for button group! Returning empty.");
-        //}
         return null;
     }
 

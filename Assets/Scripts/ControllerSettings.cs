@@ -76,7 +76,6 @@ public class ControllerSettings
             case AddressType.CC:
                 if (_ccNumber < 0 || _ccNumber > 127)
                 {
-                    Debug.LogError("Invalid CC value! Setting to 127.");
                     _ccNumber = 127;
                 }
                 address += "cc/" + _ccNumber;
