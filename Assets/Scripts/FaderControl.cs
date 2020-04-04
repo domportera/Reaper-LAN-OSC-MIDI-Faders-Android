@@ -5,14 +5,15 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
-[RequireComponent(typeof(Slider))]
 public class FaderControl : MonoBehaviour
 {
 
     [SerializeField] Text label = null;
+    [SerializeField] Slider slider = null;
+    [SerializeField] Button sortLeftButton = null;
+    [SerializeField] Button sortRightButton = null;
 
     OscPropertySender sender = null;
-    Slider slider = null;
 
     ControllerSettings myController = null;
     
@@ -26,9 +27,10 @@ public class FaderControl : MonoBehaviour
 
     AnimationCurve valueCurve;
 
+
+
     public void Initialize(ControllerSettings _controller, ValueCurve[] _curves)
     {
-        slider = GetComponent<Slider>();
         sender = GetComponent<OscPropertySender>();
         myController = _controller;
 
@@ -60,6 +62,11 @@ public class FaderControl : MonoBehaviour
         }
 
         slider.SetValueWithoutNotify(MapValueToCurve(defaultValue));
+
+        sortLeftButton.onClick.AddListener(SortLeft);
+        sortRightButton.onClick.AddListener(SortRight);
+
+        SetSortButtonVisibility(false);
     }
 
     // Update is called once per frame
@@ -149,6 +156,28 @@ public class FaderControl : MonoBehaviour
         }      
 
         slider.SetValueWithoutNotify(modValue);
+    }
+
+    void SortLeft()
+    {
+        SortPosition(false);
+    }
+    
+    void SortRight()
+    {
+        SortPosition(true);
+    }
+
+    void SortPosition(bool _right)
+    {
+        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
+    }
+
+    public void SetSortButtonVisibility(bool _visible)
+    {
+        sortLeftButton.gameObject.SetActive(_visible);
+        sortRightButton.gameObject.SetActive(_visible);
+        slider.gameObject.SetActive(!_visible);
     }
 
     void SetConnected()

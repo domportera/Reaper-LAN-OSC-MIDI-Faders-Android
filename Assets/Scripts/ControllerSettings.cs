@@ -29,7 +29,6 @@ public class ControllerSettings
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {
         SetVariables(_name, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
-
         id = ControlsManager.GetUniqueID();
     }
 

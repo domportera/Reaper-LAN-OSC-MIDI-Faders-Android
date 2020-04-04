@@ -6,16 +6,16 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Critical UI Elements")]
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
 
-    [Header("Extra Options Objects")]
-    [SerializeField] Slider faderWidthSlider;
-    [SerializeField] HorizontalLayoutGroup faderLayoutGroup;
+    [Space(10)]
+    [SerializeField] Slider faderWidthSlider = null;
+    [SerializeField] Toggle faderPositionEditorToggle = null;
+    [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -43,6 +43,7 @@ public class UIManager : MonoBehaviour
 
         faderWidthSlider.SetValueWithoutNotify(faderWidth);
         faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
+        faderPositionEditorToggle.onValueChanged.AddListener(ToggleEditFaderPositionMode);
     }
 
     // Update is called once per frame
@@ -277,6 +278,14 @@ public class UIManager : MonoBehaviour
         PlayerPrefs.SetInt(FADER_WIDTH_PLAYER_PREF, faderWidth);
     }
 
+    void ToggleEditFaderPositionMode(bool _b)
+    {
+        foreach(ControllerUIGroup u in controllerUIs)
+        {
+            u.SetPostionMode(_b);
+        }
+    }
+
     class LayoutGroupButtonCount
     {
         public GameObject layoutGroup;
@@ -291,6 +300,7 @@ public class UIManager : MonoBehaviour
         public ControllerSettings controllerConfig;
         public Toggle activationToggle;
         public GameObject controlObject;
+        FaderControl control;
         RectTransform controlObjectTransform;
 
         public ControllerUIGroup(ControllerSettings _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
@@ -310,6 +320,8 @@ public class UIManager : MonoBehaviour
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             controlObject = _controlObject;
             controlObjectTransform = _controlObject.GetComponent<RectTransform>();
+
+            control = _controlObject.GetComponent<FaderControl>();
         }
 
         public void SetFaderWidth(float _width)
@@ -322,9 +334,19 @@ public class UIManager : MonoBehaviour
             faderOptions.gameObject.SetActive(true);
         }
 
-        void ToggleControlVisibility(bool _b)
+        public void ToggleControlVisibility(bool _b)
         {
             controlObject.SetActive(_b);
+
+            if(!_b)
+            {
+                controlObjectTransform.SetAsLastSibling();
+            }
+        }
+
+        public void SetPostionMode(bool _b)
+        {
+            control.SetSortButtonVisibility(_b);
         }
 
         public void SelfDestruct()
