@@ -10,6 +10,7 @@ public class FaderOptions : MonoBehaviour
 {
     public ControllerSettings controllerConfig;
     ControlsManager manager = null;
+    UIManager uiManager = null;
 
     [SerializeField] InputField nameField = null; // must choose a unique name! check for this
     [SerializeField] InputField ccChannelField = null;
@@ -27,6 +28,7 @@ public class FaderOptions : MonoBehaviour
     void Start()
     {
         manager = FindObjectOfType<ControlsManager>();
+        uiManager = FindObjectOfType<UIManager>();
         gameObject.SetActive(false);
 
         PopulateDropdowns();
@@ -158,6 +160,14 @@ public class FaderOptions : MonoBehaviour
     public void ResetValues()
     {
         SetFieldsToControllerValues();
+    }
+
+    public void Delete()
+    {
+        //show delete window
+        //delete from ControlsManager and destroy objects
+        manager.DestroyController(controllerConfig);
+        uiManager.DestroyControllerObjects(controllerConfig);
     }
 
     public void ApplyAndQuit()

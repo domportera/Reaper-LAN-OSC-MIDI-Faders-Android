@@ -108,10 +108,15 @@ public class ControlsManager : MonoBehaviour
 
     public void RespawnController(ControllerSettings _config)
     {
-        Destroy(controllerObjects[_config]);
-        controllerObjects.Remove(_config);
+        DestroyController(_config);
         SpawnController(_config);
         FindObjectOfType<IPSetter>().TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
+    }
+
+    public void DestroyController(ControllerSettings _config)
+    {
+        Destroy(controllerObjects[_config]);
+        controllerObjects.Remove(_config);
     }
 
     //used to pair prefabs with their control type

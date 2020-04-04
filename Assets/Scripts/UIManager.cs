@@ -79,6 +79,12 @@ public class UIManager : MonoBehaviour
         controllerButtons.Remove(_buttonGroup);
     }
 
+    public void DestroyControllerObjects(ControllerSettings _config)
+    {
+        ControllerButtonGroup buttonGroup = GetButtonGroupByConfig(_config);
+        DestroyControllerGroup(buttonGroup);
+    }
+
     void RemoveFromLayout(ControllerButtonGroup _buttonGroup)
     {
         LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.faderMenuButton.gameObject);
@@ -117,7 +123,7 @@ public class UIManager : MonoBehaviour
         Debug.Log("LayoutCounts: " + layoutCounts.Count);
     }
 
-    public bool GetControllerEnabled(FaderOptions _faderOptions)
+    bool GetControllerEnabled(FaderOptions _faderOptions)
     {
         ControllerButtonGroup group = GetButtonGroupByFaderOptions(_faderOptions);
 
@@ -225,7 +231,7 @@ public class UIManager : MonoBehaviour
         public void SelfDestruct()
         {
             Destroy(faderOptions.gameObject);
-            Destroy(faderMenuButton.gameObject); //remove from layout group!! reminder
+            Destroy(faderMenuButton.gameObject);
             Destroy(controlObject);
         }
     }
