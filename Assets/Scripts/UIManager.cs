@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,17 +51,18 @@ public class UIManager : MonoBehaviour
         buttonGroup.faderOptions.transform.SetParent(optionsPanel.transform, false);
         controllerButtons.Add(buttonGroup);
 
-        AddOptionsButtonToLayout(buttonGroup.faderMenuButton.gameObject);
+        SortOptionsButtons();
     }
 
     void AddOptionsButtonToLayout(GameObject _button)
     {
-        for(int i = 0; i < GetLayoutCounts().Count; i++)
+        for(int i = 0; i < layoutCounts.Count; i++)
         {
-            if(GetLayoutCounts()[i].count < sliderButtonLayoutCapacity)
+            if(layoutCounts[i].count < sliderButtonLayoutCapacity)
             {
-                GetLayoutCounts()[i].count++;
-                _button.transform.SetParent(GetLayoutCounts()[i].layoutGroup.transform);
+                _button.transform.SetParent(layoutCounts[i].layoutGroup.transform);
+                _button.transform.SetSiblingIndex(layoutCounts[i].count);
+                layoutCounts[i].count++;
                 return;
             }
         }
@@ -73,9 +75,6 @@ public class UIManager : MonoBehaviour
 
     void DestroyControllerGroup(ControllerButtonGroup _buttonGroup)
     {
-        //find layout that its button is in and remove it from
-        RemoveFromLayout(_buttonGroup);
-
         //destroy all params
         _buttonGroup.SelfDestruct();
 
@@ -84,6 +83,8 @@ public class UIManager : MonoBehaviour
 
         //check for empty layouts, and destroy it
         DestroyEmptyLayouts();
+
+        SortOptionsButtons();
     }
 
     void DestroyEmptyLayouts()
@@ -118,11 +119,6 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogError("Null layout! button didn't find its parent.");
         }
-    }
-
-    List<LayoutGroupButtonCount> GetLayoutCounts()
-    {
-        return layoutCounts;
     }
 
     void AddNewLayoutCount()
@@ -175,7 +171,7 @@ public class UIManager : MonoBehaviour
 
     LayoutGroupButtonCount GetLayoutGroupFromObject(GameObject _button)
     {
-        foreach(LayoutGroupButtonCount lay in GetLayoutCounts())
+        foreach(LayoutGroupButtonCount lay in layoutCounts)
         {
             Transform[] children = lay.layoutGroup.GetComponentsInChildren<Transform>();
 
@@ -191,6 +187,42 @@ public class UIManager : MonoBehaviour
         return null;
     }
 
+    void SortOptionsButtons()
+    {
+        foreach(LayoutGroupButtonCount layCount in layoutCounts)
+        {
+            layCount.count = 0;
+        }
+
+        //get all the unnamed ones out of sorting list
+        List<ControllerButtonGroup> unnamedControls = new List<ControllerButtonGroup>();
+        for (int i = 0; i < controllerButtons.Count; i++)
+        {
+            if(controllerButtons[i].controllerConfig.name == ControlsManager.newControllerName)
+            {
+                unnamedControls.Add(controllerButtons[i]);
+                controllerButtons.Remove(controllerButtons[i]);
+                i--;
+            }
+        }
+
+        //sort buttons
+        controllerButtons.Sort((s1, s2) => s1.controllerConfig.name.CompareTo(s2.controllerConfig.name));
+
+        //add unnamed ones to the end
+        foreach (ControllerButtonGroup c in unnamedControls)
+        {
+            controllerButtons.Add(c);
+        }
+
+        //place buttons
+        foreach (ControllerButtonGroup c in controllerButtons)
+        {
+            AddOptionsButtonToLayout(c.faderMenuButton.gameObject);
+        }
+
+    }
+
     class LayoutGroupButtonCount
     {
         public GameObject layoutGroup;
@@ -199,6 +231,7 @@ public class UIManager : MonoBehaviour
 
     class ControllerButtonGroup
     {
+        //should be public get private set
         public FaderOptions faderOptions;
         public Button faderMenuButton;
         public ControllerSettings controllerConfig;

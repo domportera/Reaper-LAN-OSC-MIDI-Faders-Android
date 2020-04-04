@@ -31,6 +31,8 @@ public class ControlsManager : MonoBehaviour
 
     UIManager uiManager;
 
+    public const string newControllerName = "New Controller";
+
     void Start()
     {
         //load controllers
@@ -61,7 +63,7 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        ControllerSettings newControl = new ControllerSettings("New Controller", ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        ControllerSettings newControl = new ControllerSettings(newControllerName, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
         controllers.Add(newControl);
         SpawnController(newControl);
     }
