@@ -6,22 +6,43 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("Critical UI Elements")]
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
 
+    [Header("Extra Options Objects")]
+    [SerializeField] Slider faderWidthSlider;
+    [SerializeField] HorizontalLayoutGroup faderLayoutGroup;
+
     const int sliderButtonLayoutCapacity = 5;
 
-    List<ControllerButtonGroup> controllerButtons = new List<ControllerButtonGroup>();
+    List<ControllerUIGroup> controllerUIs = new List<ControllerUIGroup>();
     List<LayoutGroupButtonCount> layoutCounts = new List<LayoutGroupButtonCount>();
     List<GameObject> sliderOptionsButtonLayoutGroups = new List<GameObject>();
+
+    const int DEFAULT_FADER_WIDTH = 200;
+    int faderWidth = DEFAULT_FADER_WIDTH;
+
+    const string FADER_WIDTH_PLAYER_PREF = "Fader Width";
 
     // Start is called before the first frame update
     void Start()
     {
         optionsPanel.SetActive(false);
+
+        //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
+        if (PlayerPrefs.HasKey(FADER_WIDTH_PLAYER_PREF))
+        {
+            faderWidth = PlayerPrefs.GetInt(FADER_WIDTH_PLAYER_PREF);
+            SetFaderWidths();
+            RefreshFaderLayoutGroup();
+        }
+
+        faderWidthSlider.SetValueWithoutNotify(faderWidth);
+        faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
     }
 
     // Update is called once per frame
@@ -40,18 +61,19 @@ public class UIManager : MonoBehaviour
     {
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well
-        ControllerButtonGroup dupe = GetButtonGroupByConfig(_config);
+        ControllerUIGroup dupe = GetButtonGroupByConfig(_config);
         if(dupe != null)
         {
             DestroyControllerGroup(dupe);
         }
 
-        ControllerButtonGroup buttonGroup = new ControllerButtonGroup(_config, faderOptionsPrefab, faderOptionsActivationPrefab, _control);
+        ControllerUIGroup buttonGroup = new ControllerUIGroup(_config, faderOptionsPrefab, faderOptionsActivationPrefab, _control);
 
         buttonGroup.faderOptions.transform.SetParent(optionsPanel.transform, false);
-        controllerButtons.Add(buttonGroup);
-
+        controllerUIs.Add(buttonGroup);
+        SetFaderWidth(buttonGroup);
         SortOptionsButtons();
+        RefreshFaderLayoutGroup();
     }
 
     void AddOptionsButtonToLayout(GameObject _button)
@@ -73,13 +95,13 @@ public class UIManager : MonoBehaviour
         AddOptionsButtonToLayout(_button);
     }
 
-    void DestroyControllerGroup(ControllerButtonGroup _buttonGroup)
+    void DestroyControllerGroup(ControllerUIGroup _buttonGroup)
     {
         //destroy all params
         _buttonGroup.SelfDestruct();
 
         //remove from list
-        controllerButtons.Remove(_buttonGroup);
+        controllerUIs.Remove(_buttonGroup);
 
         //check for empty layouts, and destroy it
         DestroyEmptyLayouts();
@@ -103,11 +125,11 @@ public class UIManager : MonoBehaviour
 
     public void DestroyControllerObjects(ControllerSettings _config)
     {
-        ControllerButtonGroup buttonGroup = GetButtonGroupByConfig(_config);
+        ControllerUIGroup buttonGroup = GetButtonGroupByConfig(_config);
         DestroyControllerGroup(buttonGroup);
     }
 
-    void RemoveFromLayout(ControllerButtonGroup _buttonGroup)
+    void RemoveFromLayout(ControllerUIGroup _buttonGroup)
     {
         LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.faderMenuButton.gameObject);
 
@@ -131,7 +153,7 @@ public class UIManager : MonoBehaviour
 
     bool GetControllerEnabled(FaderOptions _faderOptions)
     {
-        ControllerButtonGroup group = GetButtonGroupByFaderOptions(_faderOptions);
+        ControllerUIGroup group = GetButtonGroupByFaderOptions(_faderOptions);
 
         if(group.activationToggle.isOn)
         {
@@ -143,9 +165,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    ControllerButtonGroup GetButtonGroupByConfig(ControllerSettings _config)
+    ControllerUIGroup GetButtonGroupByConfig(ControllerSettings _config)
     {
-        foreach (ControllerButtonGroup cbg in controllerButtons)
+        foreach (ControllerUIGroup cbg in controllerUIs)
         {
             if (cbg.controllerConfig == _config)
             {
@@ -155,9 +177,9 @@ public class UIManager : MonoBehaviour
         return null;
     }
 
-    ControllerButtonGroup GetButtonGroupByFaderOptions(FaderOptions _faderOptions)
+    ControllerUIGroup GetButtonGroupByFaderOptions(FaderOptions _faderOptions)
     {
-        foreach (ControllerButtonGroup cbg in controllerButtons)
+        foreach (ControllerUIGroup cbg in controllerUIs)
         {
             if(cbg.faderOptions == _faderOptions)
             {
@@ -195,32 +217,64 @@ public class UIManager : MonoBehaviour
         }
 
         //get all the unnamed ones out of sorting list
-        List<ControllerButtonGroup> unnamedControls = new List<ControllerButtonGroup>();
-        for (int i = 0; i < controllerButtons.Count; i++)
+        List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
+        for (int i = 0; i < controllerUIs.Count; i++)
         {
-            if(controllerButtons[i].controllerConfig.name == ControlsManager.newControllerName)
+            if(controllerUIs[i].controllerConfig.name == ControlsManager.newControllerName)
             {
-                unnamedControls.Add(controllerButtons[i]);
-                controllerButtons.Remove(controllerButtons[i]);
+                unnamedControls.Add(controllerUIs[i]);
+                controllerUIs.Remove(controllerUIs[i]);
                 i--;
             }
         }
 
         //sort buttons
-        controllerButtons.Sort((s1, s2) => s1.controllerConfig.name.CompareTo(s2.controllerConfig.name));
+        controllerUIs.Sort((s1, s2) => s1.controllerConfig.name.CompareTo(s2.controllerConfig.name));
 
         //add unnamed ones to the end
-        foreach (ControllerButtonGroup c in unnamedControls)
+        foreach (ControllerUIGroup c in unnamedControls)
         {
-            controllerButtons.Add(c);
+            controllerUIs.Add(c);
         }
 
         //place buttons
-        foreach (ControllerButtonGroup c in controllerButtons)
+        foreach (ControllerUIGroup c in controllerUIs)
         {
             AddOptionsButtonToLayout(c.faderMenuButton.gameObject);
         }
+    }
 
+    void SetFaderWidths()
+    {
+        //set to fader slider value - this should be set with loaded value, then this can be called.
+        foreach(ControllerUIGroup c in controllerUIs)
+        {
+            SetFaderWidth(c);
+        }
+
+        RefreshFaderLayoutGroup();
+    }
+
+    void RefreshFaderLayoutGroup()
+    {
+        faderLayoutGroup.enabled = false;
+        faderLayoutGroup.enabled = true;
+    }
+
+    void SetFaderWidth(ControllerUIGroup _group)
+    {
+        _group.SetFaderWidth(faderWidth);
+    }
+
+    public void SetFaderWidthBySlider(float _width)
+    {
+        faderWidth = (int)_width;
+        SetFaderWidths();
+    }
+
+    public void SaveFaderWidthToPlayerPrefs()
+    {
+        PlayerPrefs.SetInt(FADER_WIDTH_PLAYER_PREF, faderWidth);
     }
 
     class LayoutGroupButtonCount
@@ -229,7 +283,7 @@ public class UIManager : MonoBehaviour
         public int count = 0;
     }
 
-    class ControllerButtonGroup
+    class ControllerUIGroup
     {
         //should be public get private set
         public FaderOptions faderOptions;
@@ -237,8 +291,9 @@ public class UIManager : MonoBehaviour
         public ControllerSettings controllerConfig;
         public Toggle activationToggle;
         public GameObject controlObject;
+        RectTransform controlObjectTransform;
 
-        public ControllerButtonGroup(ControllerSettings _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
+        public ControllerUIGroup(ControllerSettings _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
         {
             faderOptions = Instantiate(_faderOptionsPrefab).GetComponent<FaderOptions>();
             faderOptions.gameObject.name = _config.name + " Options Panel";
@@ -254,6 +309,12 @@ public class UIManager : MonoBehaviour
             activationToggle = faderMenuButton.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             controlObject = _controlObject;
+            controlObjectTransform = _controlObject.GetComponent<RectTransform>();
+        }
+
+        public void SetFaderWidth(float _width)
+        {
+            controlObjectTransform.sizeDelta = new Vector2(_width, controlObjectTransform.sizeDelta.y);
         }
 
         void DisplayFaderOptions()

@@ -31,6 +31,8 @@ public class ControlsManager : MonoBehaviour
 
     UIManager uiManager;
 
+    bool loaded = false;
+
     public const string newControllerName = "New Controller";
 
     void Start()
@@ -39,9 +41,12 @@ public class ControlsManager : MonoBehaviour
         //needs to load defaults
 
         //spawn defaults if no save data
-        foreach(ControllerSettings set in defaultControllers)
+        if (!loaded)
         {
-            controllers.Add(set);
+            foreach (ControllerSettings set in defaultControllers)
+            {
+                controllers.Add(set);
+            }
         }
 
         uiManager = FindObjectOfType<UIManager>();
@@ -53,6 +58,7 @@ public class ControlsManager : MonoBehaviour
         return uniqueIDGen++;
     }
 
+    //this should be threaded
     void SpawnControllers()
     {
         foreach(ControllerSettings set in controllers)

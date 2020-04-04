@@ -15,7 +15,8 @@ public class IPSetter : MonoBehaviour
     int currentPort = int.MinValue;
     static bool ipSet = false;
 
-    string fileName = "/IPAddress.txt";
+    const string IP_ADDRESS_PLAYER_PREF = "IP Address";
+    const string PORT_PLAYER_PREF = "Port";
 
     Utilities util;
 
@@ -34,47 +35,25 @@ public class IPSetter : MonoBehaviour
 
     void Load()
     {
-        string ip = null;
-        string port = null;
-        try
+        if(PlayerPrefs.HasKey(IP_ADDRESS_PLAYER_PREF))
         {
-            StreamReader sr = new StreamReader(Application.persistentDataPath + fileName);
-            ip = sr.ReadLine();
-            port = sr.ReadLine();
-            sr.Close();
-        }
-        catch
-        {
-            Debug.LogError("Problem Loading IP!");
-        }
-
-        if (ip != null)
-        {
+            string ip = PlayerPrefs.GetString(IP_ADDRESS_PLAYER_PREF);
             SetIP(ip);
             ipAddressField.SetTextWithoutNotify(ip);
         }
 
-        if (port != null)
+        if (PlayerPrefs.HasKey(PORT_PLAYER_PREF))
         {
+            int port = PlayerPrefs.GetInt(PORT_PLAYER_PREF);
             SetPort(port);
-            portField.SetTextWithoutNotify(port);
+            portField.SetTextWithoutNotify(port.ToString());
         }
-
     }
 
     void Save()
     {
-        try
-        {
-            StreamWriter sw = new StreamWriter(Application.persistentDataPath + fileName);
-            sw.WriteLine(currentIP);
-            sw.WriteLine(currentPort);
-            sw.Close();
-        }
-        catch
-        {
-            Debug.LogError("Problem writing IP!");
-        }
+        PlayerPrefs.SetString(IP_ADDRESS_PLAYER_PREF, currentIP.ToString());
+        PlayerPrefs.SetInt(PORT_PLAYER_PREF, currentPort);
     }
 
     public static void SetConnected()
@@ -125,6 +104,26 @@ public class IPSetter : MonoBehaviour
         if (valid)
         {
             currentPort = port;
+            TryConnect();
+        }
+        else
+        {
+            util.SetErrorText("Invalid Port");
+        }
+    }
+
+    void SetPort(int _port)
+    {
+        bool valid = true;
+
+        if (_port > 65535)
+        {
+            valid = false;
+        }
+
+        if (valid)
+        {
+            currentPort = _port;
             TryConnect();
         }
         else
