@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] Slider faderWidthSlider = null;
     [SerializeField] Toggle faderPositionEditorToggle = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
+    [SerializeField] InputField profileNameInput = null;
+    [SerializeField] Dropdown profileSelectDropDown = null;
+    [SerializeField] Button saveAsButton = null;
+    [SerializeField] Button saveButton = null;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -28,9 +33,16 @@ public class UIManager : MonoBehaviour
 
     const string FADER_WIDTH_PLAYER_PREF = "Fader Width";
 
+    ControlsManager controlMan = null;
+
     // Start is called before the first frame update
     void Start()
     {
+        controlMan = FindObjectOfType<ControlsManager>();
+        profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
+        saveAsButton.onClick.AddListener(SaveAs);
+        saveButton.onClick.AddListener(Save);
+
         optionsPanel.SetActive(false);
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
@@ -49,7 +61,7 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     //used by options button in scene
@@ -63,7 +75,7 @@ public class UIManager : MonoBehaviour
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well
         ControllerUIGroup dupe = GetButtonGroupByConfig(_config);
-        if(dupe != null)
+        if (dupe != null)
         {
             DestroyControllerGroup(dupe);
         }
@@ -75,6 +87,57 @@ public class UIManager : MonoBehaviour
         SetFaderWidth(buttonGroup);
         SortOptionsButtons();
         RefreshFaderLayoutGroup();
+    }
+
+    string GetSaveNameFromField()
+    {
+        return profileNameInput.text.Replace(@"\", "").Replace(@"/", "").Trim(); //remove unwanted characters
+    }
+
+    public void PopulateProfileDropdown(List<string> _profileNames, int _defaultIndex)
+    {
+        profileSelectDropDown.ClearOptions();
+        AddToPopulateProfileDropdown(ControlsManager.DEFAULT_SAVE_NAME);
+
+        foreach (string pname in _profileNames)
+        {
+            AddToPopulateProfileDropdown(pname);
+        }
+
+        profileSelectDropDown.SetValueWithoutNotify(_defaultIndex + 1); //+1 for default offset
+        SetActiveProfile(_defaultIndex + 1);
+    }
+
+    public void AddToPopulateProfileDropdown(string _name)
+    {
+        profileSelectDropDown.options.Add(new OptionData(_name));
+        profileSelectDropDown.SetValueWithoutNotify(profileSelectDropDown.options.Count - 1);
+    }
+
+    void SetActiveProfile(int _index)
+    {
+        if(controlMan == null)
+        {
+            controlMan = FindObjectOfType<ControlsManager>();
+        }
+        controlMan.SetActiveProfile(GetNameFromProfileDropdown()); //offset for default
+    }
+
+    void Save()
+    {
+        controlMan.SaveControllers(GetNameFromProfileDropdown()); ;
+    }
+
+    void SaveAs()
+    {
+        string profileName = GetSaveNameFromField();
+        controlMan.SaveControllersAs(profileName);
+    }
+
+
+    string GetNameFromProfileDropdown()
+    {
+        return profileSelectDropDown.options[profileSelectDropDown.value].text;
     }
 
     void AddOptionsButtonToLayout(GameObject _button)
@@ -94,6 +157,11 @@ public class UIManager : MonoBehaviour
 
         AddNewLayoutCount();
         AddOptionsButtonToLayout(_button);
+    }
+
+    public void DestroyControllerGroup(ControllerSettings _config)
+    {
+        DestroyControllerGroup(GetButtonGroupByConfig(_config));
     }
 
     void DestroyControllerGroup(ControllerUIGroup _buttonGroup)
@@ -221,7 +289,7 @@ public class UIManager : MonoBehaviour
         List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
         for (int i = 0; i < controllerUIs.Count; i++)
         {
-            if(controllerUIs[i].controllerConfig.name == ControlsManager.newControllerName)
+            if(controllerUIs[i].controllerConfig.name == ControlsManager.NEW_CONTROLLER_NAME)
             {
                 unnamedControls.Add(controllerUIs[i]);
                 controllerUIs.Remove(controllerUIs[i]);
@@ -283,6 +351,7 @@ public class UIManager : MonoBehaviour
         foreach(ControllerUIGroup u in controllerUIs)
         {
             u.SetPostionMode(_b);
+            u.SetPosition();
         }
     }
 
@@ -342,6 +411,11 @@ public class UIManager : MonoBehaviour
             {
                 controlObjectTransform.SetAsLastSibling();
             }
+        }
+
+        public void SetPosition()
+        {
+            controllerConfig.SetPosition(controlObjectTransform.GetSiblingIndex());
         }
 
         public void SetPostionMode(bool _b)

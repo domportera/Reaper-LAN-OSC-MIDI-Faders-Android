@@ -27,8 +27,6 @@ public class FaderControl : MonoBehaviour
 
     AnimationCurve valueCurve;
 
-
-
     public void Initialize(ControllerSettings _controller, ValueCurve[] _curves)
     {
         sender = GetComponent<OscPropertySender>();

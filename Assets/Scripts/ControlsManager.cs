@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,28 +31,199 @@ public class ControlsManager : MonoBehaviour
     static int uniqueIDGen;
 
     UIManager uiManager;
+    Utilities util;
 
-    bool loaded = false;
+    public const string NEW_CONTROLLER_NAME = "New Controller";
 
-    public const string newControllerName = "New Controller";
+    //saving variables
+    public const string DEFAULT_SAVE_NAME = "Default";
+    const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
+    Profiles profileNames = null;
 
     void Start()
     {
-        //load controllers
-        //needs to load defaults
+        util = FindObjectOfType<Utilities>();
+        uiManager = FindObjectOfType<UIManager>();
 
-        //spawn defaults if no save data
-        if (!loaded)
+        //load profile file names
+        LoadProfileNames();
+
+        //load controller profile
+        if (profileNames.GetNames().Count < 1)
         {
-            foreach (ControllerSettings set in defaultControllers)
-            {
-                controllers.Add(set);
-            }
+            LoadControllers(DEFAULT_SAVE_NAME);
+        }
+        else
+        {
+            LoadControllers(profileNames.GetDefaultProfileName());
+
         }
 
-        uiManager = FindObjectOfType<UIManager>();
+        //populate ui with profile names to allow for saving
+        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileIndex());
+    }
+
+    public void SetActiveProfile(string _name)
+    {
+        NukeControllers();
+        LoadControllers(_name);
+        Debug.Log($"Set active {_name}.");
+    }
+
+    #region Saving and Loading
+
+    public void SaveControllers(string _name) //should show some kind of confirmation screen
+    {
+        if(_name == DEFAULT_SAVE_NAME)
+        {
+            util.SetErrorText("Can't overwrite defaults, use Save As instead.");
+            return;
+        }
+
+        string json = JsonUtility.ToJson(new FaderSaver(controllers, _name));
+        SaveFile(_name, json);
+    }
+
+    public void SaveControllersAs(string _name)
+    {
+        if (_name.Length > 1 && _name != DEFAULT_SAVE_NAME)
+        {
+            string profileName = _name;
+            profileNames.AddProfile(profileName);
+            SaveProfileNames();
+            uiManager.AddToPopulateProfileDropdown(profileName);
+            //add this profile to  working profiles in profile selection ui
+            //switch to this profile
+            SaveControllers(_name);
+        }
+        else
+        {
+            Debug.LogError("name not entered or is default profile name");
+        }
+    }
+
+    bool LoadControllers(string _profile)
+    {
+        Debug.Log($"Loading");
+        if (_profile != DEFAULT_SAVE_NAME)
+        {
+            string json = LoadFile(_profile);
+
+            if (json != null)
+            {
+                FaderSaver loadedData = JsonUtility.FromJson<FaderSaver>(json);
+                NukeControllers();
+
+                if (loadedData != null || loadedData.GetControllers().Count > 0)
+                {
+                    controllers = loadedData.GetControllers();
+                    SpawnControllers();
+                    Debug.LogError($"Spawned controllers: {controllers.Count}");
+                    return true;
+                }
+                else
+                {
+                    //spawn defaults if no save data
+                    SpawnDefaultControllers();
+                    Debug.LogError("Saved data was empty");
+                    return false;
+                }
+            }
+            Debug.LogError($"JSON object was null");
+            SpawnDefaultControllers();
+            return false;
+        }
+        else
+        {
+            Debug.Log($"Profile was default");
+            SpawnDefaultControllers();
+            return false;
+        }
+
+    }
+
+    void SpawnDefaultControllers()
+    {
+        Debug.Log("Spawning Defaults");
+        NukeControllers();
+        controllers = new List<ControllerSettings>();
+
+        foreach (ControllerSettings set in defaultControllers)
+        {
+            controllers.Add(set);
+        }
+
         SpawnControllers();
     }
+
+    void NukeControllers()
+    {
+        foreach(ControllerSettings c in controllers)
+        {
+            uiManager.DestroyControllerGroup(c);
+        }
+
+        controllerObjects = new Dictionary<ControllerSettings, GameObject>();
+
+        controllers = new List<ControllerSettings>();
+    }
+
+
+    //to be used only at start
+    void LoadProfileNames()
+    {
+        string json = LoadFile(PROFILE_NAME_SAVE_NAME);
+
+        if (json != null)
+        {
+            profileNames = JsonUtility.FromJson<Profiles>(json);
+        }
+        else
+        {
+            profileNames = new Profiles(new List<string> { });
+        }
+    }
+
+    void SaveProfileNames()
+    {
+        string json = JsonUtility.ToJson(profileNames);
+        SaveFile(PROFILE_NAME_SAVE_NAME, json);
+    }
+
+    bool SaveFile(string _fileNameSansExtension, string _data)
+    {
+        try
+        {
+            StreamWriter sw = new StreamWriter(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");
+            sw.Write(_data);
+            sw.Close();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failure to save {_fileNameSansExtension}!\n" + e);
+            return false;
+        }
+    }
+
+    string LoadFile(string _fileNameSansExtension)
+    {
+        try
+        {
+            StreamReader sr = new StreamReader(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");
+            string json = sr.ReadToEnd();
+            sr.Close();
+
+            return json;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failure to load {_fileNameSansExtension}!\n" + e);
+            return null;
+        }
+    }
+
+    #endregion Saving and Loading
 
     public static int GetUniqueID()
     {
@@ -69,7 +241,7 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        ControllerSettings newControl = new ControllerSettings(newControllerName, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
         controllers.Add(newControl);
         SpawnController(newControl);
     }
@@ -129,10 +301,86 @@ public class ControlsManager : MonoBehaviour
 
     //used to pair prefabs with their control type
     [Serializable]
-    public struct ControllerType
+    struct ControllerType
     {
         public ControlType controlType;
         public GameObject controlObject;
+    }
+
+    [Serializable]
+    class FaderSaver
+    {
+        [SerializeField] List<ControllerSettings> configs;
+        [SerializeField] string name = null;
+
+        public FaderSaver(List<ControllerSettings> _controllers, string _name)
+        {
+            configs = _controllers;
+            _name = name;
+        }
+
+        public List<ControllerSettings> GetControllers()
+        {
+            return configs;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+    }
+
+    [Serializable]
+
+    class Profiles
+    {
+        [SerializeField] List<string> profileNames;
+        [SerializeField] string defaultProfileName;
+
+        public Profiles(List<string> _profileNames)
+        {
+            profileNames = _profileNames;
+            defaultProfileName = DEFAULT_SAVE_NAME;
+        }
+
+        public void AddProfile(string _name)
+        {
+            profileNames.Add(_name);
+        }
+
+        public void RemoveProfile(string _name)
+        {
+            profileNames.Remove(_name);
+        }
+
+        public List<string> GetNames()
+        {
+            return profileNames;
+        }
+
+        public string GetDefaultProfileName()
+        {
+            return defaultProfileName;
+        }
+
+        public void SetDefaultProfile(string _name)
+        {
+            defaultProfileName = _name;
+        }
+
+        public int GetDefaultProfileIndex()
+        {
+            for(int i = 0; i < profileNames.Count; i++)
+            {
+                if(profileNames[i] == defaultProfileName)
+                {
+                    return i;
+                }
+            }
+
+            Debug.LogError("Default profile index not found!");
+            return 0;
+        }
     }
 }
 

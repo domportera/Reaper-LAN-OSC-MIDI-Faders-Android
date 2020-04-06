@@ -23,7 +23,9 @@ public class ControllerSettings
     public UnityEvent OnUpdate = new UnityEvent();
     public AddressType addressType;
     public int ccNumber;
-    int id;
+    int id; //not currently in use, could be useful some day?
+
+    [SerializeField] int position;
 
     public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
@@ -138,6 +140,11 @@ public class ControllerSettings
                 Debug.LogError("Default value type not implemented! Defaulting to min.");
                 break;
         }
+    }
+
+    public void SetPosition(int _index)
+    {
+        position = _index;
     }
 
     public int GetRange()
