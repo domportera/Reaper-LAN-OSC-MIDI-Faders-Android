@@ -56,11 +56,10 @@ public class ControlsManager : MonoBehaviour
         else
         {
             LoadControllers(profileNames.GetDefaultProfileName());
-
         }
 
         //populate ui with profile names to allow for saving
-        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileIndex());
+        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileName());
     }
 
     public void SetActiveProfile(string _name)
@@ -68,6 +67,12 @@ public class ControlsManager : MonoBehaviour
         NukeControllers();
         LoadControllers(_name);
         Debug.Log($"Set active {_name}.");
+    }
+
+    public void SetDefaultProfile(string _profile)
+    {
+        profileNames.SetDefaultProfile(_profile);
+        SaveProfileNames();
     }
 
     #region Saving and Loading
@@ -118,7 +123,6 @@ public class ControlsManager : MonoBehaviour
                 {
                     controllers = loadedData.GetControllers();
                     SpawnControllers();
-                    Debug.LogError($"Spawned controllers: {controllers.Count}");
                     return true;
                 }
                 else
@@ -299,13 +303,6 @@ public class ControlsManager : MonoBehaviour
         controllerObjects.Remove(_config);
     }
 
-    //used to pair prefabs with their control type
-    [Serializable]
-    struct ControllerType
-    {
-        public ControlType controlType;
-        public GameObject controlObject;
-    }
 
     [Serializable]
     class FaderSaver
@@ -367,20 +364,6 @@ public class ControlsManager : MonoBehaviour
         {
             defaultProfileName = _name;
         }
-
-        public int GetDefaultProfileIndex()
-        {
-            for(int i = 0; i < profileNames.Count; i++)
-            {
-                if(profileNames[i] == defaultProfileName)
-                {
-                    return i;
-                }
-            }
-
-            Debug.LogError("Default profile index not found!");
-            return 0;
-        }
     }
 }
 
@@ -389,4 +372,12 @@ public struct ValueCurve
 {
     public CurveType curveType;
     public AnimationCurve curve;
+}
+
+//used to pair prefabs with their control type
+[Serializable]
+struct ControllerType
+{
+    public ControlType controlType;
+    public GameObject controlObject;
 }

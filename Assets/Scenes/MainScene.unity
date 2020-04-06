@@ -740,6 +740,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &315561400 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2351738901980112071, guid: 602fe415d177c8547ae2aa9408670eab,
+    type: 3}
+  m_PrefabInstance: {fileID: 1132359979}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &328740434
 GameObject:
   m_ObjectHideFlags: 0
@@ -1084,6 +1096,7 @@ MonoBehaviour:
   profileSelectDropDown: {fileID: 1896701030}
   saveAsButton: {fileID: 1758863974}
   saveButton: {fileID: 81429479}
+  setDefaultButton: {fileID: 315561400}
 --- !u!114 &367776141
 MonoBehaviour:
   m_ObjectHideFlags: 0

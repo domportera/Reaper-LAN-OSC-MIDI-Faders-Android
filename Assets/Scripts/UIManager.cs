@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Dropdown profileSelectDropDown = null;
     [SerializeField] Button saveAsButton = null;
     [SerializeField] Button saveButton = null;
+    [SerializeField] Button setDefaultButton = null;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -42,6 +43,7 @@ public class UIManager : MonoBehaviour
         profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
         saveAsButton.onClick.AddListener(SaveAs);
         saveButton.onClick.AddListener(Save);
+        setDefaultButton.onClick.AddListener(SetDefaultProfile);
 
         optionsPanel.SetActive(false);
 
@@ -94,7 +96,7 @@ public class UIManager : MonoBehaviour
         return profileNameInput.text.Replace(@"\", "").Replace(@"/", "").Trim(); //remove unwanted characters
     }
 
-    public void PopulateProfileDropdown(List<string> _profileNames, int _defaultIndex)
+    public void PopulateProfileDropdown(List<string> _profileNames, string _defaultProfile)
     {
         profileSelectDropDown.ClearOptions();
         AddToPopulateProfileDropdown(ControlsManager.DEFAULT_SAVE_NAME);
@@ -104,8 +106,8 @@ public class UIManager : MonoBehaviour
             AddToPopulateProfileDropdown(pname);
         }
 
-        profileSelectDropDown.SetValueWithoutNotify(_defaultIndex + 1); //+1 for default offset
-        SetActiveProfile(_defaultIndex + 1);
+        profileSelectDropDown.SetValueWithoutNotify(GetProfileIndex(_defaultProfile)); //+1 for default offset
+        SetActiveProfile(GetProfileIndex(_defaultProfile));
     }
 
     public void AddToPopulateProfileDropdown(string _name)
@@ -134,10 +136,32 @@ public class UIManager : MonoBehaviour
         controlMan.SaveControllersAs(profileName);
     }
 
+    void SetDefaultProfile()
+    {
+        string s = GetNameFromProfileDropdown();
+        controlMan.SetDefaultProfile(s);
+
+        Debug.Log("Default save: " + s);
+    }
+
 
     string GetNameFromProfileDropdown()
     {
         return profileSelectDropDown.options[profileSelectDropDown.value].text;
+    }
+
+    int GetProfileIndex(string _profile)
+    {
+        for(int i = 0; i < profileSelectDropDown.options.Count; i++)
+        {
+            if(profileSelectDropDown.options[i].text == _profile)
+            {
+                return i;
+            }
+        }
+
+        Debug.LogError("Index not found in profile dropdown");
+        return -1;
     }
 
     void AddOptionsButtonToLayout(GameObject _button)
