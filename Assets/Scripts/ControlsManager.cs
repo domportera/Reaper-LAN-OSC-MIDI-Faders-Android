@@ -48,18 +48,8 @@ public class ControlsManager : MonoBehaviour
         //load profile file names
         LoadProfileNames();
 
-        //load controller profile
-        if (profileNames.GetNames().Count < 1)
-        {
-            LoadControllers(DEFAULT_SAVE_NAME);
-        }
-        else
-        {
-            LoadControllers(profileNames.GetDefaultProfileName());
-        }
-
         //populate ui with profile names to allow for saving
-        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileName());
+        PopulateProfileSelectionMenu();
     }
 
     public void SetActiveProfile(string _name)
@@ -73,6 +63,32 @@ public class ControlsManager : MonoBehaviour
     {
         profileNames.SetDefaultProfile(_profile);
         SaveProfileNames();
+    }
+
+    public void DeleteProfile(string _name)
+    {
+        if(_name == DEFAULT_SAVE_NAME)
+        {
+            util.SetErrorText("Can't delete default profile");
+            return;
+        }
+        //remove profile from current list of profiles
+        profileNames.RemoveProfile(_name);
+
+        //delete file
+        DeleteFile(_name);
+
+        //Save profiles
+        SaveProfileNames();
+
+        //reload profiles
+        //LoadProfileNames();
+
+        //repopulate dropdown
+        PopulateProfileSelectionMenu();
+
+        //load controller profile
+        LoadDefaultProfile();
     }
 
     #region Saving and Loading
@@ -172,8 +188,23 @@ public class ControlsManager : MonoBehaviour
         controllers = new List<ControllerSettings>();
     }
 
+    void PopulateProfileSelectionMenu()
+    {
+        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileName());
+    }
 
-    //to be used only at start
+    void LoadDefaultProfile ()
+    {
+        if (profileNames.GetNames().Count < 1)
+        {
+            LoadControllers(DEFAULT_SAVE_NAME);
+        }
+        else
+        {
+            LoadControllers(profileNames.GetDefaultProfileName());
+        }
+    }
+
     void LoadProfileNames()
     {
         string json = LoadFile(PROFILE_NAME_SAVE_NAME);
@@ -212,6 +243,7 @@ public class ControlsManager : MonoBehaviour
 
     string LoadFile(string _fileNameSansExtension)
     {
+        Debug.Log(Application.persistentDataPath);
         try
         {
             StreamReader sr = new StreamReader(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");
@@ -225,6 +257,13 @@ public class ControlsManager : MonoBehaviour
             Debug.LogError($"Failure to load {_fileNameSansExtension}!\n" + e);
             return null;
         }
+    }
+
+    void DeleteFile(string _fileNameSansExtension)
+    {
+        string filePath = Application.persistentDataPath + "/" + _fileNameSansExtension + ".json";
+
+        File.Delete(filePath);
     }
 
     #endregion Saving and Loading
@@ -301,6 +340,7 @@ public class ControlsManager : MonoBehaviour
     {
         Destroy(controllerObjects[_config]);
         controllerObjects.Remove(_config);
+        controllers.Remove(_config);
     }
 
 
@@ -348,6 +388,11 @@ public class ControlsManager : MonoBehaviour
         public void RemoveProfile(string _name)
         {
             profileNames.Remove(_name);
+
+            if(_name == defaultProfileName)
+            {
+                defaultProfileName = DEFAULT_SAVE_NAME;
+            }
         }
 
         public List<string> GetNames()

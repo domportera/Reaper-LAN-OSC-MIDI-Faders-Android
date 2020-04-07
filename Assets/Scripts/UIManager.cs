@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button saveAsButton = null;
     [SerializeField] Button saveButton = null;
     [SerializeField] Button setDefaultButton = null;
+    [SerializeField] Button deleteButton = null;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -44,6 +45,7 @@ public class UIManager : MonoBehaviour
         saveAsButton.onClick.AddListener(SaveAs);
         saveButton.onClick.AddListener(Save);
         setDefaultButton.onClick.AddListener(SetDefaultProfile);
+        deleteButton.onClick.AddListener(DeleteProfile);
 
         optionsPanel.SetActive(false);
 
@@ -58,12 +60,6 @@ public class UIManager : MonoBehaviour
         faderWidthSlider.SetValueWithoutNotify(faderWidth);
         faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
         faderPositionEditorToggle.onValueChanged.AddListener(ToggleEditFaderPositionMode);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     //used by options button in scene
@@ -106,8 +102,14 @@ public class UIManager : MonoBehaviour
             AddToPopulateProfileDropdown(pname);
         }
 
-        profileSelectDropDown.SetValueWithoutNotify(GetProfileIndex(_defaultProfile)); //+1 for default offset
-        SetActiveProfile(GetProfileIndex(_defaultProfile));
+        //for some reason, if there is only one entry (in the case where _profileNames is empty),
+        //setting value of 0 to dropdown (the correct value) just doesn't properly set the dropdown view -
+        //otherwise it's just blank.
+        //setting it to literally anything else makes it work. I chose the number 1.
+        //I dont make the rules, I just follow them.
+        profileSelectDropDown.SetValueWithoutNotify(_profileNames.Count == 0 ? 1 : GetProfileIndex(_defaultProfile));
+
+        SetActiveProfile(_defaultProfile);
     }
 
     public void AddToPopulateProfileDropdown(string _name)
@@ -122,7 +124,17 @@ public class UIManager : MonoBehaviour
         {
             controlMan = FindObjectOfType<ControlsManager>();
         }
-        controlMan.SetActiveProfile(GetNameFromProfileDropdown()); //offset for default
+        controlMan.SetActiveProfile(GetNameFromProfileDropdown());
+    }
+
+    void SetActiveProfile(string _name)
+    {
+        if (controlMan == null)
+        {
+            controlMan = FindObjectOfType<ControlsManager>();
+        }
+
+        controlMan.SetActiveProfile(_name);
     }
 
     void Save()
@@ -144,6 +156,10 @@ public class UIManager : MonoBehaviour
         Debug.Log("Default save: " + s);
     }
 
+    void DeleteProfile()
+    {
+        controlMan.DeleteProfile(GetNameFromProfileDropdown());
+    }
 
     string GetNameFromProfileDropdown()
     {
