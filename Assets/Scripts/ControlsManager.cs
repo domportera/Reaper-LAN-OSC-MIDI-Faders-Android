@@ -107,7 +107,13 @@ public class ControlsManager : MonoBehaviour
 
     public void SaveControllersAs(string _name)
     {
-        if (_name.Length > 1 && _name != DEFAULT_SAVE_NAME)
+        if (_name == DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
+        {
+            util.SetErrorText("Profile with this name already exists, please use another.");
+            return;
+        }
+
+        if (_name.Length > 1)
         {
             string profileName = _name;
             profileNames.AddProfile(profileName);
