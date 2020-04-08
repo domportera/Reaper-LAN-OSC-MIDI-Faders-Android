@@ -6,37 +6,29 @@ using UnityEngine.UI;
 public class Utilities : MonoBehaviour
 {
     [SerializeField] Text errorText = null;
-    float errorTextTime = 5f;
+    [SerializeField] GameObject errorWindow = null;
+    [SerializeField] Button closeErrorWindow = null;
 
-    Coroutine clearErrorTextRoutine = null;
+    float errorTextTime = 4f;
+
 
     // Start is called before the first frame update
     void Start() 
     {
         errorText.text = "";
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        errorWindow.SetActive(false);
+        closeErrorWindow.onClick.AddListener(HideErrorWindow);
     }
 
    public void SetErrorText(string _text)
     {
         errorText.text = _text;
-
-        if(clearErrorTextRoutine != null)
-        {
-            StopCoroutine(clearErrorTextRoutine); 
-        }
-
-        clearErrorTextRoutine = StartCoroutine(ClearErrorText());
+        errorWindow.SetActive(true);
     }
 
-    IEnumerator ClearErrorText()
+    void HideErrorWindow()
     {
-        yield return new WaitForSeconds(errorTextTime);
+        errorWindow.SetActive(false);
         errorText.text = "";
     }
 }
