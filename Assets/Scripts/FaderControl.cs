@@ -105,14 +105,13 @@ public class FaderControl : MonoBehaviour
 
     public void EndSliding()
     {
-
         if(myController.controlType == ControlType.Wheel)
         {
             targetModValue = MapValueToCurve(myController.defaultValue);
         }
     }
 
-    public void SetPitch(float _val)
+    public void SetValue(float _val)
     {
         targetModValue = _val;
     }
