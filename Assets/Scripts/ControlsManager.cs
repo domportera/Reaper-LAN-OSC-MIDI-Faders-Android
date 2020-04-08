@@ -105,12 +105,12 @@ public class ControlsManager : MonoBehaviour
         SaveFile(_name, json);
     }
 
-    public void SaveControllersAs(string _name)
+    public bool SaveControllersAs(string _name)
     {
         if (_name == DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
         {
             util.SetErrorText("Profile with this name already exists, please use another.");
-            return;
+            return false;
         }
 
         if (_name.Length > 1)
@@ -122,10 +122,12 @@ public class ControlsManager : MonoBehaviour
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
             SaveControllers(_name);
+            return true;
         }
         else
         {
-            Debug.LogError("name not entered or is default profile name");
+            util.SetErrorText("Please enter a name.");
+            return false;
         }
     }
 
@@ -249,7 +251,6 @@ public class ControlsManager : MonoBehaviour
 
     string LoadFile(string _fileNameSansExtension)
     {
-        Debug.Log(Application.persistentDataPath);
         try
         {
             StreamReader sr = new StreamReader(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");

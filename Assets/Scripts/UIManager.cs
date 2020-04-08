@@ -17,12 +17,27 @@ public class UIManager : MonoBehaviour
     [SerializeField] Slider faderWidthSlider = null;
     [SerializeField] Toggle faderPositionEditorToggle = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
-    [SerializeField] InputField profileNameInput = null;
+
+    [Header("Profiles")]
     [SerializeField] Dropdown profileSelectDropDown = null;
-    [SerializeField] Button saveAsButton = null;
     [SerializeField] Button saveButton = null;
     [SerializeField] Button setDefaultButton = null;
+    [SerializeField] GameObject setDefaultNotification = null;
+    [SerializeField] Text defaultConfirmationText = null;
+
+    [Header("Delete Profiles")]
     [SerializeField] Button deleteButton = null;
+    [SerializeField] GameObject deleteConfirmationPanel = null;
+    [SerializeField] Button confirmDeleteButton = null;
+    [SerializeField] Button cancelDeleteButton = null;
+    [SerializeField] Text deleteConfirmationText = null;
+
+    [Header("Save Profiles As")]
+    [SerializeField] InputField profileNameInput = null;
+    [SerializeField] Button saveAsButton = null;
+    [SerializeField] Button confirmSaveAsButton = null;
+    [SerializeField] GameObject saveAsPanel = null;
+    [SerializeField] Button cancelSaveAsButton = null;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -41,13 +56,31 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         controlMan = FindObjectOfType<ControlsManager>();
-        profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
-        saveAsButton.onClick.AddListener(SaveAs);
-        saveButton.onClick.AddListener(Save);
-        setDefaultButton.onClick.AddListener(SetDefaultProfile);
-        deleteButton.onClick.AddListener(DeleteProfile);
 
+        //profiles
+        profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
+        saveButton.onClick.AddListener(Save);
+
+        //delete profiles
+        deleteButton.onClick.AddListener(ToggleDeletePanel);
+        confirmDeleteButton.onClick.AddListener(DeleteProfile);
+        confirmDeleteButton.onClick.AddListener(ToggleDeletePanel);
+        cancelDeleteButton.onClick.AddListener(ToggleDeletePanel);
+
+        //save profiles as
+        saveAsButton.onClick.AddListener(ToggleSaveAsPanel);
+        confirmSaveAsButton.onClick.AddListener(SaveAs);
+        cancelSaveAsButton.onClick.AddListener(ToggleSaveAsPanel);
+
+        //set default profile
+        setDefaultButton.onClick.AddListener(SetDefaultProfile);
+        setDefaultButton.onClick.AddListener(ShowDefaultNotification);
+
+        //prevent accidentally leaving stuff on in the scene
         optionsPanel.SetActive(false);
+        saveAsPanel.SetActive(false);
+        deleteConfirmationPanel.SetActive(false);
+        setDefaultNotification.SetActive(false);
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
         if (PlayerPrefs.HasKey(FADER_WIDTH_PLAYER_PREF))
@@ -66,6 +99,8 @@ public class UIManager : MonoBehaviour
     public void ToggleOptionsMenu()
     {
         optionsPanel.SetActive(!optionsPanel.activeInHierarchy);
+
+        deleteConfirmationPanel.SetActive(false); //we don't want this up when the menu is opened again to prevent accidents
     }
 
     public void SpawnFaderOptions(ControllerSettings _config, GameObject _control)
@@ -145,7 +180,12 @@ public class UIManager : MonoBehaviour
     void SaveAs()
     {
         string profileName = GetSaveNameFromField();
-        controlMan.SaveControllersAs(profileName);
+        bool canClose = controlMan.SaveControllersAs(profileName);
+
+        if(canClose)
+        {
+            ToggleSaveAsPanel();
+        }
     }
 
     void SetDefaultProfile()
@@ -178,6 +218,39 @@ public class UIManager : MonoBehaviour
 
         Debug.LogError("Index not found in profile dropdown");
         return -1;
+    }
+
+    void ToggleSaveAsPanel()
+    {
+        saveAsPanel.SetActive(!saveAsPanel.activeInHierarchy);
+    }
+
+    void ToggleDeletePanel()
+    {
+        deleteConfirmationPanel.SetActive(!deleteConfirmationPanel.activeInHierarchy);
+
+        if (deleteConfirmationPanel.activeInHierarchy)
+        {
+            deleteConfirmationText.text = "Are you sure you want to delete\n" + GetNameFromProfileDropdown() + "?";
+        }
+    }
+
+    Coroutine showDefaultNotificationRoutine = null;
+    void ShowDefaultNotification()
+    {
+        if(showDefaultNotificationRoutine != null)
+        {
+            StopCoroutine(showDefaultNotificationRoutine);
+        }
+
+        defaultConfirmationText.text = GetNameFromProfileDropdown() + " set as default!\nThis will be the patch that loads on startup.";
+        showDefaultNotificationRoutine = StartCoroutine(ShowDefaultNotificationThenHide());
+    }
+    IEnumerator ShowDefaultNotificationThenHide()
+    {
+        setDefaultNotification.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        setDefaultNotification.SetActive(false);
     }
 
     void AddOptionsButtonToLayout(GameObject _button)
