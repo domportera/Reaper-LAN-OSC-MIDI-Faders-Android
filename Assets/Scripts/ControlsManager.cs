@@ -166,7 +166,6 @@ public class ControlsManager : MonoBehaviour
             SpawnDefaultControllers();
             return false;
         }
-
     }
 
     void SpawnDefaultControllers()
@@ -175,12 +174,13 @@ public class ControlsManager : MonoBehaviour
         NukeControllers();
         controllers = new List<ControllerSettings>();
 
-        foreach (ControllerSettings set in defaultControllers)
+        for (int i = 0; i < defaultControllers.Length; i++)
         {
-            controllers.Add(set);
+            defaultControllers[i].SetPosition(i);
+            controllers.Add(defaultControllers[i]);
         }
 
-        SpawnControllers();
+        SpawnControllers(true);
     }
 
     void NukeControllers()
@@ -279,10 +279,14 @@ public class ControlsManager : MonoBehaviour
         return uniqueIDGen++;
     }
 
-    //this should be threaded
-    void SpawnControllers()
+    void SpawnControllers(bool _isDefault = false)
     {
-        foreach(ControllerSettings set in controllers)
+        if (!_isDefault)
+        {
+            controllers.Sort((s1, s2) => s1.GetPosition().CompareTo(s2.GetPosition()));
+        }
+
+        foreach (ControllerSettings set in controllers)
         {
             SpawnController(set);
         }
@@ -292,10 +296,15 @@ public class ControlsManager : MonoBehaviour
     {
         ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
         controllers.Add(newControl);
-        SpawnController(newControl);
+        GameObject newController = SpawnController(newControl);
+
+        if (newController != null)
+        {
+            newControl.SetPosition(newController.transform.GetSiblingIndex());
+        }
     }
 
-    public void SpawnController (ControllerSettings _config)
+    public GameObject SpawnController (ControllerSettings _config)
     {
         bool error = true;
         string errorDebug = "doesn't exist!";
@@ -307,9 +316,7 @@ public class ControlsManager : MonoBehaviour
                 //spawn this type
                 if (t.controlObject != null)
                 {
-                    control = Instantiate(t.controlObject);
-                    control.transform.SetParent(controllerParent, false);
-                    control.GetComponentInChildren<FaderControl>().Initialize(_config);
+                    control = SpawnControllerObject(_config, t.controlObject);
                     controllerObjects.Add(_config, control);
                     error = false;
                     break;
@@ -333,6 +340,16 @@ public class ControlsManager : MonoBehaviour
         }
 
         uiManager.SpawnFaderOptions(_config, control);
+
+        return control;
+    }
+
+    GameObject SpawnControllerObject(ControllerSettings _config, GameObject _controlObject)
+    {
+        GameObject control = Instantiate(_controlObject);
+        control.transform.SetParent(controllerParent, false);
+        control.GetComponentInChildren<FaderControl>().Initialize(_config);
+        return control;
     }
 
     public void RespawnController(ControllerSettings _config)

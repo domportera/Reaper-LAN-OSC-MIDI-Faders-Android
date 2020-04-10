@@ -157,7 +157,13 @@ public class FaderControl : MonoBehaviour
     {
         sortLeftButton.gameObject.SetActive(_visible);
         sortRightButton.gameObject.SetActive(_visible);
-        slider.gameObject.SetActive(!_visible);
+
+        Image[] sliderImages = slider.GetComponentsInChildren<Image>();
+
+        foreach(Image i in sliderImages)
+        {
+            i.enabled = !_visible;
+        }
     }
 
     void SetConnected()

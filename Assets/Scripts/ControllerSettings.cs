@@ -25,7 +25,9 @@ public class ControllerSettings
     public int ccNumber;
     int id; //not currently in use, could be useful some day?
 
-    [SerializeField] int position;
+    public const int NULL_POSITION = -1;
+
+    [SerializeField] int position = NULL_POSITION;
 
     public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
@@ -35,7 +37,7 @@ public class ControllerSettings
     }
 
     public void SetVariables(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
-        MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
+        MIDIChannel _channel, CurveType _curveType, int _ccNumber, float _smoothTime)
     {
         //add channel if not set to all channels
         address = "/vkb_midi/" + (_channel == MIDIChannel.All ? "" : (int)_channel + "/");
@@ -145,6 +147,11 @@ public class ControllerSettings
     public void SetPosition(int _index)
     {
         position = _index;
+    }
+
+    public int GetPosition()
+    {
+        return position;
     }
 
     public int GetRange()

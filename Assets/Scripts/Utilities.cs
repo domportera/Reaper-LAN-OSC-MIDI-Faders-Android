@@ -9,8 +9,6 @@ public class Utilities : MonoBehaviour
     [SerializeField] GameObject errorWindow = null;
     [SerializeField] Button closeErrorWindow = null;
 
-    float errorTextTime = 4f;
-
 
     // Start is called before the first frame update
     void Start() 
