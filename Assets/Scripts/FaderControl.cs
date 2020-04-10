@@ -25,9 +25,7 @@ public class FaderControl : MonoBehaviour
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
 
-    AnimationCurve valueCurve;
-
-    public void Initialize(ControllerSettings _controller, ValueCurve[] _curves)
+    public void Initialize(ControllerSettings _controller)
     {
         sender = GetComponent<OscPropertySender>();
         myController = _controller;
@@ -44,22 +42,6 @@ public class FaderControl : MonoBehaviour
 
         slider.maxValue = myController.max;
         slider.minValue = myController.min;
-        
-        if(_curves == null || _curves.Length < System.Enum.GetValues(typeof(CurveType)).Length)
-        {
-            Debug.LogError($"Not all curves are present! Null? {_curves == null }");
-        }
-
-        foreach(ValueCurve c in _curves)
-        {
-            if(c.curveType == myController.curveType)
-            {
-                valueCurve = c.curve;
-                break;
-            }
-        }
-
-        slider.SetValueWithoutNotify(MapValueToCurve(defaultValue));
 
         sortLeftButton.onClick.AddListener(SortLeft);
         sortRightButton.onClick.AddListener(SortRight);
@@ -86,6 +68,7 @@ public class FaderControl : MonoBehaviour
             {
                 dupeCount = FRAMES_TO_SEND_DUPLICATES;
             }
+
         }
         else
         {
@@ -96,18 +79,20 @@ public class FaderControl : MonoBehaviour
         {
             SendModValue();
         }
+
+        slider.SetValueWithoutNotify(modValue);
     }
 
     public void StartSliding()
     {
-        
+
     }
 
     public void EndSliding()
     {
         if(myController.controlType == ControlType.Wheel)
         {
-            targetModValue = MapValueToCurve(myController.defaultValue);
+            targetModValue = MapValueToCurve(myController.defaultValue, true);
         }
     }
 
@@ -150,9 +135,7 @@ public class FaderControl : MonoBehaviour
                     modValue += difference;
                 }
             }
-        }      
-
-        slider.SetValueWithoutNotify(modValue);
+        }
     }
 
     void SortLeft()
@@ -191,18 +174,28 @@ public class FaderControl : MonoBehaviour
     {
         if (IPSetter.IsConnected())
         {
-            sender.Send(MapValueToCurve(modValue));
+            sender.Send(MapValueToCurve(modValue, false));
         }
     }
 
-    int MapValueToCurve(float _value)
+    int MapValueToCurve(float _value, bool _inverse)
     {
         if (myController.curveType != CurveType.Linear)
         {
+
             int range = myController.GetRange();
             float tempVal = _value - myController.min;
             float ratio = tempVal / range;
-            float mappedRatio = valueCurve.Evaluate(ratio);
+            float mappedRatio;
+
+            if (_inverse)
+            {
+                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio); 
+            }
+            else
+            {
+                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
+            }
 
             return (int)(mappedRatio * range + myController.min);
         }

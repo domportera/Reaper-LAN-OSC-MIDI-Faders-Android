@@ -22,7 +22,6 @@ public class ControlsManager : MonoBehaviour
     };
 
     [SerializeField] ControllerType[] controllerTypes = null;
-    [SerializeField] ValueCurve[] valueCurves = null;
 
     List<ControllerSettings> controllers = new List<ControllerSettings>();
 
@@ -310,7 +309,7 @@ public class ControlsManager : MonoBehaviour
                 {
                     control = Instantiate(t.controlObject);
                     control.transform.SetParent(controllerParent, false);
-                    control.GetComponentInChildren<FaderControl>().Initialize(_config, valueCurves);
+                    control.GetComponentInChildren<FaderControl>().Initialize(_config);
                     controllerObjects.Add(_config, control);
                     error = false;
                     break;
@@ -417,13 +416,6 @@ public class ControlsManager : MonoBehaviour
             defaultProfileName = _name;
         }
     }
-}
-
-[Serializable]
-public struct ValueCurve
-{
-    public CurveType curveType;
-    public AnimationCurve curve;
 }
 
 //used to pair prefabs with their control type
