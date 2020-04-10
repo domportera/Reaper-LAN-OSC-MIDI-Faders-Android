@@ -149,7 +149,7 @@ public class ControllerSettings
 
     public int GetRange()
     {
-        return Mathf.Abs(max - min);
+        return Mathf.Abs(max - min) + 1; //since we're using  ints, 0-127 is actually 128 total values, so +1
     }
 
     public string GetAddress()
