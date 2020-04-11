@@ -29,6 +29,12 @@ public class ControllerSettings
 
     [SerializeField] int position = NULL_POSITION;
 
+    public ControllerSettings(ControllerSettings _c)
+    {
+        SetVariables(_c.name, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
+        id = ControlsManager.GetUniqueID();
+    }
+
     public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {

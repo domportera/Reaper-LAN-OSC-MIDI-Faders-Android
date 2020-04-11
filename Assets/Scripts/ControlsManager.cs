@@ -100,7 +100,9 @@ public class ControlsManager : MonoBehaviour
             return;
         }
 
-        string json = JsonUtility.ToJson(new FaderSaver(controllers, _name));
+        controllers.Sort((s1, s2) => s1.name.CompareTo(s2.name));
+
+        string json = JsonUtility.ToJson(new FaderSaver(controllers, _name), true);
         SaveFile(_name, json);
     }
 
@@ -112,7 +114,7 @@ public class ControlsManager : MonoBehaviour
             return false;
         }
 
-        if (_name.Length > 1)
+        if (_name.Length > 0)
         {
             string profileName = _name;
             profileNames.AddProfile(profileName);
@@ -164,7 +166,7 @@ public class ControlsManager : MonoBehaviour
         {
             Debug.Log($"Profile was default");
             SpawnDefaultControllers();
-            return false;
+            return true;
         }
     }
 
@@ -176,8 +178,9 @@ public class ControlsManager : MonoBehaviour
 
         for (int i = 0; i < defaultControllers.Length; i++)
         {
-            defaultControllers[i].SetPosition(i);
-            controllers.Add(defaultControllers[i]);
+            ControllerSettings c = new ControllerSettings(defaultControllers[i]);
+            c.SetPosition(i);
+            controllers.Add(c);
         }
 
         SpawnControllers(true);
@@ -228,7 +231,7 @@ public class ControlsManager : MonoBehaviour
 
     void SaveProfileNames()
     {
-        string json = JsonUtility.ToJson(profileNames);
+        string json = JsonUtility.ToJson(profileNames, true);
         SaveFile(PROFILE_NAME_SAVE_NAME, json);
     }
 
@@ -295,7 +298,6 @@ public class ControlsManager : MonoBehaviour
     public void NewController()
     {
         ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
-        controllers.Add(newControl);
         GameObject newController = SpawnController(newControl);
 
         if (newController != null)
@@ -340,6 +342,11 @@ public class ControlsManager : MonoBehaviour
         }
 
         uiManager.SpawnFaderOptions(_config, control);
+
+        if(!controllers.Contains(_config))
+        {
+            controllers.Add(_config);
+        }
 
         return control;
     }
