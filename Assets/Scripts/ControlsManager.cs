@@ -362,7 +362,8 @@ public class ControlsManager : MonoBehaviour
     public void RespawnController(ControllerSettings _config)
     {
         DestroyController(_config);
-        SpawnController(_config);
+        GameObject control = SpawnController(_config);
+        control.transform.SetSiblingIndex(_config.GetPosition()); //there are bound to be issues here with ordering when faders are deleted and stuff
         FindObjectOfType<IPSetter>().TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
     }
 
