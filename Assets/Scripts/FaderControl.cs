@@ -31,6 +31,7 @@ public class FaderControl : MonoBehaviour
         myController = _controller;
 
         sender.SetAddress(myController.GetAddress());
+
         label.text = myController.name;
         name = myController.name + " " + myController.controlType;
 

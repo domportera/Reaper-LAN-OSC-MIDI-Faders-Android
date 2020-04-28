@@ -27,10 +27,11 @@ public class ControlsManager : MonoBehaviour
 
     Dictionary<ControllerSettings, GameObject> controllerObjects = new Dictionary<ControllerSettings, GameObject>();
 
-    static int uniqueIDGen;
+    static int uniqueIDGen = 0;
 
     UIManager uiManager;
     Utilities util;
+    IPSetter ipSetter;
 
     public const string NEW_CONTROLLER_NAME = "New Controller";
 
@@ -43,6 +44,7 @@ public class ControlsManager : MonoBehaviour
     {
         util = FindObjectOfType<Utilities>();
         uiManager = FindObjectOfType<UIManager>();
+        ipSetter = FindObjectOfType<IPSetter>();
 
         //load profile file names
         LoadProfileNames();
@@ -55,7 +57,7 @@ public class ControlsManager : MonoBehaviour
     {
         NukeControllers();
         LoadControllers(_name);
-        Debug.Log($"Set active {_name}.");
+        ipSetter.TryConnect();
     }
 
     public void SetDefaultProfile(string _profile)
@@ -132,9 +134,10 @@ public class ControlsManager : MonoBehaviour
         }
     }
 
-    bool LoadControllers(string _profile)
+    void LoadControllers(string _profile)
     {
         Debug.Log($"Loading");
+
         if (_profile != DEFAULT_SAVE_NAME)
         {
             string json = LoadFile(_profile);
@@ -146,27 +149,34 @@ public class ControlsManager : MonoBehaviour
 
                 if (loadedData != null || loadedData.GetControllers().Count > 0)
                 {
-                    controllers = loadedData.GetControllers();
+                    List<ControllerSettings> temp = loadedData.GetControllers();
+
+                    //properly initialize each controller settings
+                    for (int i = 0; i < temp.Count; i++)
+                    {
+                        temp[i] = new ControllerSettings(temp[i]);
+                    }
+
+                    controllers = temp;
                     SpawnControllers();
-                    return true;
                 }
                 else
                 {
                     //spawn defaults if no save data
                     SpawnDefaultControllers();
                     Debug.LogError("Saved data was empty");
-                    return false;
                 }
             }
-            Debug.LogError($"JSON object was null");
-            SpawnDefaultControllers();
-            return false;
+            else
+            {
+                Debug.LogError($"JSON object was null");
+                SpawnDefaultControllers();
+            }
         }
         else
         {
             Debug.Log($"Profile was default");
             SpawnDefaultControllers();
-            return true;
         }
     }
 
@@ -364,7 +374,7 @@ public class ControlsManager : MonoBehaviour
         DestroyController(_config);
         GameObject control = SpawnController(_config);
         control.transform.SetSiblingIndex(_config.GetPosition()); //there are bound to be issues here with ordering when faders are deleted and stuff
-        FindObjectOfType<IPSetter>().TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
+        ipSetter.TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
     }
 
     public void DestroyController(ControllerSettings _config)
