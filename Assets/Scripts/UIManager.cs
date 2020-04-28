@@ -12,10 +12,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject faderOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
-
+    [SerializeField] Button optionsButton = null;
     [Space(10)]
     [SerializeField] Slider faderWidthSlider = null;
-    [SerializeField] Toggle faderPositionEditorToggle = null;
+    [SerializeField] Button faderPositionEnableButton = null;
+    [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
 
     [Header("Profiles")]
@@ -49,13 +50,20 @@ public class UIManager : MonoBehaviour
     int faderWidth = DEFAULT_FADER_WIDTH;
 
     const string FADER_WIDTH_PLAYER_PREF = "Fader Width";
+    bool positionMode = false;
 
     ControlsManager controlMan = null;
+    Utilities utilities = null;
 
     // Start is called before the first frame update
     void Start()
     {
         controlMan = FindObjectOfType<ControlsManager>();
+        utilities = FindObjectOfType<Utilities>();
+
+        //options
+        optionsButton.onClick.AddListener(ToggleOptionsMenu);
+        faderPositionExitButton.onClick.AddListener(ToggleEditFaderPositionMode);
 
         //profiles
         profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
@@ -92,7 +100,7 @@ public class UIManager : MonoBehaviour
 
         faderWidthSlider.SetValueWithoutNotify(faderWidth);
         faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
-        faderPositionEditorToggle.onValueChanged.AddListener(ToggleEditFaderPositionMode);
+        faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
     }
 
     //used by options button in scene
@@ -459,12 +467,24 @@ public class UIManager : MonoBehaviour
         PlayerPrefs.SetInt(FADER_WIDTH_PLAYER_PREF, faderWidth);
     }
 
-    void ToggleEditFaderPositionMode(bool _b)
+    void ToggleEditFaderPositionMode()
     {
+        positionMode = !positionMode;
+
         foreach(ControllerUIGroup u in controllerUIs)
         {
-            u.SetPostionMode(_b);
+            u.SetPostionMode(positionMode);
             u.SetPosition();
+        }
+
+        //toggle options buttons
+        optionsButton.gameObject.SetActive(!positionMode);
+        optionsPanel.SetActive(!positionMode);
+        faderPositionExitButton.gameObject.SetActive(positionMode);
+
+        if(!positionMode)
+        {
+            utilities.SetErrorText("Don't forget to save!");
         }
     }
 
