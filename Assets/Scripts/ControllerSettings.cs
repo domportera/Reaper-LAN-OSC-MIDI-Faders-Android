@@ -33,6 +33,7 @@ public class ControllerSettings
     {
         SetVariables(_c.name, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
         id = ControlsManager.GetUniqueID();
+        position = _c.position;
     }
 
     public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
