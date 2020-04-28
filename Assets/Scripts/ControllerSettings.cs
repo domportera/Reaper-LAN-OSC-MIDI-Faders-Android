@@ -112,11 +112,6 @@ public class ControllerSettings
                 min = 0;
                 max = 127;
                 break;
-            case ValueRange.EightBit:
-                min = 0;
-                max = 255;
-                Debug.LogError("Untested! not recommended, please use only if values 0-255 are what you need.");
-                break;
             case ValueRange.FourteenBit:
                 min = 0;
                 max = 16383;

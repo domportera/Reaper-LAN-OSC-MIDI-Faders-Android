@@ -33,6 +33,7 @@ public class FaderOptions : MonoBehaviour
 
         PopulateDropdowns();
         SetFieldsToControllerValues();
+        addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
 
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
 
@@ -51,6 +52,31 @@ public class FaderOptions : MonoBehaviour
         else
         {
             ccChannelField.gameObject.SetActive(false);
+        }
+    }
+
+    void AddressTypeMenuChange(int _val)
+    {
+        switch((AddressType)_val)
+        {
+            case AddressType.CC:
+                valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
+                valueRangeDropdown.gameObject.SetActive(true);
+                ccChannelField.SetTextWithoutNotify("");
+                ccChannelField.gameObject.SetActive(true);
+                break;
+            case AddressType.Pitch:
+                valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
+                valueRangeDropdown.gameObject.SetActive(true);
+                ccChannelField.SetTextWithoutNotify("");
+                ccChannelField.gameObject.SetActive(false);
+                break;
+            case AddressType.Aftertouch:
+                valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
+                valueRangeDropdown.gameObject.SetActive(false);
+                ccChannelField.SetTextWithoutNotify("");
+                ccChannelField.gameObject.SetActive(false);
+                break;
         }
     }
     
@@ -72,14 +98,7 @@ public class FaderOptions : MonoBehaviour
         nameField.SetTextWithoutNotify(controllerConfig.name);
         ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
 
-        if (controllerConfig.addressType != AddressType.CC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
-        {
-            ccChannelField.gameObject.SetActive(false);
-        }
-        else
-        {
-            ccChannelField.gameObject.SetActive(true);
-        }
+        AddressTypeMenuChange((int)controllerConfig.addressType);
     }
 
     void SetControllerValuesToFields()
@@ -94,7 +113,8 @@ public class FaderOptions : MonoBehaviour
         float smoothTime = smoothnessField.value;
         string controllerName = nameField.text;
 
-        int ccNumber = int.Parse(ccChannelField.text); //this number should be validated by text field, so it should always be ok if text field is set up properly
+        int result;
+        int ccNumber = int.TryParse(ccChannelField.text, out result) ? result : -1; //this number should be validated by text field, so it should always be ok if text field is set up properly
 
         controllerConfig.SetVariables(controllerName, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
 
