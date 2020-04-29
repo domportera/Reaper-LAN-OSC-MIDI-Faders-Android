@@ -1,12 +1,13 @@
 ## Reaper MIDI OSC Faders over Wifi - Android
-![Main user interface](https://i.imgur.com/2jADy1I.png)
+
+<img src="https://i.imgur.com/2jADy1I.png" alt="Main user interface" width="640" height="480">
 
 This is my repo for my customizable Reaper OSC MIDI control solution for Android. Built in Unity. All feedback and feature requests are welcome! Currently this only works with Reaper, but I am open to extending it to other DAWs if people request it.
 
-![Options menu](https://i.imgur.com/4F4QBAK.png)
+<img src="https://i.imgur.com/4F4QBAK.png" alt="Options menu" width="640" height="480">
 
 **With this you can:**
- - Control Reaper wirelessly with your Android device
+ - Control Reaper MIDI wirelessly with your Android device
  - Create (a virtually unlimited quantity of) faders 
  - Create faders that return to their default value when released (like
    a pitch wheel, but with extra options)
@@ -22,7 +23,7 @@ This is my repo for my customizable Reaper OSC MIDI control solution for Android
  - Faders can be sorted into an order that suits your needs best
  - Use built-in defaults to test controls that are verified to work
  
- ![Fader options](https://i.imgur.com/Y7WnuAu.png)
+<img src="https://i.imgur.com/Y7WnuAu.png" alt="Fader options" width="640" height="480">
 
 **All you need to do is:**
  - Configure Reaper to receive OSC messages
