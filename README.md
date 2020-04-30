@@ -38,8 +38,6 @@ This is my repo for my customizable Reaper OSC MIDI control solution for Android
  - Custom fader/UI colors
  - A proper how-to guide in-app
  - An in-app MIDI CC reference list
- - Support for multiple aspect ratios (currently only supports 9:16, but
-   should work on other aspect ratios. It might look weird.)
  - Displaying fader value curves on the fader
  - A way to import and export user data
 
