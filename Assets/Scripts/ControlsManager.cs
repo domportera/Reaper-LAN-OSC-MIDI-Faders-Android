@@ -40,7 +40,7 @@ public class ControlsManager : MonoBehaviour
     const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
     Profiles profileNames = null;
 
-    void Start()
+    void Awake()
     {
         util = FindObjectOfType<Utilities>();
         uiManager = FindObjectOfType<UIManager>();
@@ -53,7 +53,12 @@ public class ControlsManager : MonoBehaviour
         PopulateProfileSelectionMenu();
     }
 
-    public void SetActiveProfile(string _name)
+	private void Start()
+	{
+		//subscribe to color controller
+	}
+
+	public void SetActiveProfile(string _name)
     {
         NukeControllers();
         LoadControllers(_name);

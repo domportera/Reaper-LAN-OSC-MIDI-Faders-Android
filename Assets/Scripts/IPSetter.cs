@@ -21,7 +21,7 @@ public class IPSetter : MonoBehaviour
     Utilities util;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         util = FindObjectOfType<Utilities>();
         Load();

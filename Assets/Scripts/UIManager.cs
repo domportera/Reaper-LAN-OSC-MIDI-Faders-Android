@@ -56,7 +56,7 @@ public class UIManager : MonoBehaviour
     Utilities utilities = null;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         controlMan = FindObjectOfType<ControlsManager>();
         utilities = FindObjectOfType<Utilities>();
