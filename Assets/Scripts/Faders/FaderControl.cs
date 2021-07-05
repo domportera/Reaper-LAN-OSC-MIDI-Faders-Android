@@ -12,6 +12,7 @@ public class FaderControl : MonoBehaviour
     [SerializeField] Slider slider = null;
     [SerializeField] Button sortLeftButton = null;
     [SerializeField] Button sortRightButton = null;
+    [SerializeField] ColorSetter faderColorController = null;
 
     OscPropertySender sender = null;
 
@@ -184,6 +185,11 @@ public class FaderControl : MonoBehaviour
             sender.Send(MapValueToCurve(modValue, false));
         }
     }
+
+    public ColorSetter GetFaderColorController()
+    {
+        return faderColorController;
+	}
 
     int MapValueToCurve(float _value, bool _inverse)
     {

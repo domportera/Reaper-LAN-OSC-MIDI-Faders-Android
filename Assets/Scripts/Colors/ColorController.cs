@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using UnityEngine.EventSystems;
+using static ControlsManager;
+using static ColorProfile;
 
 public class ColorController : MonoBehaviour
 {
@@ -16,18 +18,28 @@ public class ColorController : MonoBehaviour
     [SerializeField] Button closeButton;
 
     [SerializeField] ColorPreview[] colorPreviews;
+    [SerializeField] ControlsManager controlManager;
 
-    enum ColorType {Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Buttons }
     ColorType currentColorType = ColorType.Background;
 
     Dictionary<ColorType, Color> colors = new Dictionary<ColorType, Color>();
 
+    ColorProfile defaultColorProfile = new ColorProfile();
+
+    List<ColorProfile> colorProfiles = new List<ColorProfile>();
+
+    ColorProfile currentProfile;
+    ColorProfile currentProfileBackup;
+
 	private void Awake()
-	{
+    {
+        currentProfile = defaultColorProfile;
+        BackupColorProfile();
+
         InitializeColorDictionary();
         InitializeUI();
 
-        foreach(ColorPreview p in colorPreviews)
+        foreach (ColorPreview p in colorPreviews)
         {
             p.selectionButton.onClick.AddListener(ColorPreviewButton);
 		}
@@ -36,13 +48,47 @@ public class ColorController : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-        
+        controlManager.OnControllerSpawned.AddListener(SetControllerColors);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    void SetControllerColors(Profile _profile, ControllerSettings _config, ColorSetter _colorSetter)
+    {
+        if (currentProfile.name != _profile.name) 
+        {
+            //find profile with this profile name
+            ColorProfile myProfile = null;
+
+            foreach (ColorProfile p in colorProfiles)
+            {
+                if (p.name == _profile.name)
+                {
+                    myProfile = p;
+                    break;
+                }
+            }
+
+            if (myProfile == null)
+            {
+                myProfile = new ColorProfile(_profile.name, defaultColorProfile);
+                colorProfiles.Add(myProfile);
+            }
+
+            currentProfile = myProfile;
+            BackupColorProfile();
+        }
+
+        _colorSetter.SetColors(currentProfile);
+    }
+
+    void BackupColorProfile() //for revert
+    {
+        currentProfileBackup = currentProfileBackup = new ColorProfile(currentProfile);
     }
 
     void TogglePanel()
@@ -53,7 +99,11 @@ public class ColorController : MonoBehaviour
     void SliderChange(float _val)
     {
         ColorPreview preview = GetPreviewFromColorType(currentColorType);
-        preview.image.color = GetColorFromSliders();
+
+        SetPreviewToColor(preview, GetColorFromSliders());
+
+        //profile update
+        currentProfile.SetColor(preview.colorType, preview.image.color);
 	}
 
     Color GetColorFromSliders()
@@ -92,6 +142,11 @@ public class ColorController : MonoBehaviour
     void SetPreviewToColor(ColorType _type, Color _color)
     {
         GetPreviewFromColorType(_type).image.color = _color;
+	}
+
+    void SetPreviewToColor(ColorPreview _preview, Color _color)
+    {
+        _preview.image.color = _color;
 	}
 
     ColorPreview GetPreviewFromColorType(ColorType _type)

@@ -182,7 +182,7 @@ public class UIManager : MonoBehaviour
 
     void Save()
     {
-        controlMan.SaveControllers(GetNameFromProfileDropdown()); ;
+        controlMan.SaveControllers(GetNameFromProfileDropdown());
     }
 
     void SaveAs()
