@@ -17,7 +17,7 @@ public class ColorController : MonoBehaviour
 
     [SerializeField] ColorPreview[] colorPreviews;
 
-    enum ColorType {Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground }
+    enum ColorType {Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Buttons }
     ColorType currentColorType = ColorType.Background;
 
     Dictionary<ColorType, Color> colors = new Dictionary<ColorType, Color>();
