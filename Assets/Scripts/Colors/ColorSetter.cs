@@ -5,78 +5,95 @@ using UnityEngine.UI;
 
 public class ColorSetter : MonoBehaviour
 {
-    [SerializeField] Image[] backgrounds;
-    [SerializeField] Image[] faderBackgrounds;
-    [SerializeField] Image[] faderHandles;
-    [SerializeField] Text[] texts;
-    [SerializeField] Image[] scrollHandles;
-    [SerializeField] Image[] scrollBackgrounds;
-    [SerializeField] Image[] buttons;
+    [SerializeField]
+    ColorProfile.ColorType colorType;
 
-    public void SetColors(ColorProfile _colors)
-    {
-        SetBackgroundColor(_colors.background);
-        SetFaderBackgroundColor(_colors.faderBackground);
-        SetFaderHandleColor(_colors.faderHandle);
-        SetTextColor(_colors.text);
-        SetScrollHandleColor(_colors.scrollHandle);
-        SetScrollBackgroundColor(_colors.scrollBackground);
-        SetButtonColor(_colors.button);
-    }
+    Image image;
+	Text text;
 
-    void SetButtonColor(Color _color)
-    {
-        foreach (Image i in buttons)
-        {
-            i.color = _color;
-        }
-    }
+	bool canColor = true;
+	bool textIsImage = false;
 
-    void SetScrollHandleColor(Color _color)
-    {
-        foreach (Image i in scrollHandles)
-        {
-            i.color = _color;
-        }
-    }
+	private void Awake()
+	{
+		switch (colorType)
+		{
+			case ColorProfile.ColorType.Text:
+				text = GetComponent<Text>();
+				if (text == null)
+				{
+					Debug.LogWarning($"{name} has no text component", this);
+					image = GetComponent<Image>();
+					if (image == null)
+					{
+						Debug.LogWarning($"{name} has no image component for text substitution", this);
+						canColor = false;
+					}
+					else
+					{
+						canColor = true;
+						textIsImage = true;
+					}
+				}
+				break;
+			default:
+				image = GetComponent<Image>();
+				if (image == null)
+				{
+					Debug.LogWarning($"{name} has no image component", this);
+					canColor = false;
+				}
+				break;
+		}
+	}
 
-    void SetScrollBackgroundColor(Color _color)
-    {
-        foreach (Image i in scrollBackgrounds)
-        {
-            i.color = _color;
-        }
-    }
+	private void Start()
+	{
+		ColorController.AddToControls(this);
+	}
 
-    void SetFaderHandleColor(Color _color)
-    {
-        foreach (Image i in faderHandles)
-        {
-            i.color = _color;
-        }
-    }
-    void SetFaderBackgroundColor(Color _color)
-    {
-        foreach (Image i in faderBackgrounds)
-        {
-            i.color = _color;
-        }
-    }
+	private void OnDestroy()
+	{
+		ColorController.RemoveFromControls(this);
+	}
 
-    void SetBackgroundColor(Color _color)
+	public void SetColors(ColorProfile _colors)
     {
-        foreach (Image i in backgrounds)
-        {
-            i.color = _color;
-        }
+		if (!canColor) return;
 
-    }
-
-    void SetTextColor(Color _color)
-    {
-        foreach (Text t in texts)
-        {
-            t.color = _color;
-        }
+		switch (colorType)
+		{
+			case ColorProfile.ColorType.Background:
+				image.color = _colors.background;
+				break;
+			case ColorProfile.ColorType.FaderBackground:
+				image.color = _colors.faderBackground;
+				break;
+			case ColorProfile.ColorType.FaderHandle:
+				image.color = _colors.faderHandle;
+				break;
+			case ColorProfile.ColorType.Text:;
+				if (!textIsImage)
+				{
+					text.color = _colors.text;
+				}
+				else
+				{
+					image.color = _colors.text;
+				}
+				break;
+			case ColorProfile.ColorType.ScrollHandle:
+				image.color = _colors.scrollHandle;
+				break;
+			case ColorProfile.ColorType.ScrollBackground:
+				image.color = _colors.scrollBackground;
+				break;
+			case ColorProfile.ColorType.Button:
+				image.color = _colors.button;
+				break;
+			default:
+				Debug.LogError($"Color Type {colorType} not handled in ColorSetter");
+				break;
+		}
 	}
 }

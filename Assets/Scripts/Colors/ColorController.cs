@@ -17,38 +17,42 @@ public class ColorController : MonoBehaviour
     [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
 
-    [SerializeField] ColorPreview[] colorPreviews;
+    [SerializeField] ColorButton[] colorPreviews;
     [SerializeField] ControlsManager controlManager;
 
     ColorType currentColorType = ColorType.Background;
 
-    Dictionary<ColorType, Color> colors = new Dictionary<ColorType, Color>();
-
     ColorProfile defaultColorProfile = new ColorProfile();
+    ColorProfile currentColorProfile;
 
-    List<ColorProfile> colorProfiles = new List<ColorProfile>();
-
-    ColorProfile currentProfile;
-    ColorProfile currentProfileBackup;
+    public static ColorController instance;
+    static List<ColorSetter> colorSetters = new List<ColorSetter>();
 
 	private void Awake()
     {
-        currentProfile = defaultColorProfile;
-        BackupColorProfile();
+        if(instance == null)
+        {
+            instance = this;
+		}
+        else
+        {
+            Debug.LogError($"Can't have more than one Color Controller");
+		}
 
-        InitializeColorDictionary();
         InitializeUI();
 
-        foreach (ColorPreview p in colorPreviews)
+        foreach (ColorButton p in colorPreviews)
         {
-            p.selectionButton.onClick.AddListener(ColorPreviewButton);
-		}
+            p.selectionButton.onClick.AddListener(ColorPreviewButtonPress);
+        }
+
+        Load();
     }
 
 	// Start is called before the first frame update
 	void Start()
     {
-        controlManager.OnControllerSpawned.AddListener(SetControllerColors);
+        UpdateAppColors();
     }
 
     // Update is called once per frame
@@ -57,39 +61,40 @@ public class ColorController : MonoBehaviour
         
     }
 
-    void SetControllerColors(Profile _profile, ControllerSettings _config, ColorSetter _colorSetter)
+    void Load()
     {
-        if (currentProfile.name != _profile.name) 
+        currentColorProfile = defaultColorProfile;
+	}
+
+    void UpdateAppColors()
+    {
+        foreach(ColorSetter c in colorSetters)
         {
-            //find profile with this profile name
-            ColorProfile myProfile = null;
+            c.SetColors(currentColorProfile);
+		}
+	}
 
-            foreach (ColorProfile p in colorProfiles)
-            {
-                if (p.name == _profile.name)
-                {
-                    myProfile = p;
-                    break;
-                }
-            }
-
-            if (myProfile == null)
-            {
-                myProfile = new ColorProfile(_profile.name, defaultColorProfile);
-                colorProfiles.Add(myProfile);
-            }
-
-            currentProfile = myProfile;
-            BackupColorProfile();
-        }
-
-        _colorSetter.SetColors(currentProfile);
-    }
-
-    void BackupColorProfile() //for revert
+    void UpdateAppColors(ColorSetter _setter)
     {
-        currentProfileBackup = currentProfileBackup = new ColorProfile(currentProfile);
+        _setter.SetColors(currentColorProfile);
+	}
+
+    void UpdateColorProfile(ColorType _type, Color _color)
+    {
+        currentColorProfile.SetColor(_type, _color);
+	}
+
+    public static void AddToControls(ColorSetter _setter)
+    {
+        colorSetters.Add(_setter);
+        instance.UpdateAppColors(_setter);
     }
+
+    public static void RemoveFromControls(ColorSetter _setter)
+    {
+        colorSetters.Remove(_setter);
+	}
+
 
     void TogglePanel()
     {
@@ -98,12 +103,9 @@ public class ColorController : MonoBehaviour
 
     void SliderChange(float _val)
     {
-        ColorPreview preview = GetPreviewFromColorType(currentColorType);
-
-        SetPreviewToColor(preview, GetColorFromSliders());
-
-        //profile update
-        currentProfile.SetColor(preview.colorType, preview.image.color);
+        ColorButton preview = GetPreviewFromColorType(currentColorType);
+        UpdateColorProfile(preview.colorType, GetColorFromSliders());
+        UpdateAppColors();
 	}
 
     Color GetColorFromSliders()
@@ -115,14 +117,14 @@ public class ColorController : MonoBehaviour
         return Color.HSVToRGB(hue, sat, val);
     }
 
-    void ColorPreviewButton()
+    void ColorPreviewButtonPress()
     {
         Button button = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
-        ColorPreview preview = GetPreviewFromButton(button);
+        ColorButton preview = GetPreviewFromButton(button);
 
         currentColorType = preview.colorType;
 
-        SetSlidersToColor(colors[currentColorType]);
+        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
     }
 
     void SetSlidersToColor(Color _color)
@@ -139,19 +141,9 @@ public class ColorController : MonoBehaviour
         valueSlider.SetValueWithoutNotify(hsv.z);
     }
 
-    void SetPreviewToColor(ColorType _type, Color _color)
+    ColorButton GetPreviewFromColorType(ColorType _type)
     {
-        GetPreviewFromColorType(_type).image.color = _color;
-	}
-
-    void SetPreviewToColor(ColorPreview _preview, Color _color)
-    {
-        _preview.image.color = _color;
-	}
-
-    ColorPreview GetPreviewFromColorType(ColorType _type)
-    {
-        foreach(ColorPreview p in colorPreviews)
+        foreach(ColorButton p in colorPreviews)
         {
             if(p.colorType == _type)
             {
@@ -163,9 +155,9 @@ public class ColorController : MonoBehaviour
         return colorPreviews[0];
     }
 
-    ColorPreview GetPreviewFromButton(Button _button)
+    ColorButton GetPreviewFromButton(Button _button)
     {
-        foreach (ColorPreview p in colorPreviews)
+        foreach (ColorButton p in colorPreviews)
         {
             if (p.selectionButton == _button)
             {
@@ -175,14 +167,6 @@ public class ColorController : MonoBehaviour
 
         Debug.LogError($"No button found for {_button.name}!");
         return colorPreviews[0];
-    }
-
-    void InitializeColorDictionary()
-    {
-        foreach (ColorType suit in (ColorType[])Enum.GetValues(typeof(ColorType)))
-        {
-            colors.Add(suit, Color.white);
-        }
     }
 
     void InitializeUI()
@@ -226,10 +210,9 @@ public class ColorController : MonoBehaviour
 	#endregion Color Translation
 
 	[Serializable]
-    struct ColorPreview
+    struct ColorButton
     {
         public Button selectionButton;
-        public Image image;
         public ColorType colorType;
 	}
 }

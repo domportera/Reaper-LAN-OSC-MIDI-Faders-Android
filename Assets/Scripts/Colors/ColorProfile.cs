@@ -15,8 +15,9 @@ public class ColorProfile
 	//default
 	public ColorProfile()
 	{
+		this.background = Color.black;
+
 		Color color1 = new Color(.16f, .15f, .34f);
-		this.background = color1;
 		this.faderBackground = color1;
 		this.scrollBackground = color1;
 		this.button = color1;
@@ -89,7 +90,7 @@ public class ColorProfile
 			case ColorType.ScrollBackground:
 				scrollBackground = _color;
 				break;
-			case ColorType.Buttons:
+			case ColorType.Button:
 				button = _color;
 				break;
 			default:
@@ -98,5 +99,29 @@ public class ColorProfile
 		}
 	}
 
-	public enum ColorType { Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Buttons }
+	public Color GetColor(ColorType _type)
+	{
+		switch (_type)
+		{
+			case ColorType.Background:
+				return background;
+			case ColorType.FaderBackground:
+				return faderBackground;
+			case ColorType.FaderHandle:
+				return faderHandle;
+			case ColorType.Text:
+				return text;
+			case ColorType.ScrollHandle:
+				return scrollHandle;
+			case ColorType.ScrollBackground:
+				return scrollBackground;
+			case ColorType.Button:
+				return button;
+			default:
+				Debug.LogError($"Tried to get {_type} color in profile, but no implementation exists!");
+				return Color.white;
+		}
+	}
+
+	public enum ColorType { Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Button }
 }

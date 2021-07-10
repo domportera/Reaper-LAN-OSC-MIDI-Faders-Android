@@ -32,19 +32,19 @@ public class ControllerSettings
 
     public ControllerSettings(ControllerSettings _c)
     {
-        SetVariables(_c.name, _c.profileName, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
+        SetVariables(_c.name, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
         id = ControlsManager.GetUniqueID();
         position = _c.position;
     }
 
-    public ControllerSettings(string _name, string _profileName, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public ControllerSettings(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {
-        SetVariables(_name, _profileName, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
+        SetVariables(_name, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
         id = ControlsManager.GetUniqueID();
     }
 
-    public void SetVariables(string _name, string _profileName, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public void SetVariables(string _name, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber, float _smoothTime)
     {
         //add channel if not set to all channels
@@ -68,7 +68,6 @@ public class ControllerSettings
         smoothTime = _smoothTime;
         curveType = _curveType;
         addressType = _addressType;
-        profileName = _profileName;
     }
 
     public int GetID()

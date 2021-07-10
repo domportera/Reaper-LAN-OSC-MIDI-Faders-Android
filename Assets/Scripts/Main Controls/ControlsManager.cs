@@ -14,13 +14,13 @@ public class ControlsManager : MonoBehaviour
 
     readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
-        new ControllerSettings("Pitch",             DEFAULT_SAVE_NAME, ControlType.Wheel, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Mod",               DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
-        new ControllerSettings("Foot Pedal",        DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
-        new ControllerSettings("Expression",        DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
-        new ControllerSettings("Breath Control",    DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
-        new ControllerSettings("Aftertouch",        DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Volume",            DEFAULT_SAVE_NAME, ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
+        new ControllerSettings("Pitch",             ControlType.Wheel, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Mod",               ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
+        new ControllerSettings("Foot Pedal",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
+        new ControllerSettings("Expression",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
+        new ControllerSettings("Breath Control",    ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
+        new ControllerSettings("Aftertouch",        ControlType.Fader, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Volume",            ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
     };
 
     [SerializeField] ControllerType[] controllerTypes = null;
@@ -43,10 +43,8 @@ public class ControlsManager : MonoBehaviour
     const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
     Profiles profileNames = null;
 
-    public class ColorEvent : UnityEvent<Profile, ControllerSettings, ColorSetter> { }
-    public ColorEvent OnControllerSpawned = new ColorEvent();
-
-    Profile currentProfile = new Profile(DEFAULT_SAVE_NAME);
+    public class ProfileEvent : UnityEvent<string> { }
+    public ProfileEvent OnProfileLoaded = new ProfileEvent();
 
     void Awake()
     {
@@ -71,7 +69,6 @@ public class ControlsManager : MonoBehaviour
         NukeControllers();
         LoadControllers(_name);
         ipSetter.TryConnect();
-        currentProfile = new Profile(_name);
     }
 
     public void SetDefaultProfile(string _profile)
@@ -322,7 +319,7 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, currentProfile.name, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
         GameObject newController = SpawnController(newControl);
 
         if (newController != null)
@@ -373,14 +370,7 @@ public class ControlsManager : MonoBehaviour
             controllers.Add(_config);
         }
 
-        InvokeControllerSpawnedEvent(control, _config);
         return control;
-    }
-
-    void InvokeControllerSpawnedEvent(GameObject _gameObject, ControllerSettings _config)
-    {
-        ColorSetter colorSetter = _gameObject.GetComponentInChildren<ColorSetter>();
-        OnControllerSpawned.Invoke(currentProfile, _config, colorSetter);
     }
 
     GameObject SpawnControllerObject(ControllerSettings _config, GameObject _controlObject)
