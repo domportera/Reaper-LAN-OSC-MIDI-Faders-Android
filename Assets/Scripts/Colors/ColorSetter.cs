@@ -22,7 +22,6 @@ public class ColorSetter : MonoBehaviour
 				text = GetComponent<Text>();
 				if (text == null)
 				{
-					Debug.LogWarning($"{name} has no text component", this);
 					image = GetComponent<Image>();
 					if (image == null)
 					{

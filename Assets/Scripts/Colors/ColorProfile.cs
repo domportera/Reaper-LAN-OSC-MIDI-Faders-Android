@@ -12,7 +12,7 @@ public class ColorProfile
 	public Color scrollBackground { get; private set; }
 	public Color button { get; private set; }
 
-	//default
+	//default colors
 	public ColorProfile()
 	{
 		this.background = Color.black;

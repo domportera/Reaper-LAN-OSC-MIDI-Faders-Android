@@ -18,12 +18,9 @@ public class IPSetter : MonoBehaviour
     const string IP_ADDRESS_PLAYER_PREF = "IP Address";
     const string PORT_PLAYER_PREF = "Port";
 
-    Utilities util;
-
     // Start is called before the first frame update
     void Awake()
     {
-        util = FindObjectOfType<Utilities>();
         Load();
     }
 
@@ -85,7 +82,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            util.SetErrorText("Invalid IP Address");
+            Utilities.instance.SetErrorText("Invalid IP Address");
         }
     }
 
@@ -108,7 +105,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            util.SetErrorText("Invalid Port");
+            Utilities.instance.SetErrorText("Invalid Port");
         }
     }
 
@@ -128,7 +125,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            util.SetErrorText("Invalid Port");
+            Utilities.instance.SetErrorText("Invalid Port");
         }
     }
 

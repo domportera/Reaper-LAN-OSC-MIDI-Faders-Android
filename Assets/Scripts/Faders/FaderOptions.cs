@@ -25,7 +25,7 @@ public class FaderOptions : MonoBehaviour
     Dictionary<Dropdown, string[]> dropDownEntryNames = new Dictionary<Dropdown, string[]>();
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         manager = FindObjectOfType<ControlsManager>();
         uiManager = FindObjectOfType<UIManager>();

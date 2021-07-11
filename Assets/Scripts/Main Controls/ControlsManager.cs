@@ -10,7 +10,6 @@ public class ControlsManager : MonoBehaviour
 {
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
-    [SerializeField] ColorController colorController;
 
     readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
@@ -26,14 +25,12 @@ public class ControlsManager : MonoBehaviour
     [SerializeField] ControllerType[] controllerTypes = null;
 
     List<ControllerSettings> controllers = new List<ControllerSettings>();
-    List<ColorSetter> colorSetters = new List<ColorSetter>();
 
     Dictionary<ControllerSettings, GameObject> controllerObjects = new Dictionary<ControllerSettings, GameObject>();
 
     static int uniqueIDGen = 0;
 
     UIManager uiManager;
-    Utilities util;
     IPSetter ipSetter;
 
     public const string NEW_CONTROLLER_NAME = "New Controller";
@@ -48,7 +45,6 @@ public class ControlsManager : MonoBehaviour
 
     void Awake()
     {
-        util = FindObjectOfType<Utilities>();
         uiManager = FindObjectOfType<UIManager>();
         ipSetter = FindObjectOfType<IPSetter>();
 
@@ -81,7 +77,7 @@ public class ControlsManager : MonoBehaviour
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
-            util.SetErrorText("Can't delete default profile");
+            Utilities.instance.SetErrorText("Can't delete default profile");
             return;
         }
         //remove profile from current list of profiles
@@ -109,7 +105,7 @@ public class ControlsManager : MonoBehaviour
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
-            util.SetErrorText("Can't overwrite defaults, use Save As instead.");
+            Utilities.instance.SetErrorText("Can't overwrite defaults, use Save As instead.");
             return;
         }
 
@@ -123,7 +119,7 @@ public class ControlsManager : MonoBehaviour
     {
         if (_name == DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
         {
-            util.SetErrorText("Profile with this name already exists, please use another.");
+            Utilities.instance.SetErrorText("Profile with this name already exists, please use another.");
             return false;
         }
 
@@ -140,7 +136,7 @@ public class ControlsManager : MonoBehaviour
         }
         else
         {
-            util.SetErrorText("Please enter a name.");
+            Utilities.instance.SetErrorText("Please enter a name.");
             return false;
         }
     }
@@ -169,24 +165,28 @@ public class ControlsManager : MonoBehaviour
                     }
 
                     controllers = temp;
+                    OnProfileLoaded.Invoke(_profile);
                     SpawnControllers();
                 }
                 else
                 {
                     //spawn defaults if no save data
                     SpawnDefaultControllers();
+                    OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
                     Debug.LogError("Saved data was empty");
                 }
             }
             else
             {
                 Debug.LogError($"JSON object was null");
+                OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
                 SpawnDefaultControllers();
             }
         }
         else
         {
             Debug.Log($"Profile was default");
+            OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
             SpawnDefaultControllers();
         }
     }

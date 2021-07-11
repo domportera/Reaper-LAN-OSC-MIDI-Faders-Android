@@ -53,13 +53,11 @@ public class UIManager : MonoBehaviour
     bool positionMode = false;
 
     ControlsManager controlMan = null;
-    Utilities utilities = null;
 
     // Start is called before the first frame update
     void Awake()
     {
         controlMan = FindObjectOfType<ControlsManager>();
-        utilities = FindObjectOfType<Utilities>();
 
         //options
         optionsButton.onClick.AddListener(ToggleOptionsMenu);
@@ -419,6 +417,7 @@ public class UIManager : MonoBehaviour
         }
 
         //sort buttons
+        if (controllerUIs == null) Debug.Log("null");
         controllerUIs.Sort((s1, s2) => s1.controllerConfig.name.CompareTo(s2.controllerConfig.name));
 
         //add unnamed ones to the end
@@ -484,7 +483,7 @@ public class UIManager : MonoBehaviour
 
         if(!positionMode)
         {
-            utilities.SetErrorText("Don't forget to save!");
+            Utilities.instance.SetErrorText("Don't forget to save!");
         }
     }
 

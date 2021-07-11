@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using UnityEngine.EventSystems;
-using static ControlsManager;
 using static ColorProfile;
+using System.IO;
 
 public class ColorController : MonoBehaviour
 {
+    [SerializeField] ControlsManager controlMan;
     [SerializeField] Slider hueSlider;
     [SerializeField] Slider saturationSlider;
     [SerializeField] Slider valueSlider;
@@ -17,36 +18,40 @@ public class ColorController : MonoBehaviour
     [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
 
-    [SerializeField] ColorButton[] colorPreviews;
-    [SerializeField] ControlsManager controlManager;
+    [SerializeField] Button saveButton;
+    [SerializeField] Button revertButton;
+    [SerializeField] Button setAsDefaultButton;
 
-    ColorType currentColorType = ColorType.Background;
-
-    ColorProfile defaultColorProfile = new ColorProfile();
-    ColorProfile currentColorProfile;
+    [SerializeField] ColorButton[] colorTypeButtons;
 
     public static ColorController instance;
     static List<ColorSetter> colorSetters = new List<ColorSetter>();
 
+    const string DEFAULT_COLOR_PROFILE = ControlsManager.DEFAULT_SAVE_NAME + " Colors";
+
+    ColorType currentColorType = ColorType.Background;
+    ColorProfile currentColorProfile;
+
+    string fileExtension = ".json";
+    string basePath;
+
 	private void Awake()
     {
-        if(instance == null)
-        {
-            instance = this;
-		}
-        else
-        {
-            Debug.LogError($"Can't have more than one Color Controller");
-		}
+        SingletonSetup();
 
         InitializeUI();
 
-        foreach (ColorButton p in colorPreviews)
+        foreach (ColorButton p in colorTypeButtons)
         {
             p.selectionButton.onClick.AddListener(ColorPreviewButtonPress);
         }
 
-        Load();
+        basePath = Application.persistentDataPath + "/Color Profiles/";
+        CheckBasePath();
+        currentColorProfile = GetDefaultColorProfile();
+        controlMan.OnProfileLoaded.AddListener(LoadAndSetColorProfile);
+
+        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
     }
 
 	// Start is called before the first frame update
@@ -55,16 +60,16 @@ public class ColorController : MonoBehaviour
         UpdateAppColors();
     }
 
-    // Update is called once per frame
-    void Update()
+    public static void AddToControls(ColorSetter _setter)
     {
-        
+        colorSetters.Add(_setter);
+        instance.UpdateAppColors(_setter);
     }
 
-    void Load()
+    public static void RemoveFromControls(ColorSetter _setter)
     {
-        currentColorProfile = defaultColorProfile;
-	}
+        colorSetters.Remove(_setter);
+    }
 
     void UpdateAppColors()
     {
@@ -84,18 +89,6 @@ public class ColorController : MonoBehaviour
         currentColorProfile.SetColor(_type, _color);
 	}
 
-    public static void AddToControls(ColorSetter _setter)
-    {
-        colorSetters.Add(_setter);
-        instance.UpdateAppColors(_setter);
-    }
-
-    public static void RemoveFromControls(ColorSetter _setter)
-    {
-        colorSetters.Remove(_setter);
-	}
-
-
     void TogglePanel()
     {
         panel.SetActive(!panel.activeSelf);
@@ -113,7 +106,6 @@ public class ColorController : MonoBehaviour
         float hue = ColorIntToFloat((int)hueSlider.value);
         float sat = ColorIntToFloat((int)saturationSlider.value);
         float val = ColorIntToFloat((int)valueSlider.value);
-
         return Color.HSVToRGB(hue, sat, val);
     }
 
@@ -123,9 +115,25 @@ public class ColorController : MonoBehaviour
         ColorButton preview = GetPreviewFromButton(button);
 
         currentColorType = preview.colorType;
+        HighlightSelectedColorType(preview.colorType);
 
         SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
     }
+
+    void HighlightSelectedColorType(ColorType _colorType)
+    {
+        foreach(ColorButton butt in colorTypeButtons)
+        {
+            if(butt.colorType == _colorType)
+            {
+                butt.label.fontStyle = FontStyle.Bold;
+			}
+            else
+            {
+                butt.label.fontStyle = FontStyle.Normal;
+            }
+		}
+	}
 
     void SetSlidersToColor(Color _color)
     {
@@ -143,7 +151,7 @@ public class ColorController : MonoBehaviour
 
     ColorButton GetPreviewFromColorType(ColorType _type)
     {
-        foreach(ColorButton p in colorPreviews)
+        foreach(ColorButton p in colorTypeButtons)
         {
             if(p.colorType == _type)
             {
@@ -152,12 +160,12 @@ public class ColorController : MonoBehaviour
 		}
 
         Debug.LogError($"No color preview found for {_type}!");
-        return colorPreviews[0];
+        return colorTypeButtons[0];
     }
 
     ColorButton GetPreviewFromButton(Button _button)
     {
-        foreach (ColorButton p in colorPreviews)
+        foreach (ColorButton p in colorTypeButtons)
         {
             if (p.selectionButton == _button)
             {
@@ -166,7 +174,7 @@ public class ColorController : MonoBehaviour
         }
 
         Debug.LogError($"No button found for {_button.name}!");
-        return colorPreviews[0];
+        return colorTypeButtons[0];
     }
 
     void InitializeUI()
@@ -176,6 +184,12 @@ public class ColorController : MonoBehaviour
         valueSlider.onValueChanged.AddListener(SliderChange);
         openButton.onClick.AddListener(TogglePanel);
         closeButton.onClick.AddListener(TogglePanel);
+
+        setAsDefaultButton.onClick.AddListener(SaveDefaultProfile);
+        revertButton.onClick.AddListener(RevertColorProfile);
+        saveButton.onClick.AddListener(SaveProfile);
+
+        HighlightSelectedColorType(currentColorType);
     }
 
 	#region Color Translation
@@ -207,12 +221,116 @@ public class ColorController : MonoBehaviour
     {
         return (int)(_float * 255);
 	}
-	#endregion Color Translation
+    #endregion Color Translation
 
-	[Serializable]
+    #region Saving and Loading Color Profiles
+
+    void SaveDefaultProfile()
+    {
+        SaveProfile(DEFAULT_COLOR_PROFILE);
+    }
+
+    void SaveProfile()
+    {
+        SaveProfile(currentColorProfile.name);
+    }
+
+    void SaveProfile(string _name)
+    {
+        if(_name == ControlsManager.DEFAULT_SAVE_NAME)
+        {
+            Utilities.instance.SetErrorText($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
+            return;
+        }
+
+        string path = basePath + _name + fileExtension;
+        string json = JsonUtility.ToJson(currentColorProfile, true);
+        File.WriteAllText(path, json);
+
+        if (_name != DEFAULT_COLOR_PROFILE)
+        {
+            Utilities.instance.SetConfirmationText($"Saved color profile for {_name}!");
+        }
+        else
+        {
+            Utilities.instance.SetConfirmationText($"Set default colors!");
+        }
+    }
+
+    ColorProfile GetDefaultColorProfile()
+    {
+        string path = basePath + DEFAULT_COLOR_PROFILE + fileExtension;
+
+        if (File.Exists(path))
+        {
+            //load that file and set as current color profile
+            return GetColorProfileFromFile(path);
+        }
+        else
+        {
+            return new ColorProfile();
+        }
+    }
+
+    ColorProfile GetColorProfileFromFile(string _path)
+    {
+        string json = File.ReadAllText(_path);
+        return JsonUtility.FromJson<ColorProfile>(json);
+    }
+
+    void CheckBasePath()
+    {
+        if (!Directory.Exists(basePath))
+        {
+            Directory.CreateDirectory(basePath);
+        }
+    }
+
+    void LoadAndSetColorProfile(string _profile)
+    {
+        if(_profile == ControlsManager.DEFAULT_SAVE_NAME)
+        {
+            _profile = DEFAULT_COLOR_PROFILE;
+		}
+
+        string fullPath = basePath + _profile + fileExtension;
+
+        if (File.Exists(fullPath))
+        {
+            //load that file and set as current color profile
+            currentColorProfile = GetColorProfileFromFile(fullPath);
+        }
+        else
+        {
+            //load default color profile
+            currentColorProfile = GetDefaultColorProfile();
+        }
+    }
+    void RevertColorProfile()
+    {
+        LoadAndSetColorProfile(currentColorProfile.name);
+    }
+
+    #endregion Saving and Loading Color Profiles
+
+    void SingletonSetup()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogError($"Can't have more than one Color Controller. Destroying myself.", this);
+            Destroy(gameObject);
+        }
+    }
+
+    [Serializable]
     struct ColorButton
     {
-        public Button selectionButton;
         public ColorType colorType;
+        public Button selectionButton;
+        public Text label;
 	}
 }
