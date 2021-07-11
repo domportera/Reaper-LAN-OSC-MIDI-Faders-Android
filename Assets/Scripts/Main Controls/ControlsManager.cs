@@ -400,13 +400,13 @@ public class ControlsManager : MonoBehaviour
     [Serializable]
     class FaderSaver
     {
-        [SerializeField] List<ControllerSettings> configs;
-        [SerializeField] string name = null;
+        public List<ControllerSettings> configs;
+        public string name = null;
 
         public FaderSaver(List<ControllerSettings> _controllers, string _name)
         {
             configs = _controllers;
-            _name = name;
+            name = _name;
         }
 
         public List<ControllerSettings> GetControllers()

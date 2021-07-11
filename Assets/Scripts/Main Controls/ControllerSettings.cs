@@ -6,29 +6,29 @@ using UnityEngine.Events;
 [System.Serializable]
 public class ControllerSettings
 {
-    public ControlType controlType { get; private set; }
+    public ControlType controlType;
     string address;
-    public string name { get; private set; }
+    public string name;
     string controlObjectName;
-    public MIDIChannel channel { get; private set; }
-    public ValueRange range { get; private set; }
-    public DefaultValueType defaultType { get; private set; }
-    public int min { get; private set; }
-    public int max { get; private set; }
-    public int mid { get; private set; }
-    public int defaultValue { get; private set; }
-    public float smoothTime { get; private set; }
-    public CurveType curveType { get; private set; }
+    public MIDIChannel channel;
+    public ValueRange range;
+    public DefaultValueType defaultType;
+    public int min;
+    public int max;
+    public int mid;
+    public int defaultValue;
+    public float smoothTime;
+    public CurveType curveType;
     public UnityEvent OnUpdate = new UnityEvent();
-    public AddressType addressType { get; private set; }
-    public int ccNumber { get; private set; }
+    public AddressType addressType;
+    public int ccNumber;
     int id; //not currently in use, could be useful some day?
 
     public const int NULL_POSITION = -1;
 
     [SerializeField] int position = NULL_POSITION;
 
-    public string profileName { get; private set; }
+    public string profileName;
 
     public ControllerSettings(ControllerSettings _c)
     {

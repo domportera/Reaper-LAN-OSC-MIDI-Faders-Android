@@ -7,6 +7,9 @@ using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviour
 {
+    [SerializeField] ControlsManager controlMan = null;
+    [Space(20)]
+
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
@@ -44,7 +47,6 @@ public class UIManager : MonoBehaviour
 
     List<ControllerUIGroup> controllerUIs = new List<ControllerUIGroup>();
     List<LayoutGroupButtonCount> layoutCounts = new List<LayoutGroupButtonCount>();
-    List<GameObject> sliderOptionsButtonLayoutGroups = new List<GameObject>();
 
     const int DEFAULT_FADER_WIDTH = 200;
     int faderWidth = DEFAULT_FADER_WIDTH;
@@ -52,13 +54,10 @@ public class UIManager : MonoBehaviour
     const string FADER_WIDTH_PLAYER_PREF = "Fader Width";
     bool positionMode = false;
 
-    ControlsManager controlMan = null;
 
     // Start is called before the first frame update
     void Awake()
     {
-        controlMan = FindObjectOfType<ControlsManager>();
-
         //options
         optionsButton.onClick.AddListener(ToggleOptionsMenu);
         faderPositionExitButton.onClick.AddListener(ToggleEditFaderPositionMode);
@@ -170,11 +169,6 @@ public class UIManager : MonoBehaviour
 
     void SetActiveProfile(string _name)
     {
-        if (controlMan == null)
-        {
-            controlMan = FindObjectOfType<ControlsManager>();
-        }
-
         controlMan.SetActiveProfile(_name);
     }
 
@@ -417,8 +411,7 @@ public class UIManager : MonoBehaviour
         }
 
         //sort buttons
-        if (controllerUIs == null) Debug.Log("null");
-        controllerUIs.Sort((s1, s2) => s1.controllerConfig.name.CompareTo(s2.controllerConfig.name));
+        controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetPosition().CompareTo(s2.controllerConfig.GetPosition()));
 
         //add unnamed ones to the end
         foreach (ControllerUIGroup c in unnamedControls)

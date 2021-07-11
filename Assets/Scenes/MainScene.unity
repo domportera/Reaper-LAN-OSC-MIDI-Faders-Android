@@ -2526,6 +2526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12bd4f2974cf3904294ff92ada7f4446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controlMan: {fileID: 367776138}
   optionsPanel: {fileID: 1029842943}
   sliderOptionsButtonLayoutPrefab: {fileID: 2763013774932209352, guid: d68371dac9b0cbc49812feb1beba257d,
     type: 3}
