@@ -101,7 +101,7 @@ public class ControlsManager : MonoBehaviour
 
     #region Saving and Loading
 
-    public void SaveControllers(string _name) //should show some kind of confirmation screen
+    public void SaveControllers(string _name)
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
@@ -113,6 +113,8 @@ public class ControlsManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(new FaderSaver(controllers, _name), true);
         SaveFile(_name, json);
+
+        Utilities.instance.SetConfirmationText($"Saved {_name}");
     }
 
     public bool SaveControllersAs(string _name)
@@ -143,7 +145,7 @@ public class ControlsManager : MonoBehaviour
 
     void LoadControllers(string _profile)
     {
-        Debug.Log($"Loading");
+        Debug.Log($"Loading {_profile}");
 
         if (_profile != DEFAULT_SAVE_NAME)
         {
@@ -173,12 +175,12 @@ public class ControlsManager : MonoBehaviour
                     //spawn defaults if no save data
                     SpawnDefaultControllers();
                     OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
-                    Debug.LogError("Saved data was empty");
+                    Debug.LogError($"Saved data for {_profile} was empty");
                 }
             }
             else
             {
-                Debug.LogError($"JSON object was null");
+                Debug.LogError($"JSON object for {_profile} was null");
                 OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
                 SpawnDefaultControllers();
             }

@@ -13,21 +13,23 @@ public class ColorProfile
 	public Color button { get; private set; }
 
 	//default colors
-	public ColorProfile()
+	public static ColorProfile NewDefaultColorProfile(string _name)
 	{
-		this.background = Color.black;
+		Color background = Color.black;
 
 		Color color1 = new Color(.16f, .15f, .34f);
-		this.faderBackground = color1;
-		this.scrollBackground = color1;
-		this.button = color1;
+		Color faderBackground = color1;
+		Color scrollBackground = color1;
+		Color button = color1;
 
 		Color color2 = new Color(.43f, 0.45f, 0.87f);
-		this.faderHandle = color2;
-		this.text = color2;
-		this.scrollHandle = color2;
+		Color faderHandle = color2;
+		Color text = color2;
+		Color scrollHandle = color2;
 
-		this.name = ControlsManager.DEFAULT_SAVE_NAME;
+		string name = _name;
+
+		return new ColorProfile(name, background, faderBackground, faderHandle, text, scrollHandle, scrollBackground, button);
 	}
 
 	//duplicate

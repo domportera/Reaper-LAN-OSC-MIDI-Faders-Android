@@ -48,7 +48,7 @@ public class ColorController : MonoBehaviour
 
         basePath = Application.persistentDataPath + "/Color Profiles/";
         CheckBasePath();
-        currentColorProfile = GetDefaultColorProfile();
+        currentColorProfile = GetDefaultColorProfile(ControlsManager.DEFAULT_SAVE_NAME);
         controlMan.OnProfileLoaded.AddListener(LoadAndSetColorProfile);
 
         SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
@@ -257,7 +257,7 @@ public class ColorController : MonoBehaviour
         }
     }
 
-    ColorProfile GetDefaultColorProfile()
+    ColorProfile GetDefaultColorProfile(string _profile)
     {
         string path = basePath + DEFAULT_COLOR_PROFILE + fileExtension;
 
@@ -268,7 +268,7 @@ public class ColorController : MonoBehaviour
         }
         else
         {
-            return new ColorProfile();
+            return ColorProfile.NewDefaultColorProfile(_profile);
         }
     }
 
@@ -303,7 +303,7 @@ public class ColorController : MonoBehaviour
         else
         {
             //load default color profile
-            currentColorProfile = GetDefaultColorProfile();
+            currentColorProfile = GetDefaultColorProfile(_profile);
         }
     }
     void RevertColorProfile()
