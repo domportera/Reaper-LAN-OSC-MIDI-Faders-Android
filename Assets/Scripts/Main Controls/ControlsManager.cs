@@ -57,7 +57,8 @@ public class ControlsManager : MonoBehaviour
 
 	private void Start()
 	{
-		//subscribe to color controller
+        //let color controller know we're ready for default color scheme
+        OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
 	}
 
 	public void SetActiveProfile(string _name)
@@ -125,6 +126,20 @@ public class ControlsManager : MonoBehaviour
             return false;
         }
 
+        List<char> invalidChars = GetInvalidFileNameCharacters(_name);
+        if(invalidChars.Count > 0)
+        {
+            if (invalidChars.Count == 1)
+            {
+                Utilities.instance.SetErrorText($"Chosen profile name contains an invalid character.");
+            }
+            else
+            {
+                Utilities.instance.SetErrorText($"Chosen profile name contains {invalidChars.Count} invalid characters.");
+            }
+            return false;
+		}
+
         if (_name.Length > 0)
         {
             string profileName = _name;
@@ -141,6 +156,22 @@ public class ControlsManager : MonoBehaviour
             Utilities.instance.SetErrorText("Please enter a name.");
             return false;
         }
+    }
+
+    List<char> GetInvalidFileNameCharacters(string _name)
+    {
+        //check for invalid characters
+        char[] invalidFileChars = Path.GetInvalidFileNameChars();
+        List<char> invalidChars = new List<char>();
+        foreach (char c in invalidFileChars)
+        {
+            if (_name.Contains(c.ToString()))
+            {
+                invalidChars.Add(c);
+            }
+        }
+
+        return invalidChars;
     }
 
     void LoadControllers(string _profile)
