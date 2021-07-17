@@ -12,44 +12,20 @@ public class ColorProfile
 	public Color scrollBackground;
 	public Color button;
 
-	//default colors
-	public static ColorProfile NewDefaultColorProfile(string _name)
+
+	public ColorProfile()
 	{
-		Color background = Color.black;
+		background = Color.black;
 
 		Color color1 = new Color(.16f, .15f, .34f);
-		Color faderBackground = color1;
-		Color scrollBackground = color1;
-		Color button = color1;
+		faderBackground = color1;
+		scrollBackground = color1;
+		button = color1;
 
 		Color color2 = new Color(.43f, 0.45f, 0.87f);
-		Color faderHandle = color2;
-		Color text = color2;
-		Color scrollHandle = color2;
-
-		string name = _name;
-
-		return new ColorProfile(name, background, faderBackground, faderHandle, text, scrollHandle, scrollBackground, button);
-	}
-
-	public static string DebugColorProfile(ColorProfile _profile, bool _debugLog = false)
-	{
-		string s = "";
-		s += "Name: " + _profile.name;
-		s += "\nBackground: " + _profile.background;
-		s += "\nFader Background: " + _profile.faderBackground;
-		s += "\nFader Handle: " + _profile.faderHandle;
-		s += "\nText: " + _profile.text;
-		s += "\nScroll Handle: " + _profile.scrollHandle;
-		s += "\nScroll Background: " + _profile.scrollBackground;
-		s += "\nButton: " + _profile.button;
-
-		if(_debugLog)
-		{
-			Debug.Log(s);
-		}
-
-		return s;
+		faderHandle = color2;
+		text = color2;
+		scrollHandle = color2;
 	}
 
 	//duplicate
@@ -145,6 +121,39 @@ public class ColorProfile
 		}
 	}
 
+	//default colors
+	public static ColorProfile NewDefaultColorProfile(string _name)
+	{
+		ColorProfile colorProfile = new ColorProfile();
+		colorProfile.name = _name;
+
+		return colorProfile;
+	}
+
+	public static string DebugColorProfile(ColorProfile _profile, bool _debugLog = false)
+	{
+		string s = "";
+		s += "Name: " + _profile.name;
+		s += "\nBackground: " + _profile.background;
+		s += "\nFader Background: " + _profile.faderBackground;
+		s += "\nFader Handle: " + _profile.faderHandle;
+		s += "\nText: " + _profile.text;
+		s += "\nScroll Handle: " + _profile.scrollHandle;
+		s += "\nScroll Background: " + _profile.scrollBackground;
+		s += "\nButton: " + _profile.button;
+
+		if (_debugLog)
+		{
+			Debug.Log(s);
+		}
+
+		return s;
+	}
+
 	public enum ColorType { Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Button }
 
 }
+
+
+[System.Serializable]
+public class ColorPreset : ColorProfile { }

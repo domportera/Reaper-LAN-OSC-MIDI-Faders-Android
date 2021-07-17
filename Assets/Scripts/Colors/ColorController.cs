@@ -9,7 +9,9 @@ using System.IO;
 
 public class ColorController : MonoBehaviour
 {
-    [SerializeField] ControlsManager controlMan;
+	#region Serialized Fields
+    [Header("Main Color UI")]
+	[SerializeField] ControlsManager controlMan;
     [SerializeField] Slider hueSlider;
     [SerializeField] Slider saturationSlider;
     [SerializeField] Slider valueSlider;
@@ -22,30 +24,58 @@ public class ColorController : MonoBehaviour
     [SerializeField] Button revertButton;
     [SerializeField] Button setAsDefaultButton;
 
+    [Header("Presets")]
+    [SerializeField] Dropdown presetDropdown;
+    [SerializeField] Button savePresetButton;
+    [SerializeField] Button deletePresetButton;
+
+    [SerializeField] GameObject savePresetPanel;
+    [SerializeField] Button saveConfirmPresetButton;
+    [SerializeField] Text presetNameField;
+    [SerializeField] Button cancelPresetSaveButton;
+
+    [SerializeField] GameObject deletePresetPanel;
+    [SerializeField] Button deletePresetConfirmButton;
+    [SerializeField] Button deletePresetCancelButton;
+
+    [Header("Color Change Buttons")]
     [SerializeField] ColorButton[] colorTypeButtons;
+    #endregion Serialized Fields
 
-    public static ColorController instance;
-    static List<ColorSetter> colorSetters = new List<ColorSetter>();
-
+    #region Profile Variables
     const string DEFAULT_COLOR_PROFILE = ControlsManager.DEFAULT_SAVE_NAME + " Colors";
-
     ColorType currentColorType = ColorType.Background;
     ColorProfile currentColorProfile;
+    string fileExtensionProfiles = ".color";
+    string profilesBasePath;
+    #endregion Color Profile Variables
 
-    string fileExtension = ".colors";
-    string basePath;
+    #region Universal Variables
+    public static ColorController instance;
+    static List<ColorSetter> colorSetters = new List<ColorSetter>();
+    const string colorsFolder = "/Colors/";
+    #endregion Universal Variables
+
+    #region Preset Variables
+    string presetsBasePath;
+    string fileExtensionPresets = ".colorPreset";
+	#endregion Preset Variables
+
+	#region Unity Methods
 
 	private void Awake()
     {
         SingletonSetup();
         InitializeUI();
+        InitializePresetUI();
 
         foreach (ColorButton p in colorTypeButtons)
         {
             p.selectionButton.onClick.AddListener(ColorPreviewButtonPress);
         }
 
-        basePath = Application.persistentDataPath + "/Color Profiles/";
+        profilesBasePath = Application.persistentDataPath + colorsFolder + "Profiles/";
+        presetsBasePath = Application.persistentDataPath + colorsFolder + "Presets/";
         CheckBasePath();
         controlMan.OnProfileLoaded.AddListener(LoadAndSetColorProfile);
     }
@@ -55,6 +85,10 @@ public class ColorController : MonoBehaviour
     {
         UpdateAppColors();
     }
+
+    #endregion Unity Methods
+
+    #region Color Application
 
     public static void AddToControls(ColorSetter _setter)
     {
@@ -88,6 +122,17 @@ public class ColorController : MonoBehaviour
     {
         currentColorProfile.SetColor(_type, _color);
 	}
+    #endregion Color Application
+
+    #region Color Profile UI
+    
+    [Serializable]
+    struct ColorButton
+    {
+        public ColorType colorType;
+        public Button selectionButton;
+        public Text label;
+    }
 
     void TogglePanel()
     {
@@ -190,7 +235,9 @@ public class ColorController : MonoBehaviour
         saveButton.onClick.AddListener(SaveProfile);
 
         HighlightSelectedColorType(currentColorType);
+
     }
+	#endregion Color Profile UI
 
 	#region Color Translation
 	Vector3Int ColorFloatToInt(Vector3 _floatColor)
@@ -243,7 +290,7 @@ public class ColorController : MonoBehaviour
             return;
         }
 
-        string path = basePath + _name + fileExtension;
+        string path = profilesBasePath + _name + fileExtensionProfiles;
         string json = JsonUtility.ToJson(currentColorProfile, true);
         File.WriteAllText(path, json);
 
@@ -260,9 +307,9 @@ public class ColorController : MonoBehaviour
         Debug.Log($"Saved\n" + json);
     }
 
-    ColorProfile GetDefaultColorProfile(string _profile)
+    ColorProfile GetDefaultColorProfile()
     {
-        string path = basePath + DEFAULT_COLOR_PROFILE + fileExtension;
+        string path = profilesBasePath + DEFAULT_COLOR_PROFILE + fileExtensionProfiles;
 
         if (File.Exists(path))
         {
@@ -271,7 +318,7 @@ public class ColorController : MonoBehaviour
         }
         else
         {
-            return ColorProfile.NewDefaultColorProfile(_profile);
+            return ColorProfile.NewDefaultColorProfile(DEFAULT_COLOR_PROFILE);
         }
     }
 
@@ -283,9 +330,14 @@ public class ColorController : MonoBehaviour
 
     void CheckBasePath()
     {
-        if (!Directory.Exists(basePath))
+        if (!Directory.Exists(profilesBasePath))
         {
-            Directory.CreateDirectory(basePath);
+            Directory.CreateDirectory(profilesBasePath);
+        }
+
+        if (!Directory.Exists(presetsBasePath))
+        {
+            Directory.CreateDirectory(presetsBasePath);
         }
     }
 
@@ -296,7 +348,7 @@ public class ColorController : MonoBehaviour
             _profile = DEFAULT_COLOR_PROFILE;
 		}
 
-        string fullPath = basePath + _profile + fileExtension;
+        string fullPath = profilesBasePath + _profile + fileExtensionProfiles;
 
         if (File.Exists(fullPath))
         {
@@ -306,7 +358,7 @@ public class ColorController : MonoBehaviour
         else
         {
             //load default color profile
-            currentColorProfile = GetDefaultColorProfile(_profile);
+            currentColorProfile = GetDefaultColorProfile();
         }
 
         Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(currentColorProfile));
@@ -319,8 +371,123 @@ public class ColorController : MonoBehaviour
         UpdateAppColors();
     }
 
-    #endregion Saving and Loading Color Profiles
+	#endregion Saving and Loading Color Profiles
 
+	#region Saving and Loading Color Presets
+
+    string[] GetPresetNames()
+    {
+        return Directory.GetFiles(presetsBasePath, "*" + fileExtensionPresets);
+	}
+
+    ColorPreset LoadPreset(string _name)
+    {
+        string path = presetsBasePath + _name + fileExtensionPresets;
+        if (File.Exists(path))
+        {
+            //load
+            string json = File.ReadAllText(path);
+            return JsonUtility.FromJson<ColorPreset>(json);
+        }
+        else
+        {
+            Debug.LogError($"No preset found named {_name} in {presetsBasePath}");
+            return (ColorPreset)NewDefaultColorProfile(_name);
+        }
+    }
+
+    void SavePreset()
+    {
+        ColorPreset preset = (ColorPreset)currentColorProfile;
+        preset.name = presetNameField.text;
+        string json = JsonUtility.ToJson(preset, true);
+        string path = presetsBasePath + preset.name + fileExtensionPresets;
+        File.WriteAllText(path, json);
+        Utilities.instance.SetConfirmationText($"Saved preset {preset.name}");
+	}
+
+    void CancelPresetSave()
+    {
+        ToggleSavePresetPanel(false);
+        presetNameField.text = "";
+	}
+
+    void DeletePreset()
+    {
+        string presetName = presetDropdown.options[presetDropdown.value].text;
+        string path = presetsBasePath + presetName + fileExtensionPresets;
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Utilities.instance.SetConfirmationText($"{presetName} preset deleted!");
+		}
+        else
+        {
+            Debug.LogError($"No preset found to delete with name {presetName}");
+            Utilities.instance.SetErrorText($"Error deleting preset {presetName}");
+		}
+	}
+
+    #endregion Saving and Loading Color Presets
+
+    void InitializePresetUI()
+    {
+        PopulatePresetDropdown();
+        presetDropdown.onValueChanged.AddListener(DropdownSelection);
+
+        cancelPresetSaveButton.onClick.AddListener(CancelPresetSave);
+        saveConfirmPresetButton.onClick.AddListener(SavePreset);
+        savePresetButton.onClick.AddListener(() => { ToggleSavePresetPanel(true); });
+
+        deletePresetButton.onClick.AddListener(() => {ToggleDeletePresetPanel(true); });
+        deletePresetConfirmButton.onClick.AddListener(DeletePreset);
+        deletePresetCancelButton.onClick.AddListener(() => { ToggleDeletePresetPanel(false); });
+	}
+
+    void ToggleSavePresetPanel(bool _enabled)
+    {
+        savePresetPanel.SetActive(_enabled);
+    }
+
+    void ToggleDeletePresetPanel(bool _enabled)
+    {
+        deletePresetPanel.SetActive(_enabled);
+    }
+
+    void PopulatePresetDropdown()
+    {
+        string[] presets = GetPresetNames();
+
+        presetDropdown.ClearOptions();
+        List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
+
+        foreach(string s in presets)
+        {
+            Dropdown.OptionData data = new Dropdown.OptionData();
+            data.text = s;
+            options.Add(data);
+		}
+	}
+
+    void DropdownSelection(int _selection)
+    {
+        ColorPreset preset = LoadPreset(presetDropdown.options[_selection].text);
+        SetColorsFromPreset(preset);
+	}
+
+    void SetColorsFromPreset(ColorPreset _preset)
+    {
+        foreach (ColorType t in (ColorType[])Enum.GetValues(typeof(ColorType)))
+        {
+            currentColorProfile.SetColor(t, _preset.GetColor(t));
+        }
+
+        UpdateAppColors();
+    }
+
+
+    #region Singleton
     void SingletonSetup()
     {
         if (instance == null)
@@ -333,12 +500,6 @@ public class ColorController : MonoBehaviour
             Destroy(gameObject);
         }
     }
+	#endregion Singleton
 
-    [Serializable]
-    struct ColorButton
-    {
-        public ColorType colorType;
-        public Button selectionButton;
-        public Text label;
-	}
 }
