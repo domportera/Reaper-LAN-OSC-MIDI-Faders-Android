@@ -62,36 +62,18 @@ public class ColorSetter : MonoBehaviour
 
 		switch (colorType)
 		{
-			case ColorProfile.ColorType.Background:
-				image.color = _colors.background;
-				break;
-			case ColorProfile.ColorType.FaderBackground:
-				image.color = _colors.faderBackground;
-				break;
-			case ColorProfile.ColorType.FaderHandle:
-				image.color = _colors.faderHandle;
-				break;
 			case ColorProfile.ColorType.Text:;
 				if (!textIsImage)
 				{
-					text.color = _colors.text;
+					text.color = _colors.GetColor(colorType);
 				}
 				else
 				{
-					image.color = _colors.text;
+					image.color = _colors.GetColor(colorType);
 				}
 				break;
-			case ColorProfile.ColorType.ScrollHandle:
-				image.color = _colors.scrollHandle;
-				break;
-			case ColorProfile.ColorType.ScrollBackground:
-				image.color = _colors.scrollBackground;
-				break;
-			case ColorProfile.ColorType.Button:
-				image.color = _colors.button;
-				break;
 			default:
-				Debug.LogError($"Color Type {colorType} not handled in ColorSetter");
+				image.color = _colors.GetColor(colorType);
 				break;
 		}
 	}

@@ -4,13 +4,13 @@
 public class ColorProfile
 {
 	public string name { get; private set; }
-    public Color background { get; private set; }
-    public Color faderBackground { get; private set; }
-	public Color faderHandle { get; private set; }
-	public Color text { get; private set; }
-	public Color scrollHandle { get; private set; }
-	public Color scrollBackground { get; private set; }
-	public Color button { get; private set; }
+    public ColorSerialized background { get; private set; }
+    public ColorSerialized faderBackground { get; private set; }
+	public ColorSerialized faderHandle { get; private set; }
+	public ColorSerialized text { get; private set; }
+	public ColorSerialized scrollHandle { get; private set; }
+	public ColorSerialized scrollBackground { get; private set; }
+	public ColorSerialized button { get; private set; }
 
 	//default colors
 	public static ColorProfile NewDefaultColorProfile(string _name)
@@ -30,6 +30,26 @@ public class ColorProfile
 		string name = _name;
 
 		return new ColorProfile(name, background, faderBackground, faderHandle, text, scrollHandle, scrollBackground, button);
+	}
+
+	public static string DebugColorProfile(ColorProfile _profile, bool _debugLog = false)
+	{
+		string s = "";
+		s += "Name: " + _profile.name;
+		s += "\nBackground: " + ColorSerialized.ConvertColor(_profile.background);
+		s += "\nFader Background: " + ColorSerialized.ConvertColor(_profile.faderBackground);
+		s += "\nFader Handle: " + ColorSerialized.ConvertColor(_profile.faderHandle);
+		s += "\nText: " + ColorSerialized.ConvertColor(_profile.text);
+		s += "\nScroll Handle: " + ColorSerialized.ConvertColor(_profile.scrollHandle);
+		s += "\nScroll Background: " + ColorSerialized.ConvertColor(_profile.scrollBackground);
+		s += "\nButton: " + ColorSerialized.ConvertColor(_profile.button);
+
+		if(_debugLog)
+		{
+			Debug.Log(s);
+		}
+
+		return s;
 	}
 
 	//duplicate
@@ -61,13 +81,13 @@ public class ColorProfile
 	public ColorProfile(string _name, Color background, Color faderBackground, Color faderHandle, Color text, Color scrollHandle, Color scrollBackground, Color button)
 	{
 		this.name = _name;
-		this.background = background;
-		this.faderBackground = faderBackground;
-		this.faderHandle = faderHandle;
-		this.text = text;
-		this.scrollHandle = scrollHandle;
-		this.scrollBackground = scrollBackground;
-		this.button = button;
+		this.background = ColorSerialized.ConvertColor(background);
+		this.faderBackground = ColorSerialized.ConvertColor(faderBackground);
+		this.faderHandle = ColorSerialized.ConvertColor(faderHandle);
+		this.text = ColorSerialized.ConvertColor(text);
+		this.scrollHandle = ColorSerialized.ConvertColor(scrollHandle);
+		this.scrollBackground = ColorSerialized.ConvertColor(scrollBackground);
+		this.button = ColorSerialized.ConvertColor(button);
 	}
 
 	public void SetColor(ColorType _type, Color _color)
@@ -75,25 +95,25 @@ public class ColorProfile
 		switch (_type)
 		{
 			case ColorType.Background:
-				background = _color;
+				background = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.FaderBackground:
-				faderBackground = _color;
+				faderBackground = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.FaderHandle:
-				faderHandle = _color;
+				faderHandle = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.Text:
-				text = _color;
+				text = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.ScrollHandle:
-				scrollHandle = _color;
+				scrollHandle = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.ScrollBackground:
-				scrollBackground = _color;
+				scrollBackground = ColorSerialized.ConvertColor(_color);
 				break;
 			case ColorType.Button:
-				button = _color;
+				button = ColorSerialized.ConvertColor(_color);
 				break;
 			default:
 				Debug.LogError($"Tried to set {_type} color in profile, but no implementation exists!");
@@ -106,19 +126,19 @@ public class ColorProfile
 		switch (_type)
 		{
 			case ColorType.Background:
-				return background;
+				return ColorSerialized.ConvertColor(background);
 			case ColorType.FaderBackground:
-				return faderBackground;
+				return ColorSerialized.ConvertColor(faderBackground);
 			case ColorType.FaderHandle:
-				return faderHandle;
+				return ColorSerialized.ConvertColor(faderHandle);
 			case ColorType.Text:
-				return text;
+				return ColorSerialized.ConvertColor(text);
 			case ColorType.ScrollHandle:
-				return scrollHandle;
+				return ColorSerialized.ConvertColor(scrollHandle);
 			case ColorType.ScrollBackground:
-				return scrollBackground;
+				return ColorSerialized.ConvertColor(scrollBackground);
 			case ColorType.Button:
-				return button;
+				return ColorSerialized.ConvertColor(button);
 			default:
 				Debug.LogError($"Tried to get {_type} color in profile, but no implementation exists!");
 				return Color.white;
@@ -126,4 +146,36 @@ public class ColorProfile
 	}
 
 	public enum ColorType { Background, FaderBackground, FaderHandle, Text, ScrollHandle, ScrollBackground, Button }
+
+	[System.Serializable]
+	public class ColorSerialized
+	{
+		public float r;
+		public float g;
+		public float b;
+		public float a;
+
+		public ColorSerialized(Color _color)
+		{
+			r = _color.r;
+			g = _color.g;
+			b = _color.b;
+			a = _color.a;
+		}
+
+		public static ColorSerialized ConvertColor(Color _color)
+		{
+			return new ColorSerialized(_color);
+		}
+
+		public static Color ConvertColor(ColorSerialized _color)
+		{
+			Color c = new Color();
+			c.r = _color.r;
+			c.g = _color.g;
+			c.b = _color.b;
+			c.a = _color.a;
+			return c;
+		}
+	}
 }

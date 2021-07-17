@@ -38,7 +38,6 @@ public class ColorController : MonoBehaviour
 	private void Awake()
     {
         SingletonSetup();
-
         InitializeUI();
 
         foreach (ColorButton p in colorTypeButtons)
@@ -48,10 +47,7 @@ public class ColorController : MonoBehaviour
 
         basePath = Application.persistentDataPath + "/Color Profiles/";
         CheckBasePath();
-        currentColorProfile = GetDefaultColorProfile(ControlsManager.DEFAULT_SAVE_NAME);
         controlMan.OnProfileLoaded.AddListener(LoadAndSetColorProfile);
-
-        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
     }
 
 	// Start is called before the first frame update
@@ -63,7 +59,11 @@ public class ColorController : MonoBehaviour
     public static void AddToControls(ColorSetter _setter)
     {
         colorSetters.Add(_setter);
-        instance.UpdateAppColors(_setter);
+
+        if (instance.currentColorProfile != null)
+        {
+            instance.UpdateAppColors(_setter);
+        }
     }
 
     public static void RemoveFromControls(ColorSetter _setter)
@@ -237,7 +237,7 @@ public class ColorController : MonoBehaviour
 
     void SaveProfile(string _name)
     {
-        if(_name == ControlsManager.DEFAULT_SAVE_NAME)
+        if(_name == DEFAULT_COLOR_PROFILE)
         {
             Utilities.instance.SetErrorText($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
             return;
@@ -255,6 +255,9 @@ public class ColorController : MonoBehaviour
         {
             Utilities.instance.SetConfirmationText($"Set default colors!");
         }
+
+
+        Debug.Log($"Saved\n" + json);
     }
 
     ColorProfile GetDefaultColorProfile(string _profile)
@@ -305,10 +308,15 @@ public class ColorController : MonoBehaviour
             //load default color profile
             currentColorProfile = GetDefaultColorProfile(_profile);
         }
+
+        Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(currentColorProfile));
+
+        UpdateAppColors();
     }
     void RevertColorProfile()
     {
         LoadAndSetColorProfile(currentColorProfile.name);
+        UpdateAppColors();
     }
 
     #endregion Saving and Loading Color Profiles
