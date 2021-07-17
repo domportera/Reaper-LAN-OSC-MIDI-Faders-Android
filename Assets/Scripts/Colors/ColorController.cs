@@ -34,10 +34,6 @@ public class ColorController : MonoBehaviour
     [SerializeField] Text presetNameField;
     [SerializeField] Button cancelPresetSaveButton;
 
-    [SerializeField] GameObject deletePresetPanel;
-    [SerializeField] Button deletePresetConfirmButton;
-    [SerializeField] Button deletePresetCancelButton;
-
     [Header("Color Change Buttons")]
     [SerializeField] ColorButton[] colorTypeButtons;
     #endregion Serialized Fields
@@ -286,7 +282,7 @@ public class ColorController : MonoBehaviour
     {
         if(!_savingDefault && _name == DEFAULT_COLOR_PROFILE)
         {
-            Utilities.instance.SetErrorText($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
+            Utilities.instance.ErrorWindow($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
             return;
         }
 
@@ -296,11 +292,11 @@ public class ColorController : MonoBehaviour
 
         if (_name != DEFAULT_COLOR_PROFILE)
         {
-            Utilities.instance.SetConfirmationText($"Saved color profile for {_name}!");
+            Utilities.instance.ConfirmationWindow($"Saved color profile for {_name}!");
         }
         else
         {
-            Utilities.instance.SetConfirmationText($"Set default colors!");
+            Utilities.instance.ConfirmationWindow($"Set default colors!");
         }
 
 
@@ -403,7 +399,7 @@ public class ColorController : MonoBehaviour
         string json = JsonUtility.ToJson(preset, true);
         string path = presetsBasePath + preset.name + fileExtensionPresets;
         File.WriteAllText(path, json);
-        Utilities.instance.SetConfirmationText($"Saved preset {preset.name}");
+        Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
 	}
 
     void CancelPresetSave()
@@ -420,12 +416,12 @@ public class ColorController : MonoBehaviour
         if (File.Exists(path))
         {
             File.Delete(path);
-            Utilities.instance.SetConfirmationText($"{presetName} preset deleted!");
+            Utilities.instance.ConfirmationWindow($"{presetName} preset deleted!");
 		}
         else
         {
             Debug.LogError($"No preset found to delete with name {presetName}");
-            Utilities.instance.SetErrorText($"Error deleting preset {presetName}");
+            Utilities.instance.ErrorWindow($"Error deleting preset {presetName}");
 		}
 	}
 
@@ -440,19 +436,25 @@ public class ColorController : MonoBehaviour
         saveConfirmPresetButton.onClick.AddListener(SavePreset);
         savePresetButton.onClick.AddListener(() => { ToggleSavePresetPanel(true); });
 
-        deletePresetButton.onClick.AddListener(() => {ToggleDeletePresetPanel(true); });
-        deletePresetConfirmButton.onClick.AddListener(DeletePreset);
-        deletePresetCancelButton.onClick.AddListener(() => { ToggleDeletePresetPanel(false); });
+        deletePresetButton.onClick.AddListener(CreateDeleteWindow);
+	}
+
+    void CreateDeleteWindow()
+    {
+        string currentPreset = presetDropdown.options[presetDropdown.value].text;
+        if (currentPreset != null && currentPreset != "")
+        {
+            Utilities.instance.VerificationWindow($"Are you sure you want to delete {currentPreset} color preset?", DeletePreset, "Delete");
+        }
+        else
+        {
+            Utilities.instance.ErrorWindow($"No preset to delete!");
+		}
 	}
 
     void ToggleSavePresetPanel(bool _enabled)
     {
         savePresetPanel.SetActive(_enabled);
-    }
-
-    void ToggleDeletePresetPanel(bool _enabled)
-    {
-        deletePresetPanel.SetActive(_enabled);
     }
 
     void PopulatePresetDropdown()

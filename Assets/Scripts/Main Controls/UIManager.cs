@@ -476,7 +476,7 @@ public class UIManager : MonoBehaviour
 
         if(!positionMode)
         {
-            Utilities.instance.SetErrorText("Don't forget to save!");
+            Utilities.instance.ErrorWindow("Don't forget to save!");
         }
     }
 

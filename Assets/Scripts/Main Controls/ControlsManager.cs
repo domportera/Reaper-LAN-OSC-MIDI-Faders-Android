@@ -83,7 +83,7 @@ public class ControlsManager : MonoBehaviour
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.SetErrorText("Can't delete default profile");
+            Utilities.instance.ErrorWindow("Can't delete default profile");
             return;
         }
         //remove profile from current list of profiles
@@ -111,7 +111,7 @@ public class ControlsManager : MonoBehaviour
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.SetErrorText("Can't overwrite defaults, use Save As instead.");
+            Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead.");
             return;
         }
 
@@ -120,14 +120,14 @@ public class ControlsManager : MonoBehaviour
         string json = JsonUtility.ToJson(new FaderSaver(controllers, _name), true);
         SaveControlsFile(_name, json);
 
-        Utilities.instance.SetConfirmationText($"Saved {_name}");
+        Utilities.instance.ConfirmationWindow($"Saved {_name}");
     }
 
     public bool SaveControllersAs(string _name)
     {
         if (_name == DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
         {
-            Utilities.instance.SetErrorText("Profile with this name already exists, please use another.");
+            Utilities.instance.ErrorWindow("Profile with this name already exists, please use another.");
             return false;
         }
 
@@ -136,11 +136,11 @@ public class ControlsManager : MonoBehaviour
         {
             if (invalidChars.Count == 1)
             {
-                Utilities.instance.SetErrorText($"Chosen profile name contains an invalid character.");
+                Utilities.instance.ErrorWindow($"Chosen profile name contains an invalid character.");
             }
             else
             {
-                Utilities.instance.SetErrorText($"Chosen profile name contains {invalidChars.Count} invalid characters.");
+                Utilities.instance.ErrorWindow($"Chosen profile name contains {invalidChars.Count} invalid characters.");
             }
             return false;
 		}
@@ -158,7 +158,7 @@ public class ControlsManager : MonoBehaviour
         }
         else
         {
-            Utilities.instance.SetErrorText("Please enter a name.");
+            Utilities.instance.ErrorWindow("Please enter a name.");
             return false;
         }
     }
