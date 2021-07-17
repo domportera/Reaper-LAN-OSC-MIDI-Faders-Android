@@ -40,11 +40,16 @@ public class ControlsManager : MonoBehaviour
     const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
     Profiles profileNames = null;
 
+    string basePath;
+    const string CONTROLS_EXTENSION = ".controls";
+    const string PROFILES_EXTENSION = ".profiles";
+
     public class ProfileEvent : UnityEvent<string> { }
     public ProfileEvent OnProfileLoaded = new ProfileEvent();
 
     void Awake()
     {
+        basePath = Application.persistentDataPath + "/Controllers/";
         uiManager = FindObjectOfType<UIManager>();
         ipSetter = FindObjectOfType<IPSetter>();
 
@@ -113,7 +118,7 @@ public class ControlsManager : MonoBehaviour
         controllers.Sort((s1, s2) => s1.name.CompareTo(s2.name));
 
         string json = JsonUtility.ToJson(new FaderSaver(controllers, _name), true);
-        SaveFile(_name, json);
+        SaveControlsFile(_name, json);
 
         Utilities.instance.SetConfirmationText($"Saved {_name}");
     }
@@ -180,7 +185,7 @@ public class ControlsManager : MonoBehaviour
 
         if (_profile != DEFAULT_SAVE_NAME)
         {
-            string json = LoadFile(_profile);
+            string json = LoadControlsFile(_profile);
 
             if (json != null)
             {
@@ -271,7 +276,7 @@ public class ControlsManager : MonoBehaviour
 
     void LoadProfileNames()
     {
-        string json = LoadFile(PROFILE_NAME_SAVE_NAME);
+        string json = LoadFile(PROFILE_NAME_SAVE_NAME, PROFILES_EXTENSION);
 
         if (json != null)
         {
@@ -286,30 +291,39 @@ public class ControlsManager : MonoBehaviour
     void SaveProfileNames()
     {
         string json = JsonUtility.ToJson(profileNames, true);
-        SaveFile(PROFILE_NAME_SAVE_NAME, json);
+        SaveFile(PROFILE_NAME_SAVE_NAME, PROFILES_EXTENSION, json);
     }
 
-    bool SaveFile(string _fileNameSansExtension, string _data)
+    void SaveControlsFile(string _fileNameSansExtension, string _data)
+    {
+        if(!Directory.Exists(basePath))
+        {
+            Directory.CreateDirectory(basePath);
+		}
+
+        SaveFile(_fileNameSansExtension, CONTROLS_EXTENSION, _data);
+    }
+
+    void SaveFile(string _fileNameSansExtension, string _fileExtension, string _data)
+    {
+        if (!Directory.Exists(basePath))
+        {
+            Directory.CreateDirectory(basePath);
+        }
+
+        File.WriteAllText(basePath + _fileNameSansExtension + _fileExtension, _data);
+    }
+
+    string LoadControlsFile(string _fileNameSansExtension)
+    {
+        return LoadFile(_fileNameSansExtension, CONTROLS_EXTENSION);
+    }
+
+    string LoadFile(string _fileNameSansExtension, string _fileNameExtension)
     {
         try
         {
-            StreamWriter sw = new StreamWriter(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");
-            sw.Write(_data);
-            sw.Close();
-            return true;
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Failure to save {_fileNameSansExtension}!\n" + e);
-            return false;
-        }
-    }
-
-    string LoadFile(string _fileNameSansExtension)
-    {
-        try
-        {
-            StreamReader sr = new StreamReader(Application.persistentDataPath + "/" + _fileNameSansExtension + ".json");
+            StreamReader sr = new StreamReader(basePath + _fileNameSansExtension + _fileNameExtension);
             string json = sr.ReadToEnd();
             sr.Close();
 
@@ -324,7 +338,7 @@ public class ControlsManager : MonoBehaviour
 
     void DeleteFile(string _fileNameSansExtension)
     {
-        string filePath = Application.persistentDataPath + "/" + _fileNameSansExtension + ".json";
+        string filePath = basePath + _fileNameSansExtension + CONTROLS_EXTENSION;
 
         File.Delete(filePath);
     }

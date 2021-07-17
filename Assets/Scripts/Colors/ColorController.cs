@@ -32,7 +32,7 @@ public class ColorController : MonoBehaviour
     ColorType currentColorType = ColorType.Background;
     ColorProfile currentColorProfile;
 
-    string fileExtension = ".json";
+    string fileExtension = ".colors";
     string basePath;
 
 	private void Awake()
@@ -227,7 +227,7 @@ public class ColorController : MonoBehaviour
 
     void SaveDefaultProfile()
     {
-        SaveProfile(DEFAULT_COLOR_PROFILE);
+        SaveProfile(DEFAULT_COLOR_PROFILE, true);
     }
 
     void SaveProfile()
@@ -235,9 +235,9 @@ public class ColorController : MonoBehaviour
         SaveProfile(currentColorProfile.name);
     }
 
-    void SaveProfile(string _name)
+    void SaveProfile(string _name, bool _savingDefault = false)
     {
-        if(_name == DEFAULT_COLOR_PROFILE)
+        if(!_savingDefault && _name == DEFAULT_COLOR_PROFILE)
         {
             Utilities.instance.SetErrorText($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
             return;
