@@ -82,7 +82,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            Utilities.instance.SetErrorText("Invalid IP Address");
+            Utilities.instance.ErrorWindow("Invalid IP Address");
         }
     }
 
@@ -105,7 +105,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            Utilities.instance.SetErrorText("Invalid Port");
+            Utilities.instance.ErrorWindow("Invalid Port");
         }
     }
 
@@ -125,7 +125,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            Utilities.instance.SetErrorText("Invalid Port");
+            Utilities.instance.ErrorWindow("Invalid Port");
         }
     }
 

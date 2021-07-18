@@ -156,4 +156,18 @@ public class ColorProfile
 
 
 [System.Serializable]
-public class ColorPreset : ColorProfile { }
+public class ColorPreset : ColorProfile 
+{
+	public static ColorPreset ProfileToPreset(ColorProfile _profile)
+	{
+		ColorPreset preset = new ColorPreset();
+		preset.background = _profile.background;
+		preset.button = _profile.button;
+		preset.faderBackground = _profile.faderBackground;
+		preset.faderHandle = _profile.faderHandle;
+		preset.scrollBackground = _profile.scrollBackground;
+		preset.scrollHandle = _profile.scrollHandle;
+		preset.text = _profile.text;
+		return preset;
+	}
+}

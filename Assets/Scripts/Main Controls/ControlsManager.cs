@@ -163,7 +163,7 @@ public class ControlsManager : MonoBehaviour
         }
     }
 
-    List<char> GetInvalidFileNameCharacters(string _name)
+    public static List<char> GetInvalidFileNameCharacters(string _name)
     {
         //check for invalid characters
         char[] invalidFileChars = Path.GetInvalidFileNameChars();
