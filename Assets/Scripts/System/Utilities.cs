@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -41,12 +42,12 @@ public class Utilities : MonoBehaviour
         errorWindow.transform.SetSiblingIndex(errorWindow.transform.parent.childCount - 1);
     }
 
-    public void ConfirmationWindow(string _text)
+    public void ConfirmationWindow(string _text, Action _onComplete = null)
     {
         confirmationText.text = _text;
         confirmationWindow.SetActive(true);
         confirmationWindow.transform.SetSiblingIndex(confirmationWindow.transform.parent.childCount - 1);
-        StartCoroutine(HideConfirmationWindowAfterDelay());
+        StartCoroutine(HideConfirmationWindowAfterDelay(_onComplete));
     }
 
     public void VerificationWindow(string _text, UnityAction _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
@@ -68,13 +69,15 @@ public class Utilities : MonoBehaviour
         errorText.text = "";
     }
 
-    IEnumerator HideConfirmationWindowAfterDelay()
+    IEnumerator HideConfirmationWindowAfterDelay(Action _onHide)
     {
         yield return new WaitForSeconds(confirmationDisplayTime);
         if(confirmationWindow.activeSelf)
         {
             HideConfirmationWindow();
 		}
+
+        _onHide?.Invoke();
 	}
 
     void HideConfirmationWindow()

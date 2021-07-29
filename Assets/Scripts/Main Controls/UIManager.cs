@@ -43,6 +43,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject saveAsPanel = null;
     [SerializeField] Button cancelSaveAsButton = null;
 
+
     const int sliderButtonLayoutCapacity = 5;
 
     List<ControllerUIGroup> controllerUIs = new List<ControllerUIGroup>();
@@ -86,6 +87,7 @@ public class UIManager : MonoBehaviour
         saveAsPanel.SetActive(false);
         deleteConfirmationPanel.SetActive(false);
         setDefaultNotification.SetActive(false);
+
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
         if (PlayerPrefs.HasKey(FADER_WIDTH_PLAYER_PREF))
