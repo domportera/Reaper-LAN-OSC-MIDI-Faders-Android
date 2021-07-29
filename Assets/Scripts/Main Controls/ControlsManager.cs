@@ -32,13 +32,14 @@ public class ControlsManager : MonoBehaviour
 
     UIManager uiManager;
     IPSetter ipSetter;
+    ProfilesManager profileManager;
 
     public const string NEW_CONTROLLER_NAME = "New Controller";
 
     //saving variables
     public const string DEFAULT_SAVE_NAME = "Default";
     const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
-    Profiles profileNames = null;
+    ProfilesMetadata profileNames = null;
 
     string basePath;
     const string CONTROLS_EXTENSION = ".controls";
@@ -52,6 +53,7 @@ public class ControlsManager : MonoBehaviour
         basePath = Application.persistentDataPath + "/Controllers/";
         uiManager = FindObjectOfType<UIManager>();
         ipSetter = FindObjectOfType<IPSetter>();
+        profileManager = FindObjectOfType<ProfilesManager>();
 
         //load profile file names
         LoadProfileNames();
@@ -150,7 +152,7 @@ public class ControlsManager : MonoBehaviour
             string profileName = _name;
             profileNames.AddProfile(profileName);
             SaveProfileNames();
-            uiManager.AddToPopulateProfileDropdown(profileName);
+            profileManager.AddToProfileButtons(profileName);
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
             SaveControllers(_name);
@@ -259,7 +261,7 @@ public class ControlsManager : MonoBehaviour
 
     void PopulateProfileSelectionMenu()
     {
-        uiManager.PopulateProfileDropdown(profileNames.GetNames(), profileNames.GetDefaultProfileName());
+        profileManager.PopulateProfileButtons(profileNames.GetNames(), profileNames.GetDefaultProfileName());
     }
 
     void LoadDefaultProfile ()
@@ -280,11 +282,11 @@ public class ControlsManager : MonoBehaviour
 
         if (json != null)
         {
-            profileNames = JsonUtility.FromJson<Profiles>(json);
+            profileNames = JsonUtility.FromJson<ProfilesMetadata>(json);
         }
         else
         {
-            profileNames = new Profiles(new List<string> { });
+            profileNames = new ProfilesMetadata(new List<string> { });
         }
     }
 
@@ -469,12 +471,12 @@ public class ControlsManager : MonoBehaviour
 
     [Serializable]
 
-    class Profiles
+    class ProfilesMetadata
     {
         [SerializeField] List<string> profileNames;
         [SerializeField] string defaultProfileName;
 
-        public Profiles(List<string> _profileNames)
+        public ProfilesMetadata(List<string> _profileNames)
         {
             profileNames = _profileNames;
             defaultProfileName = DEFAULT_SAVE_NAME;

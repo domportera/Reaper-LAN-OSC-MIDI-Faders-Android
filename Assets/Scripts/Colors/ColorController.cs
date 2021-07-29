@@ -538,6 +538,11 @@ public class ColorController : MonoBehaviour
         UpdateAppColors();
     }
 
+    public Color GetColorFromProfile(ColorType _type)
+    {
+        return currentColorProfile.GetColor(_type);
+	}
+
 
     #region Singleton
     void SingletonSetup()

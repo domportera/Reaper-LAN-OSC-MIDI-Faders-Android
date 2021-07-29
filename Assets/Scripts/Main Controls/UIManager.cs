@@ -7,7 +7,6 @@ using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] ControlsManager controlMan = null;
     [Space(20)]
 
     [SerializeField] GameObject optionsPanel = null;
@@ -22,26 +21,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
 
-    [Header("Profiles")]
-    [SerializeField] Dropdown profileSelectDropDown = null;
-    [SerializeField] Button saveButton = null;
-    [SerializeField] Button setDefaultButton = null;
-    [SerializeField] GameObject setDefaultNotification = null;
-    [SerializeField] Text defaultConfirmationText = null;
-
-    [Header("Delete Profiles")]
-    [SerializeField] Button deleteButton = null;
-    [SerializeField] GameObject deleteConfirmationPanel = null;
-    [SerializeField] Button confirmDeleteButton = null;
-    [SerializeField] Button cancelDeleteButton = null;
-    [SerializeField] Text deleteConfirmationText = null;
-
-    [Header("Save Profiles As")]
-    [SerializeField] InputField profileNameInput = null;
-    [SerializeField] Button saveAsButton = null;
-    [SerializeField] Button confirmSaveAsButton = null;
-    [SerializeField] GameObject saveAsPanel = null;
-    [SerializeField] Button cancelSaveAsButton = null;
 
 
     const int sliderButtonLayoutCapacity = 5;
@@ -62,31 +41,8 @@ public class UIManager : MonoBehaviour
         //options
         optionsButton.onClick.AddListener(ToggleOptionsMenu);
         faderPositionExitButton.onClick.AddListener(ToggleEditFaderPositionMode);
-
-        //profiles
-        profileSelectDropDown.onValueChanged.AddListener(SetActiveProfile);
-        saveButton.onClick.AddListener(Save);
-
-        //delete profiles
-        deleteButton.onClick.AddListener(ToggleDeletePanel);
-        confirmDeleteButton.onClick.AddListener(DeleteProfile);
-        confirmDeleteButton.onClick.AddListener(ToggleDeletePanel);
-        cancelDeleteButton.onClick.AddListener(ToggleDeletePanel);
-
-        //save profiles as
-        saveAsButton.onClick.AddListener(ToggleSaveAsPanel);
-        confirmSaveAsButton.onClick.AddListener(SaveAs);
-        cancelSaveAsButton.onClick.AddListener(ToggleSaveAsPanel);
-
-        //set default profile
-        setDefaultButton.onClick.AddListener(SetDefaultProfile);
-        setDefaultButton.onClick.AddListener(ShowDefaultNotification);
-
         //prevent accidentally leaving stuff on in the scene
         optionsPanel.SetActive(false);
-        saveAsPanel.SetActive(false);
-        deleteConfirmationPanel.SetActive(false);
-        setDefaultNotification.SetActive(false);
 
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
@@ -106,9 +62,8 @@ public class UIManager : MonoBehaviour
     public void ToggleOptionsMenu()
     {
         optionsPanel.SetActive(!optionsPanel.activeInHierarchy);
-
-        deleteConfirmationPanel.SetActive(false); //we don't want this up when the menu is opened again to prevent accidents
     }
+
 
     public void SpawnFaderOptions(ControllerSettings _config, GameObject _control)
     {
@@ -129,131 +84,6 @@ public class UIManager : MonoBehaviour
         RefreshFaderLayoutGroup();
     }
 
-    string GetSaveNameFromField()
-    {
-        return profileNameInput.text.Replace(@"\", "").Replace(@"/", "").Trim(); //remove unwanted characters
-    }
-
-    public void PopulateProfileDropdown(List<string> _profileNames, string _defaultProfile)
-    {
-        profileSelectDropDown.ClearOptions();
-        AddToPopulateProfileDropdown(ControlsManager.DEFAULT_SAVE_NAME);
-
-        foreach (string pname in _profileNames)
-        {
-            AddToPopulateProfileDropdown(pname);
-        }
-
-        //for some reason, if there is only one entry (in the case where _profileNames is empty),
-        //setting value of 0 to dropdown (the correct value) just doesn't properly set the dropdown view -
-        //otherwise it's just blank.
-        //setting it to literally anything else makes it work. I chose the number 1.
-        //I dont make the rules, I just follow them.
-        profileSelectDropDown.SetValueWithoutNotify(_profileNames.Count == 0 ? 1 : GetProfileIndex(_defaultProfile));
-
-        SetActiveProfile(_defaultProfile);
-    }
-
-    public void AddToPopulateProfileDropdown(string _name)
-    {
-        profileSelectDropDown.options.Add(new OptionData(_name));
-        profileSelectDropDown.SetValueWithoutNotify(profileSelectDropDown.options.Count - 1);
-    }
-
-    void SetActiveProfile(int _index)
-    {
-        if(controlMan == null)
-        {
-            controlMan = FindObjectOfType<ControlsManager>();
-        }
-        controlMan.SetActiveProfile(GetNameFromProfileDropdown());
-    }
-
-    void SetActiveProfile(string _name)
-    {
-        controlMan.SetActiveProfile(_name);
-    }
-
-    void Save()
-    {
-        controlMan.SaveControllers(GetNameFromProfileDropdown());
-    }
-
-    void SaveAs()
-    {
-        string profileName = GetSaveNameFromField();
-        bool canClose = controlMan.SaveControllersAs(profileName);
-
-        if(canClose)
-        {
-            ToggleSaveAsPanel();
-        }
-    }
-
-    void SetDefaultProfile()
-    {
-        string s = GetNameFromProfileDropdown();
-        controlMan.SetDefaultProfile(s);
-
-        Debug.Log("Default save: " + s);
-    }
-
-    void DeleteProfile()
-    {
-        controlMan.DeleteProfile(GetNameFromProfileDropdown());
-    }
-
-    string GetNameFromProfileDropdown()
-    {
-        return profileSelectDropDown.options[profileSelectDropDown.value].text;
-    }
-
-    int GetProfileIndex(string _profile)
-    {
-        for(int i = 0; i < profileSelectDropDown.options.Count; i++)
-        {
-            if(profileSelectDropDown.options[i].text == _profile)
-            {
-                return i;
-            }
-        }
-
-        Debug.LogError("Index not found in profile dropdown");
-        return -1;
-    }
-
-    void ToggleSaveAsPanel()
-    {
-        saveAsPanel.SetActive(!saveAsPanel.activeInHierarchy);
-    }
-
-    void ToggleDeletePanel()
-    {
-        deleteConfirmationPanel.SetActive(!deleteConfirmationPanel.activeInHierarchy);
-
-        if (deleteConfirmationPanel.activeInHierarchy)
-        {
-            deleteConfirmationText.text = "Are you sure you want to delete\n" + GetNameFromProfileDropdown() + "?";
-        }
-    }
-
-    Coroutine showDefaultNotificationRoutine = null;
-    void ShowDefaultNotification()
-    {
-        if(showDefaultNotificationRoutine != null)
-        {
-            StopCoroutine(showDefaultNotificationRoutine);
-        }
-
-        defaultConfirmationText.text = GetNameFromProfileDropdown() + " set as default!\nThis will be the patch that loads on startup.";
-        showDefaultNotificationRoutine = StartCoroutine(ShowDefaultNotificationThenHide());
-    }
-    IEnumerator ShowDefaultNotificationThenHide()
-    {
-        setDefaultNotification.SetActive(true);
-        yield return new WaitForSeconds(3f);
-        setDefaultNotification.SetActive(false);
-    }
 
     void AddOptionsButtonToLayout(GameObject _button)
     {
@@ -454,11 +284,6 @@ public class UIManager : MonoBehaviour
     {
         faderWidth = (int)_width;
         SetFaderWidths();
-    }
-
-    public void SaveFaderWidthToPlayerPrefs()
-    {
-        PlayerPrefs.SetInt(FADER_WIDTH_PLAYER_PREF, faderWidth);
     }
 
     void ToggleEditFaderPositionMode()
