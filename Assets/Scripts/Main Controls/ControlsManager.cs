@@ -58,12 +58,13 @@ public class ControlsManager : MonoBehaviour
         //load profile file names
         LoadProfileNames();
 
-        //populate ui with profile names to allow for saving
-        PopulateProfileSelectionMenu();
     }
 
 	private void Start()
-	{
+    {
+        //populate ui with profile names to allow for saving
+        PopulateProfileSelectionMenu();
+
         //let color controller know we're ready for default color scheme
         OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
 	}

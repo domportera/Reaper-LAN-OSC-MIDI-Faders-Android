@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using static UnityEngine.UI.Dropdown;
 
@@ -20,8 +21,38 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button faderPositionEnableButton = null;
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
+    [SerializeField] Button setupButton;
+    [SerializeField] Button closeSetupButton;
+    [SerializeField] GameObject setupPanel;
 
-
+    [Header("Credits")]
+    [SerializeField] Button creditsButton;
+    [SerializeField] Button closeCreditsButton;
+    [SerializeField] GameObject creditsPanel;
+    [Space(10)]
+    [SerializeField] Button oscJackButton;
+    [SerializeField] string oscJackLink;
+    [Space(10)]
+    [SerializeField] Button nativeFilePickerButton;
+    [SerializeField] string nativeFilePickerLink;
+    [Space(10)]
+    [SerializeField] Button uniClipboardButton;
+    [SerializeField] string uniClipboardLink;
+    [Space(10)]
+    [SerializeField] Button ethereumButton;
+    [SerializeField] string ethereumAddress;
+    [Space(10)]
+    [SerializeField] Button cardanoButton;
+    [SerializeField] string cardanoAddress;
+    [Space(10)]
+    [SerializeField] Button nanoButton;
+    [SerializeField] string nanoAddress;
+    [Space(10)]
+    [SerializeField] Button paypalButton;
+    [SerializeField] string paypalAddress;
+    [Space(10)]
+    [SerializeField] Button cashAppButton;
+    [SerializeField] string cashAppAddress;
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -56,6 +87,22 @@ public class UIManager : MonoBehaviour
         faderWidthSlider.SetValueWithoutNotify(faderWidth);
         faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
         faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
+
+        UnityAction toggleSetup = () => setupPanel.SetActive(!setupPanel.activeSelf);
+        setupButton.onClick.AddListener(toggleSetup);
+        closeSetupButton.onClick.AddListener(toggleSetup);
+
+        UnityAction toggleCredits = () => creditsPanel.SetActive(!creditsPanel.activeSelf);
+        creditsButton.onClick.AddListener(toggleCredits);
+        closeCreditsButton.onClick.AddListener(toggleCredits);
+        oscJackButton.onClick.AddListener(() => Application.OpenURL(oscJackLink));
+        nativeFilePickerButton.onClick.AddListener(() => Application.OpenURL(nativeFilePickerLink));
+
+        ethereumButton.onClick.AddListener(() => UniClipboard.SetText(ethereumAddress));
+        cardanoButton.onClick.AddListener(() => UniClipboard.SetText(cardanoAddress));
+        nanoButton.onClick.AddListener(() => UniClipboard.SetText(nanoAddress));
+        paypalButton.onClick.AddListener(() => UniClipboard.SetText(paypalAddress));
+        cashAppButton.onClick.AddListener(() => UniClipboard.SetText(cashAppAddress));
     }
 
     //used by options button in scene

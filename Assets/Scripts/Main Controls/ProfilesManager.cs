@@ -105,7 +105,19 @@ public class ProfilesManager : MonoBehaviour
 		}
 
         profileButtons[_name].isActiveProfile = true;
-        //profileButtons[_name].SetHighlightColor(colorController.GetColorFromProfile(ColorProfile.ColorType.Text));
+
+        //set highlight color
+        foreach(KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
+        {
+            if(pair.Key == _name)
+            {
+                pair.Value.SetHighlightColor(colorController.GetColorFromProfile(ColorProfile.ColorType.Text));
+            }
+            else
+            {
+                pair.Value.SetHighlightColor(Color.clear);
+            }
+		}
     }
 
     void Save()
