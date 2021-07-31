@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 5
+  colorType: 1
 --- !u!1 &986655387985563408
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,7 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &1603820294527966307
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,7 +387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
 --- !u!1 &2212106761839687363
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,7 +479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &2442616002792966038
 GameObject:
   m_ObjectHideFlags: 0
@@ -603,7 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 4
+  colorType: 2
 --- !u!1 &5066287932451842269
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,7 +691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
 --- !u!1 &6101582712643527678
 GameObject:
   m_ObjectHideFlags: 0
@@ -783,7 +783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &7139151323676718098
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,7 +875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &7449174648629110838
 GameObject:
   m_ObjectHideFlags: 0
@@ -1118,7 +1118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 1
 --- !u!1 &7979917089957548245
 GameObject:
   m_ObjectHideFlags: 0
@@ -1309,4 +1309,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2

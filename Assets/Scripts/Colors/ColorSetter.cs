@@ -12,37 +12,24 @@ public class ColorSetter : MonoBehaviour
 	Text text;
 
 	bool canColor = true;
-	bool textIsImage = false;
+	bool isImage = false;
 
 	private void Awake()
 	{
-		switch (colorType)
+		text = GetComponent<Text>();
+		if (text == null)
 		{
-			case ColorProfile.ColorType.Text:
-				text = GetComponent<Text>();
-				if (text == null)
-				{
-					image = GetComponent<Image>();
-					if (image == null)
-					{
-						Debug.LogWarning($"{name} has no image component for text substitution", this);
-						canColor = false;
-					}
-					else
-					{
-						canColor = true;
-						textIsImage = true;
-					}
-				}
-				break;
-			default:
-				image = GetComponent<Image>();
-				if (image == null)
-				{
-					Debug.LogWarning($"{name} has no image component", this);
-					canColor = false;
-				}
-				break;
+			image = GetComponent<Image>();
+			if (image == null)
+			{
+				Debug.LogWarning($"{name} has no component to color", this);
+				canColor = false;
+			}
+			else
+			{
+				canColor = true;
+				isImage = true;
+			}
 		}
 	}
 
@@ -57,24 +44,16 @@ public class ColorSetter : MonoBehaviour
 	}
 
 	public void SetColors(ColorProfile _colors)
-    {
+	{
 		if (!canColor) return;
 
-		switch (colorType)
+		if (!isImage)
 		{
-			case ColorProfile.ColorType.Text:;
-				if (!textIsImage)
-				{
-					text.color = _colors.GetColor(colorType);
-				}
-				else
-				{
-					image.color = _colors.GetColor(colorType);
-				}
-				break;
-			default:
-				image.color = _colors.GetColor(colorType);
-				break;
+			text.color = _colors.GetColor(colorType);
+		}
+		else
+		{
+			image.color = _colors.GetColor(colorType);
 		}
 	}
 }

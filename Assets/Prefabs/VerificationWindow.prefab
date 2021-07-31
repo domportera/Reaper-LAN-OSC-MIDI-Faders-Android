@@ -91,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &788262509909152798
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 0
 --- !u!1 &2784571828142732343
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,7 +275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &2784571828181882729
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &2784571829033422548
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
 --- !u!1 &2784571829471772343
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,7 +665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
 --- !u!114 &2784571829508924932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,6 +686,9 @@ MonoBehaviour:
   descriptionText: {fileID: 2784571828181882708}
   inputText: {fileID: 9203792771279691692}
   inputTitle: {fileID: 2784571828142732338}
+  OnClose:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2784571829567220138
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,7 +821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
 --- !u!1 &2784571829581087053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1003,7 +1006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &2784571829769430312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1095,7 +1098,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 3
+  colorType: 2
 --- !u!1 &5542707087199314450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,4 +1253,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1

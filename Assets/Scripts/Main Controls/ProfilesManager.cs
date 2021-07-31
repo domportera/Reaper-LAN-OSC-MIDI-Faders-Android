@@ -111,7 +111,7 @@ public class ProfilesManager : MonoBehaviour
         {
             if(pair.Key == _name)
             {
-                pair.Value.SetHighlightColor(colorController.GetColorFromProfile(ColorProfile.ColorType.Text));
+                pair.Value.SetHighlightColor(colorController.GetColorFromProfile(ColorProfile.ColorType.Secondary));
             }
             else
             {

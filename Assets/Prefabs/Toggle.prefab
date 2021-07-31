@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 5988721741288096081}
   - component: {fileID: 6392130091522242306}
   - component: {fileID: 3387534852795965589}
+  - component: {fileID: 6275119224618489237}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -145,6 +146,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.28235295, g: 0.28627452, b: 0.5803922, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -158,6 +160,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6275119224618489237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839580391804561349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorType: 2
 --- !u!1 &4967719249092707328
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,6 +184,7 @@ GameObject:
   - component: {fileID: 6946158477224295337}
   - component: {fileID: 8464884767104555678}
   - component: {fileID: 1163699794659231487}
+  - component: {fileID: 5743244399029594852}
   m_Layer: 5
   m_Name: Checkmark
   m_TagString: Untagged
@@ -218,6 +234,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.15294118, g: 0.14509805, b: 0.3254902, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -231,3 +248,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5743244399029594852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4967719249092707328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorType: 1

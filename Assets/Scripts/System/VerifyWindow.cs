@@ -34,12 +34,12 @@ public class VerifyWindow : MonoBehaviour
 
         if(_confirmButtonLabel != null)
         {
-            confirmButton.GetComponentInChildren<Text>().text = _confirmButtonLabel;
+            confirmButtonText.text = _confirmButtonLabel;
         }
 
         if (_cancelButtonLabel != null)
         {
-            confirmButton.GetComponentInChildren<Text>().text = _cancelButtonLabel;
+            cancelButtonText.text = _cancelButtonLabel;
         }
     }
     public void SetActionsInputField(string _inputLabel, UnityAction<string> _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
@@ -59,12 +59,13 @@ public class VerifyWindow : MonoBehaviour
 
         if (_confirmButtonLabel != null)
         {
-            confirmButton.GetComponentInChildren<Text>().text = _confirmButtonLabel;
+            confirmButtonText.text = _confirmButtonLabel;
+            Debug.Log($"Confirm button label {_confirmButtonLabel}");
         }
 
         if (_cancelButtonLabel != null)
         {
-            confirmButton.GetComponentInChildren<Text>().text = _cancelButtonLabel;
+            cancelButtonText.text = _cancelButtonLabel;
         }
     }
 

@@ -1,31 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &4718993106255319884
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5804547395896792474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colorType: 3
---- !u!114 &3264050988499657684
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2393075280790074975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colorType: 6
 --- !u!1001 &1644884714652037578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -178,10 +152,40 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3922850765117330700}
     m_Modifications:
+    - target: {fileID: 1163699794659231487, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.5568628
+      objectReference: {fileID: 0}
+    - target: {fileID: 1163699794659231487, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.27450982
+      objectReference: {fileID: 0}
+    - target: {fileID: 1163699794659231487, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.27058825
+      objectReference: {fileID: 0}
     - target: {fileID: 2264272109651977767, guid: bbcf093ec02f593418e1dfaf1206fb22,
         type: 3}
       propertyPath: m_Name
       value: Toggle
+      objectReference: {fileID: 0}
+    - target: {fileID: 3387534852795965589, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.3254902
+      objectReference: {fileID: 0}
+    - target: {fileID: 3387534852795965589, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.14509805
+      objectReference: {fileID: 0}
+    - target: {fileID: 3387534852795965589, guid: bbcf093ec02f593418e1dfaf1206fb22,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.15294118
       objectReference: {fileID: 0}
     - target: {fileID: 9075986059569714095, guid: bbcf093ec02f593418e1dfaf1206fb22,
         type: 3}
@@ -290,15 +294,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbcf093ec02f593418e1dfaf1206fb22, type: 3}
---- !u!1 &5804547395896792474 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3839580391804561349, guid: bbcf093ec02f593418e1dfaf1206fb22,
-    type: 3}
-  m_PrefabInstance: {fileID: 7333279799005688415}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2393075280790074975 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4967719249092707328, guid: bbcf093ec02f593418e1dfaf1206fb22,
-    type: 3}
-  m_PrefabInstance: {fileID: 7333279799005688415}
-  m_PrefabAsset: {fileID: 0}
