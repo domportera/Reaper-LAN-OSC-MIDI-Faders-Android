@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ProfileLoadButton : MonoBehaviour
 {
-    [SerializeField] Image highlightImage;
+    [SerializeField] GameObject highlightImage;
     [SerializeField] Text titleText;
     [SerializeField] Button button;
     [SerializeField] GameObject root;
@@ -15,9 +15,9 @@ public class ProfileLoadButton : MonoBehaviour
     bool active;
     public bool isActiveProfile { get { return active; } set { active = value; } }
 
-    public void SetHighlightColor(Color _c)
+    public void ToggleHighlight(bool _enabled)
     {
-        highlightImage.color = _c;
+        highlightImage.SetActive(_enabled);
 	}
 
     public void SetText(string _profileName)

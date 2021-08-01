@@ -7,6 +7,7 @@ public class ColorProfile
 	public Color background;
 	public Color secondary;
 	public Color primary;
+	public Color tertiary;
 
 
 	public ColorProfile()
@@ -14,6 +15,7 @@ public class ColorProfile
 		background = Color.black;
 		primary = new Color(.16f, .15f, .34f);
 		secondary = new Color(.43f, 0.45f, 0.87f);
+		tertiary = secondary;
 	}
 
 	//duplicate
@@ -21,25 +23,27 @@ public class ColorProfile
 	{
 		this.name = _template.name;
 		this.background = _template.background;
-		this.secondary = _template.secondary;
 		this.primary = _template.primary;
+		this.secondary = _template.secondary;
+		this.tertiary = _template.tertiary;
 	}
 
 	public ColorProfile(string _name, ColorProfile _template)
 	{
 		this.background = _template.background;
-		this.secondary = _template.secondary;
 		this.primary = _template.primary;
-
+		this.secondary = _template.secondary;
+		this.tertiary = _template.tertiary;
 		this.name = _name;
 	}
 
-	public ColorProfile(string _name, Color background, Color faderBackground, Color faderHandle, Color text, Color scrollHandle, Color scrollBackground, Color button)
+	public ColorProfile(string _name, Color background, Color primary, Color secondary, Color tertiary)
 	{
 		this.name = _name;
 		this.background = background;
-		this.secondary = text;
-		this.primary = button;
+		this.primary = primary;
+		this.secondary = secondary;
+		this.tertiary = tertiary;
 	}
 
 	public void SetColor(ColorType _type, Color _color)
@@ -55,6 +59,9 @@ public class ColorProfile
 			case ColorType.Primary:
 				primary = _color;
 				break;
+			case ColorType.Tertiary:
+				tertiary = _color;
+				break;
 			default:
 				Debug.LogError($"Tried to set {_type} color in profile, but no implementation exists!");
 				break;
@@ -67,10 +74,12 @@ public class ColorProfile
 		{
 			case ColorType.Background:
 				return background;
-			case ColorType.Secondary:
-				return secondary;
 			case ColorType.Primary:
 				return primary;
+			case ColorType.Secondary:
+				return secondary;
+			case ColorType.Tertiary:
+				return tertiary;
 			default:
 				Debug.LogError($"Tried to get {_type} color in profile, but no implementation exists!");
 				return Color.white;
@@ -93,6 +102,7 @@ public class ColorProfile
 		s += "\nBackground: " + _profile.background;
 		s += "\nPrimary: " + _profile.primary;
 		s += "\nSecondary: " + _profile.secondary;
+		s += "\nTertiary: " + _profile.tertiary;
 
 		if (_debugLog)
 		{
@@ -102,7 +112,7 @@ public class ColorProfile
 		return s;
 	}
 
-	public enum ColorType { Background, Primary, Secondary }
+	public enum ColorType { Background, Primary, Secondary, Tertiary }
 
 }
 
@@ -116,6 +126,7 @@ public class ColorPreset : ColorProfile
 		preset.background = _profile.background;
 		preset.primary = _profile.primary;
 		preset.secondary = _profile.secondary;
+		preset.tertiary = _profile.tertiary;
 		return preset;
 	}
 }

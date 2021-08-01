@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class ProfilesManager : MonoBehaviour
 {
     [SerializeField] ControlsManager controlMan = null;
-    [SerializeField] ColorController colorController = null;
 
     [Header("Profiles Window")]
     [SerializeField] Button toggleProfileWindowButton;
@@ -90,7 +89,7 @@ public class ProfilesManager : MonoBehaviour
         ProfileLoadButton buttonScript = obj.GetComponent<ProfileLoadButton>();
         buttonScript.SetText(_name);
         buttonScript.SetButtonAction(() => SetActiveProfile(_name));
-        buttonScript.SetHighlightColor(Color.clear);
+        buttonScript.ToggleHighlight(false);
         profileButtons.Add(_name, buttonScript);
     }
 
@@ -109,14 +108,7 @@ public class ProfilesManager : MonoBehaviour
         //set highlight color
         foreach(KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
         {
-            if(pair.Key == _name)
-            {
-                pair.Value.SetHighlightColor(colorController.GetColorFromProfile(ColorProfile.ColorType.Secondary));
-            }
-            else
-            {
-                pair.Value.SetHighlightColor(Color.clear);
-            }
+            pair.Value.ToggleHighlight(pair.Key == _name);
 		}
     }
 

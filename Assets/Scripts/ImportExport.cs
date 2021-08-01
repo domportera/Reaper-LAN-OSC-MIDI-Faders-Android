@@ -78,7 +78,6 @@ public class ImportExport : MonoBehaviour
 
     public void TogglePanel()
     {
-        Debug.Log($"Toggling backup pannel");
         panel.SetActive(!panel.activeSelf);
 	}
 }

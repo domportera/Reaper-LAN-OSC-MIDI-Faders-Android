@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e710ccc982292449933c402f2a095a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightImage: {fileID: 7649484129416600972}
+  highlightImage: {fileID: 7649484129416600975}
   titleText: {fileID: 5371496223336619042}
   button: {fileID: 5371496223087524728}
   root: {fileID: 7649484129366557616}
@@ -65,6 +65,7 @@ GameObject:
   - component: {fileID: 7649484129416600974}
   - component: {fileID: 7649484129416600971}
   - component: {fileID: 7649484129416600972}
+  - component: {fileID: 4607857262348062984}
   m_Layer: 5
   m_Name: Highlight Background
   m_TagString: Untagged
@@ -118,8 +119,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: d0ab2b6d8389c4d4baa84acce6d87e84, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -128,6 +129,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4607857262348062984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7649484129416600975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorType: 3
 --- !u!1001 &7649484128488136639
 PrefabInstance:
   m_ObjectHideFlags: 0

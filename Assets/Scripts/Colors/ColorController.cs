@@ -258,7 +258,7 @@ public class ColorController : MonoBehaviour
 
     int ColorFloatToInt(float _float)
     {
-        return (int)(_float * 255);
+        return Mathf.RoundToInt(_float * 255);
     }
     #endregion Color Translation
 
@@ -356,6 +356,7 @@ public class ColorController : MonoBehaviour
         Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(currentColorProfile));
 
         UpdateAppColors();
+        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
     }
     void RevertColorProfile()
     {

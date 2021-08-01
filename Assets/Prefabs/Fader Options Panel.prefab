@@ -96,10 +96,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controllerConfig:
+    controlType: 0
+    name: 
+    channel: 0
+    range: 0
+    defaultType: 0
+    min: 0
+    max: 0
+    mid: 0
+    defaultValue: 0
+    smoothTime: 0
+    curveType: 0
     OnUpdate:
       m_PersistentCalls:
         m_Calls: []
+    addressType: 0
+    ccNumber: 0
     position: 0
+    profileName: 
   nameField: {fileID: 2035236612494592415}
   ccChannelField: {fileID: 1578601715773656087}
   smoothnessField: {fileID: 7563525643769710686}
@@ -2087,6 +2101,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5937110715140160397, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: colorType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9155088583995108888, guid: d00d406103daa36459ab6903f056c18d,
         type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2411,6 +2430,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7580543385852370108}
     m_Modifications:
+    - target: {fileID: 5937110715140160397, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: colorType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6079001791094499101, guid: d00d406103daa36459ab6903f056c18d,
         type: 3}
       propertyPath: m_Text
