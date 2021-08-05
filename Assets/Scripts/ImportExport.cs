@@ -14,15 +14,16 @@ public class ImportExport : MonoBehaviour
     [SerializeField] Button importButton;
     [SerializeField] GameObject panel;
 
-    readonly string[] fileExtensions = { ".backup" };
+    readonly string[] fileExtensions = { "*/*" };
     string exportPath;
-    string exportName = "/Reaper Faders Backup";
+    string exportName = "/Reaper Faders Backup.zip";
 
 	private void Awake()
 	{
 #if !UNITY_EDITOR
-        exportPath = Application.persistentDataPath.Substring(0, exportPath.IndexOf("Android")) + "Download/ReaperFaderBackups";
-        NativeFilePicker.RequestPermission();
+        exportPath = Application.persistentDataPath.Substring(0, Application.persistentDataPath.IndexOf("Android")) + "Download/ReaperFaderBackups";
+        //NativeFilePicker.RequestPermission();W
+        Debug.Log("PATH: " + exportPath);
 #else
         exportPath = Application.persistentDataPath + "/Backups";
 #endif

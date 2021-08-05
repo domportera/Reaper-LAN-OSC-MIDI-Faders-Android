@@ -21,6 +21,10 @@ public class FaderOptions : MonoBehaviour
     [SerializeField] Dropdown valueRangeDropdown = null;
     [SerializeField] Dropdown defaultValueDropdown = null;
     [SerializeField] Dropdown curveTypeDropdown = null;
+    [SerializeField] Button applyAndCloseButton = null;
+    [SerializeField] Button closeButton = null;
+    [SerializeField] Button resetValuesButton = null;
+    [SerializeField] Button deleteButton = null;
 
     Dictionary<Dropdown, string[]> dropDownEntryNames = new Dictionary<Dropdown, string[]>();
 
@@ -41,6 +45,11 @@ public class FaderOptions : MonoBehaviour
         {
             ccChannelField.gameObject.SetActive(false);
         }
+
+        applyAndCloseButton.onClick.AddListener(ApplyAndQuit);
+        closeButton.onClick.AddListener(Close);
+        resetValuesButton.onClick.AddListener(ResetValues);
+        deleteButton.onClick.AddListener(Delete);
     }
 
     public void CheckForCCControl(int _value)
@@ -184,7 +193,6 @@ public class FaderOptions : MonoBehaviour
 
     public void Delete()
     {
-        //show delete window
         //delete from ControlsManager and destroy objects
         manager.DestroyController(controllerConfig);
         uiManager.DestroyControllerObjects(controllerConfig);

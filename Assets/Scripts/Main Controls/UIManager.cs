@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
     [SerializeField] Button optionsButton = null;
+    [SerializeField] Button closeOptionsButton = null;
     [Space(10)]
     [SerializeField] Slider faderWidthSlider = null;
     [SerializeField] Button faderPositionEnableButton = null;
@@ -38,6 +39,9 @@ public class UIManager : MonoBehaviour
     [Space(10)]
     [SerializeField] Button uniClipboardButton;
     [SerializeField] string uniClipboardLink;
+    [Space(10)]
+    [SerializeField] Button consoleLogButton;
+    [SerializeField] string consoleLogLink;
     [Space(10)]
     [SerializeField] Button ethereumButton;
     [SerializeField] string ethereumAddress;
@@ -71,6 +75,7 @@ public class UIManager : MonoBehaviour
     {
         //options
         optionsButton.onClick.AddListener(ToggleOptionsMenu);
+        closeOptionsButton.onClick.AddListener(ToggleOptionsMenu);
         faderPositionExitButton.onClick.AddListener(ToggleEditFaderPositionMode);
         //prevent accidentally leaving stuff on in the scene
         optionsPanel.SetActive(false);
@@ -97,6 +102,7 @@ public class UIManager : MonoBehaviour
         closeCreditsButton.onClick.AddListener(toggleCredits);
         oscJackButton.onClick.AddListener(() => Application.OpenURL(oscJackLink));
         nativeFilePickerButton.onClick.AddListener(() => Application.OpenURL(nativeFilePickerLink));
+        consoleLogButton.onClick.AddListener(() => Application.OpenURL(consoleLogLink));
 
         ethereumButton.onClick.AddListener(() => UniClipboard.SetText(ethereumAddress));
         cardanoButton.onClick.AddListener(() => UniClipboard.SetText(cardanoAddress));
