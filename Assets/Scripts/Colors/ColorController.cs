@@ -282,7 +282,7 @@ public class ColorController : MonoBehaviour
             return;
         }
 
-        string path = profilesBasePath + "/" + _name + fileExtensionProfiles;
+        string path = Path.Combine(profilesBasePath, _name + fileExtensionProfiles);
         string json = JsonUtility.ToJson(currentColorProfile, true);
         File.WriteAllText(path, json);
 
@@ -301,7 +301,7 @@ public class ColorController : MonoBehaviour
 
     ColorProfile GetDefaultColorProfile()
     {
-        string path = profilesBasePath + "/" + DEFAULT_COLOR_PROFILE + fileExtensionProfiles;
+        string path = Path.Combine(profilesBasePath, DEFAULT_COLOR_PROFILE + fileExtensionProfiles);
 
         if (File.Exists(path))
         {
@@ -340,7 +340,7 @@ public class ColorController : MonoBehaviour
             _profile = DEFAULT_COLOR_PROFILE;
         }
 
-        string fullPath = profilesBasePath + "/" + _profile + fileExtensionProfiles;
+        string fullPath = Path.Combine(profilesBasePath, _profile + fileExtensionProfiles);
 
         if (File.Exists(fullPath))
         {
@@ -397,7 +397,7 @@ public class ColorController : MonoBehaviour
 
     ColorPreset LoadPreset(string _name)
     {
-        string path = presetsBasePath + "/" + _name + fileExtensionPresets;
+        string path = Path.Combine(presetsBasePath, _name + fileExtensionPresets);
         if (File.Exists(path))
         {
             //load
@@ -437,7 +437,7 @@ public class ColorController : MonoBehaviour
         ColorPreset preset = ColorPreset.ProfileToPreset(currentColorProfile);
         preset.name = _name;
         string json = JsonUtility.ToJson(preset, true);
-        string path = presetsBasePath + "/" + preset.name + fileExtensionPresets;
+        string path = Path.Combine(presetsBasePath, preset.name + fileExtensionPresets);
         File.WriteAllText(path, json);
         Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
         PopulatePresetDropdown();
@@ -461,7 +461,7 @@ public class ColorController : MonoBehaviour
     void DeletePreset()
     {
         string presetName = presetDropdown.options[presetDropdown.value].text;
-        string path = presetsBasePath + "/" + presetName + fileExtensionPresets;
+        string path = Path.Combine(presetsBasePath, presetName + fileExtensionPresets);
 
         if (File.Exists(path))
         {

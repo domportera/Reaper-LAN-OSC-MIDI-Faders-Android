@@ -50,7 +50,7 @@ public class ControlsManager : MonoBehaviour
 
     void Awake()
     {
-        basePath = Application.persistentDataPath + "/Controllers/";
+        basePath = Path.Combine(Application.persistentDataPath, "Controllers");
         uiManager = FindObjectOfType<UIManager>();
         ipSetter = FindObjectOfType<IPSetter>();
         profileManager = FindObjectOfType<ProfilesManager>();
@@ -314,7 +314,8 @@ public class ControlsManager : MonoBehaviour
             Directory.CreateDirectory(basePath);
         }
 
-        File.WriteAllText(basePath + _fileNameSansExtension + _fileExtension, _data);
+        string path = Path.Combine(basePath, _fileNameSansExtension + _fileExtension);
+        File.WriteAllText(path, _data);
     }
 
     string LoadControlsFile(string _fileNameSansExtension)
@@ -326,7 +327,8 @@ public class ControlsManager : MonoBehaviour
     {
         try
         {
-            StreamReader sr = new StreamReader(basePath + _fileNameSansExtension + _fileNameExtension);
+            string path = Path.Combine(basePath, _fileNameSansExtension + _fileNameExtension);
+            StreamReader sr = new StreamReader(path);
             string json = sr.ReadToEnd();
             sr.Close();
 
