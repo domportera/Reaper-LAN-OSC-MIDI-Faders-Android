@@ -1363,7 +1363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 5
+  colorType: 1
 --- !u!114 &77443682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1406,8 +1406,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 672275268}
   m_HandleRect: {fileID: 672275266}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.7913387
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2006,7 +2006,6 @@ GameObject:
   - component: {fileID: 142587812}
   - component: {fileID: 142587811}
   - component: {fileID: 142587810}
-  - component: {fileID: 142587814}
   m_Layer: 5
   m_Name: Scrollbar Vertical
   m_TagString: Untagged
@@ -2132,19 +2131,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 142587808}
   m_CullTransparentMesh: 0
---- !u!114 &142587814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 142587808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colorType: 0
 --- !u!1 &189354363
 GameObject:
   m_ObjectHideFlags: 0
@@ -3792,7 +3778,7 @@ PrefabInstance:
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -464.8
+      value: -701.2
       objectReference: {fileID: 0}
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}
@@ -4665,7 +4651,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -358.4}
+  m_AnchoredPosition: {x: 463, y: -594.8}
   m_SizeDelta: {x: 826, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &367776137
@@ -5066,7 +5052,7 @@ PrefabInstance:
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 2.499939
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}
@@ -6275,6 +6261,7 @@ GameObject:
   - component: {fileID: 493539149}
   - component: {fileID: 493539151}
   - component: {fileID: 493539150}
+  - component: {fileID: 493539152}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -6338,6 +6325,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493539148}
   m_CullTransparentMesh: 0
+--- !u!114 &493539152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493539148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorType: 2
 --- !u!1 &563056321
 GameObject:
   m_ObjectHideFlags: 0
@@ -6717,7 +6717,7 @@ RectTransform:
   m_Father: {fileID: 1273293165}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.20866132}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -6734,7 +6734,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 4
+  colorType: 2
 --- !u!114 &672275268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7356,7 +7356,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.000012167797}
-  m_SizeDelta: {x: 0, y: 851.2}
+  m_SizeDelta: {x: 0, y: 1087.6001}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &703873916
 MonoBehaviour:
@@ -8354,6 +8354,7 @@ MonoBehaviour:
   profileLoadButtonPrefab: {fileID: 7649484129366557616, guid: cb3a9741393c49d4298a5f9365293910,
     type: 3}
   profileButtonParent: {fileID: 1307085033}
+  debug: 0
 --- !u!4 &876161182
 Transform:
   m_ObjectHideFlags: 0
@@ -9080,7 +9081,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -646.8}
+  m_AnchoredPosition: {x: 463, y: -883.2}
   m_SizeDelta: {x: 826, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &927124095
@@ -9752,7 +9753,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -685}
+  m_AnchoredPosition: {x: 463, y: -921.4}
   m_SizeDelta: {x: 826, y: 32.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &959174211
@@ -12996,7 +12997,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -979.1001, y: -220.44}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1268412948
@@ -13114,7 +13115,6 @@ GameObject:
   - component: {fileID: 1279717618}
   - component: {fileID: 1279717617}
   - component: {fileID: 1279717616}
-  - component: {fileID: 1279717619}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -13191,19 +13191,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1279717614}
   m_CullTransparentMesh: 0
---- !u!114 &1279717619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279717614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  colorType: 0
 --- !u!1001 &1283069738
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14550,6 +14537,7 @@ GameObject:
   - component: {fileID: 1454530023}
   - component: {fileID: 1454530022}
   - component: {fileID: 1454530021}
+  - component: {fileID: 1454530024}
   m_Layer: 5
   m_Name: Scrollbar Horizontal
   m_TagString: Untagged
@@ -14662,6 +14650,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1454530019}
   m_CullTransparentMesh: 0
+--- !u!114 &1454530024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454530019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorType: 1
 --- !u!1 &1462093415
 GameObject:
   m_ObjectHideFlags: 0
@@ -18015,7 +18016,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -594.8}
+  m_AnchoredPosition: {x: 463, y: -831.2}
   m_SizeDelta: {x: 826, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1824158323
@@ -19035,7 +19036,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -410.4}
+  m_AnchoredPosition: {x: 463, y: -646.8}
   m_SizeDelta: {x: 826, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1905224500
@@ -19138,7 +19139,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 463, y: -448.6}
+  m_AnchoredPosition: {x: 463, y: -685}
   m_SizeDelta: {x: 826, y: 32.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1922738075
@@ -20389,7 +20390,7 @@ PrefabInstance:
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -701.2
+      value: -937.60004
       objectReference: {fileID: 0}
     - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
         type: 3}

@@ -103,6 +103,7 @@ public class UIManager : MonoBehaviour
         oscJackButton.onClick.AddListener(() => Application.OpenURL(oscJackLink));
         nativeFilePickerButton.onClick.AddListener(() => Application.OpenURL(nativeFilePickerLink));
         consoleLogButton.onClick.AddListener(() => Application.OpenURL(consoleLogLink));
+        uniClipboardButton.onClick.AddListener(() => Application.OpenURL(uniClipboardLink));
 
         ethereumButton.onClick.AddListener(() => UniClipboard.SetText(ethereumAddress));
         cardanoButton.onClick.AddListener(() => UniClipboard.SetText(cardanoAddress));
@@ -356,7 +357,7 @@ public class UIManager : MonoBehaviour
 
         if(!positionMode)
         {
-            Utilities.instance.ErrorWindow("Don't forget to save!");
+            Utilities.instance.ConfirmationWindow("Don't forget to save!");
         }
     }
 

@@ -28,6 +28,8 @@ public class ProfilesManager : MonoBehaviour
 
     Dictionary<string, ProfileLoadButton> profileButtons = new Dictionary<string, ProfileLoadButton>();
 
+    [SerializeField] bool debug = false;
+
 
     private void Awake()
 	{
@@ -62,7 +64,14 @@ public class ProfilesManager : MonoBehaviour
 
     void DeleteConfirmation()
     {
-        Utilities.instance.VerificationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
+        if (GetActiveProfile() != ControlsManager.DEFAULT_SAVE_NAME)
+        {
+            Utilities.instance.VerificationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
+        }
+        else
+        {
+            Utilities.instance.ErrorWindow($"Can't delete default profile");
+		}
     }
 
     void SaveAsWindow()
@@ -91,6 +100,8 @@ public class ProfilesManager : MonoBehaviour
         buttonScript.SetButtonAction(() => SetActiveProfile(_name));
         buttonScript.ToggleHighlight(false);
         profileButtons.Add(_name, buttonScript);
+
+        PrintDebug($"Adding profile button {_name}");
     }
 
     void SetActiveProfile(string _name)
@@ -133,8 +144,10 @@ public class ProfilesManager : MonoBehaviour
     void DeleteProfile()
     {
         string activeProfile = GetActiveProfile();
-        controlMan.DeleteProfile(activeProfile);
         profileButtons[activeProfile].Annihilate();
+        controlMan.DeleteProfile(activeProfile);
+
+        PrintDebug($"Removing profile button {activeProfile}");
     }
 
     void ToggleProfileWindow()
@@ -150,6 +163,16 @@ public class ProfilesManager : MonoBehaviour
 		}
 
         profileButtons.Clear();
+
+        PrintDebug($"Clearing Profile Buttons");
+	}
+
+    void PrintDebug(string _text)
+    {
+        if(debug)
+        {
+            Debug.Log(_text, this);
+		}
 	}
 
     string GetActiveProfile()
