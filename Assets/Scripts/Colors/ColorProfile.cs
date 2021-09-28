@@ -19,9 +19,17 @@ public class ColorProfile
 	}
 
 	//duplicate
-	public ColorProfile(ColorProfile _template)
+	public ColorProfile(ColorProfile _template, string _name = null)
 	{
-		this.name = _template.name;
+		if (_name == null)
+		{
+			this.name = _template.name;
+		}
+		else
+        {
+			this.name = _name;
+        }
+
 		this.background = _template.background;
 		this.primary = _template.primary;
 		this.secondary = _template.secondary;

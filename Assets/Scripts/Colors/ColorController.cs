@@ -1,11 +1,10 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using System;
-using UnityEngine.EventSystems;
-using static ColorProfile;
 using System.IO;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using static ColorProfile;
 
 public class ColorController : MonoBehaviour
 {
@@ -36,9 +35,18 @@ public class ColorController : MonoBehaviour
     #region Profile Variables
     const string DEFAULT_COLOR_PROFILE = ControlsManager.DEFAULT_SAVE_NAME + " Colors";
     ColorType currentColorType = ColorType.Background;
-    ColorProfile currentColorProfile;
     string fileExtensionProfiles = ".color";
     string profilesBasePath;
+    ColorProfile currentColorProfile;
+    ColorProfile CurrentColorProfile
+    {
+        get { return currentColorProfile; }
+        set {
+            currentColorProfile = value;
+            Debug.Log($"Set Current Color Profile: {currentColorProfile.name}");
+        }
+    }
+
     #endregion Color Profile Variables
 
     #region Universal Variables
@@ -51,6 +59,7 @@ public class ColorController : MonoBehaviour
     string presetsBasePath;
     string fileExtensionPresets = ".colorPreset";
     #endregion Preset Variables
+
 
     #region Unity Methods
 
@@ -86,7 +95,7 @@ public class ColorController : MonoBehaviour
     {
         colorSetters.Add(_setter);
 
-        if (instance.currentColorProfile != null)
+        if (instance.CurrentColorProfile != null)
         {
             instance.UpdateAppColors(_setter);
         }
@@ -101,18 +110,18 @@ public class ColorController : MonoBehaviour
     {
         foreach (ColorSetter c in colorSetters)
         {
-            c.SetColors(currentColorProfile);
+            c.SetColors(CurrentColorProfile);
         }
     }
 
     void UpdateAppColors(ColorSetter _setter)
     {
-        _setter.SetColors(currentColorProfile);
+        _setter.SetColors(CurrentColorProfile);
     }
 
     void UpdateColorProfile(ColorType _type, Color _color)
     {
-        currentColorProfile.SetColor(_type, _color);
+        CurrentColorProfile.SetColor(_type, _color);
     }
     #endregion Color Application
 
@@ -154,7 +163,7 @@ public class ColorController : MonoBehaviour
         currentColorType = preview.colorType;
         HighlightSelectedColorType(preview.colorType);
 
-        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
+        SetSlidersToColor(CurrentColorProfile.GetColor(currentColorType));
     }
 
     void HighlightSelectedColorType(ColorType _colorType)
@@ -271,7 +280,7 @@ public class ColorController : MonoBehaviour
 
     void SaveProfile()
     {
-        SaveProfile(currentColorProfile.name);
+        SaveProfile(CurrentColorProfile.name);
     }
 
     void SaveProfile(string _name, bool _savingDefault = false)
@@ -283,7 +292,7 @@ public class ColorController : MonoBehaviour
         }
 
         string path = Path.Combine(profilesBasePath, _name + fileExtensionProfiles);
-        string json = JsonUtility.ToJson(currentColorProfile, true);
+        string json = JsonUtility.ToJson(CurrentColorProfile, true);
         File.WriteAllText(path, json);
 
         if (_name != DEFAULT_COLOR_PROFILE)
@@ -345,22 +354,22 @@ public class ColorController : MonoBehaviour
         if (File.Exists(fullPath))
         {
             //load that file and set as current color profile
-            currentColorProfile = GetColorProfileFromFile(fullPath);
+            CurrentColorProfile = GetColorProfileFromFile(fullPath);
         }
         else
         {
             //load default color profile
-            currentColorProfile = GetDefaultColorProfile();
+            CurrentColorProfile = new ColorProfile(GetDefaultColorProfile(), _profile);
         }
 
-        Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(currentColorProfile));
+        Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
 
         UpdateAppColors();
-        SetSlidersToColor(currentColorProfile.GetColor(currentColorType));
+        SetSlidersToColor(CurrentColorProfile.GetColor(currentColorType));
     }
     void RevertColorProfile()
     {
-        LoadAndSetColorProfile(currentColorProfile.name);
+        LoadAndSetColorProfile(CurrentColorProfile.name);
         UpdateAppColors();
     }
 
@@ -372,10 +381,10 @@ public class ColorController : MonoBehaviour
     {
         string[] fileNames = Directory.GetFiles(presetsBasePath, "*" + fileExtensionPresets);
 
-		for (int i = 0; i < fileNames.Length; i++)
-		{
+        for (int i = 0; i < fileNames.Length; i++)
+        {
             fileNames[i] = Path.GetFileNameWithoutExtension(fileNames[i]);
-		}
+        }
 
         return fileNames;
     }
@@ -384,16 +393,16 @@ public class ColorController : MonoBehaviour
     {
         string[] fileNames = GetPresetNames();
 
-        foreach(string s in fileNames)
+        foreach (string s in fileNames)
         {
             if (s == _name)
             {
                 return true;
-			}
-		}
+            }
+        }
 
         return false;
-	}
+    }
 
     ColorPreset LoadPreset(string _name)
     {
@@ -413,13 +422,13 @@ public class ColorController : MonoBehaviour
 
     void SavePreset(string _name)
     {
-		if (DoesPresetExist(_name))
-		{
-			Utilities.instance.ErrorWindow("Preset with this name already exists, please use another.");
-			return;
-		}
+        if (DoesPresetExist(_name))
+        {
+            Utilities.instance.ErrorWindow("Preset with this name already exists, please use another.");
+            return;
+        }
 
-		List<char> invalidChars = ControlsManager.GetInvalidFileNameCharacters(_name);
+        List<char> invalidChars = ControlsManager.GetInvalidFileNameCharacters(_name);
         if (invalidChars.Count > 0)
         {
             if (invalidChars.Count == 1)
@@ -434,7 +443,7 @@ public class ColorController : MonoBehaviour
             return;
         }
 
-        ColorPreset preset = ColorPreset.ProfileToPreset(currentColorProfile);
+        ColorPreset preset = ColorPreset.ProfileToPreset(CurrentColorProfile);
         preset.name = _name;
         string json = JsonUtility.ToJson(preset, true);
         string path = Path.Combine(presetsBasePath, preset.name + fileExtensionPresets);
@@ -446,17 +455,17 @@ public class ColorController : MonoBehaviour
 
     void SetPresetDropdownValue(string _presetName)
     {
-		for (int i = 0; i < presetDropdown.options.Count; i++)
-		{
-            if(presetDropdown.options[i].text == _presetName)
+        for (int i = 0; i < presetDropdown.options.Count; i++)
+        {
+            if (presetDropdown.options[i].text == _presetName)
             {
                 presetDropdown.SetValueWithoutNotify(i);
                 return;
             }
-		}
+        }
 
         Debug.LogError($"Dropdown value {_presetName} not found!");
-	}
+    }
 
     void DeletePreset()
     {
@@ -503,7 +512,7 @@ public class ColorController : MonoBehaviour
     void CreateSaveWindow()
     {
         Utilities.instance.VerificationWindow("Enter Name:", SavePreset, null, "Save");
-	}
+    }
 
 
     void PopulatePresetDropdown()
@@ -513,27 +522,27 @@ public class ColorController : MonoBehaviour
         presetDropdown.ClearOptions();
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
 
-        foreach(string s in presets)
+        foreach (string s in presets)
         {
             Dropdown.OptionData data = new Dropdown.OptionData();
             data.text = s;
             options.Add(data);
-		}
+        }
 
         presetDropdown.options = options;
-	}
+    }
 
     void DropdownSelection(int _selection)
     {
         ColorPreset preset = LoadPreset(presetDropdown.options[_selection].text);
         SetColorsFromPreset(preset);
-	}
+    }
 
     void SetColorsFromPreset(ColorPreset _preset)
     {
         foreach (ColorType t in (ColorType[])Enum.GetValues(typeof(ColorType)))
         {
-            currentColorProfile.SetColor(t, _preset.GetColor(t));
+            CurrentColorProfile.SetColor(t, _preset.GetColor(t));
         }
 
         UpdateAppColors();
@@ -541,8 +550,8 @@ public class ColorController : MonoBehaviour
 
     public Color GetColorFromProfile(ColorType _type)
     {
-        return currentColorProfile.GetColor(_type);
-	}
+        return CurrentColorProfile.GetColor(_type);
+    }
 
 
     #region Singleton
@@ -558,6 +567,6 @@ public class ColorController : MonoBehaviour
             Destroy(gameObject);
         }
     }
-	#endregion Singleton
+    #endregion Singleton
 
 }

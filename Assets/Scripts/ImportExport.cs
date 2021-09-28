@@ -14,13 +14,13 @@ public class ImportExport : MonoBehaviour
     [SerializeField] Button importButton;
     [SerializeField] GameObject panel;
 
-    [Tooltip("We need a reference to this to destroy it when the scene is reloaded so that when it is reloaded there is only one - it is marked as \"Don't Destroy On Load\" in the source code")]
-    [SerializeField] GameObject runtimeDebugger;
-
     readonly string[] fileExtensions = { "*/*" };
     string exportPath;
     readonly string exportName = "Reaper Faders Backup";
     readonly string fileExtension = ".zip";
+
+    [Tooltip("We need this to destroy when reloading the scene after an import - the package marks it as DontDestroyOnLoad which messes up our Log button")]
+    [SerializeField] GameObject runtimeDebugger;
 
 	private void Awake()
 	{
@@ -38,6 +38,7 @@ public class ImportExport : MonoBehaviour
         toggleBackupButton.onClick.AddListener(TogglePanel);
         closeButton.onClick.AddListener(TogglePanel);
         importButton.onClick.AddListener(ConfirmImport);
+        importButton.onClick.AddListener(TogglePanel);
         exportButton.onClick.AddListener(Export);
         exportButton.onClick.AddListener(TogglePanel);
     }
@@ -45,7 +46,7 @@ public class ImportExport : MonoBehaviour
     void ConfirmImport()
     {
         RequestPermission();
-        Utilities.instance.VerificationWindow($"WARNING: This will wipe all of your current profiles and replace them with the backup archive selected. If this backup's contents are corrupted or modified, you may be out of luck.", FilePickerToImport, null, "Import anyway");
+        Utilities.instance.VerificationWindow($"WARNING: This will wipe all of your current profiles and replace them with the backup archive selected.\nPlease double-check that you're selecting the correct file.\nIf you can't see the file in the file picker, you may need to restart your device. This is an Android bug.", FilePickerToImport, null, "Import anyway");
     }
 
     void FilePickerToImport()
