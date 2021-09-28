@@ -12,7 +12,7 @@ public class FaderOptions : MonoBehaviour
     ControlsManager manager = null;
     UIManager uiManager = null;
 
-    [SerializeField] InputField nameField = null; // must choose a unique name! check for this
+    [SerializeField] InputField nameField = null;
     [SerializeField] InputField ccChannelField = null;
     [SerializeField] Slider smoothnessField = null;
     [SerializeField] Dropdown controlTypeDropdown = null;
@@ -46,7 +46,7 @@ public class FaderOptions : MonoBehaviour
             ccChannelField.gameObject.SetActive(false);
         }
 
-        applyAndCloseButton.onClick.AddListener(ApplyAndQuit);
+        applyAndCloseButton.onClick.AddListener(Apply);
         closeButton.onClick.AddListener(Close);
         resetValuesButton.onClick.AddListener(ResetValues);
         deleteButton.onClick.AddListener(Delete);
@@ -62,6 +62,29 @@ public class FaderOptions : MonoBehaviour
         {
             ccChannelField.gameObject.SetActive(false);
         }
+    }
+
+    bool VerifyUniqueName(string _s)
+    {
+        bool valid = true;
+        List<ControllerSettings> controllers = manager.GetAllControllers();
+
+        foreach(ControllerSettings set in controllers)
+        {
+            if(set.name == _s)
+            {
+                valid = false;
+                break;
+            }
+        }
+
+        if(!valid)
+        {
+            Utilities.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name..");
+            return false;
+        }
+
+        return true;
     }
 
     void AddressTypeMenuChange(int _val)
@@ -112,6 +135,7 @@ public class FaderOptions : MonoBehaviour
 
     void SetControllerValuesToFields()
     {
+        //_ = VerifyUniqueName(nameField.text); //not sure if this is necessary - should be tested. Disabling for now
         ControlType controlType = (ControlType)controlTypeDropdown.value;
         AddressType addressType = (AddressType)addressTypeDropdown.value;
         DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
@@ -198,8 +222,9 @@ public class FaderOptions : MonoBehaviour
         uiManager.DestroyControllerObjects(controllerConfig);
     }
 
-    public void ApplyAndQuit()
+    public void Apply()
     {
         SetControllerValuesToFields();
+        Utilities.instance.ConfirmationWindow("Settings applied!");
     }
 }

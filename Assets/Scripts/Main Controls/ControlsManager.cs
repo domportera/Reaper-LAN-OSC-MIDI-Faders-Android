@@ -76,6 +76,11 @@ public class ControlsManager : MonoBehaviour
         ipSetter.TryConnect();
     }
 
+    public List<ControllerSettings> GetAllControllers()
+    {
+        return controllers;
+    }
+
     public void SetDefaultProfile(string _profile)
     {
         profileNames.SetDefaultProfile(_profile);
