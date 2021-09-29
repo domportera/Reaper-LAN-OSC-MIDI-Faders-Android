@@ -30,33 +30,23 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button creditsButton;
     [SerializeField] Button closeCreditsButton;
     [SerializeField] GameObject creditsPanel;
-    [Space(10)]
-    [SerializeField] Button oscJackButton;
-    [SerializeField] string oscJackLink;
-    [Space(10)]
-    [SerializeField] Button nativeFilePickerButton;
-    [SerializeField] string nativeFilePickerLink;
-    [Space(10)]
-    [SerializeField] Button uniClipboardButton;
-    [SerializeField] string uniClipboardLink;
-    [Space(10)]
-    [SerializeField] Button consoleLogButton;
-    [SerializeField] string consoleLogLink;
-    [Space(10)]
-    [SerializeField] Button ethereumButton;
-    [SerializeField] string ethereumAddress;
-    [Space(10)]
-    [SerializeField] Button cardanoButton;
-    [SerializeField] string cardanoAddress;
-    [Space(10)]
-    [SerializeField] Button nanoButton;
-    [SerializeField] string nanoAddress;
-    [Space(10)]
-    [SerializeField] Button paypalButton;
-    [SerializeField] string paypalAddress;
-    [Space(10)]
-    [SerializeField] Button cashAppButton;
-    [SerializeField] string cashAppAddress;
+
+    [SerializeField] List<CreditsButton> creditsButtons = new List<CreditsButton>();
+    [SerializeField] List<DonationButton> donationButtons = new List<DonationButton>();
+
+    [Serializable]
+    struct CreditsButton
+    {
+        public Button button;
+        public string link;
+    }
+
+    [Serializable]
+    struct DonationButton
+    {
+        public Button button;
+        public string address;
+    }
 
     const int sliderButtonLayoutCapacity = 5;
 
@@ -100,16 +90,9 @@ public class UIManager : MonoBehaviour
         UnityAction toggleCredits = () => creditsPanel.SetActive(!creditsPanel.activeSelf);
         creditsButton.onClick.AddListener(toggleCredits);
         closeCreditsButton.onClick.AddListener(toggleCredits);
-        oscJackButton.onClick.AddListener(() => Application.OpenURL(oscJackLink));
-        nativeFilePickerButton.onClick.AddListener(() => Application.OpenURL(nativeFilePickerLink));
-        consoleLogButton.onClick.AddListener(() => Application.OpenURL(consoleLogLink));
-        uniClipboardButton.onClick.AddListener(() => Application.OpenURL(uniClipboardLink));
 
-        ethereumButton.onClick.AddListener(() => UniClipboard.SetText(ethereumAddress));
-        cardanoButton.onClick.AddListener(() => UniClipboard.SetText(cardanoAddress));
-        nanoButton.onClick.AddListener(() => UniClipboard.SetText(nanoAddress));
-        paypalButton.onClick.AddListener(() => UniClipboard.SetText(paypalAddress));
-        cashAppButton.onClick.AddListener(() => UniClipboard.SetText(cashAppAddress));
+        InitializeCreditsButtons();
+        InitializeDonationButtons();
     }
 
     //used by options button in scene
@@ -138,6 +121,25 @@ public class UIManager : MonoBehaviour
         RefreshFaderLayoutGroup();
     }
 
+    void InitializeCreditsButtons()
+    {
+        foreach(CreditsButton b in creditsButtons)
+        {
+            b.button.onClick.AddListener(() => Application.OpenURL(b.link));
+        }
+    }
+
+    void InitializeDonationButtons()
+    {
+        foreach(DonationButton b in donationButtons)
+        {
+            b.button.onClick.AddListener(() =>
+            {
+                UniClipboard.SetText(b.address);
+                Utilities.instance.ConfirmationWindow($"Copied {b.address} to clipboard!");
+            });
+        }
+    }
 
     void AddOptionsButtonToLayout(GameObject _button)
     {

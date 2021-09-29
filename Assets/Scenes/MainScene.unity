@@ -4792,6 +4792,28 @@ MonoBehaviour:
   paypalAddress: domportera@gmail.com
   cashAppButton: {fileID: 2023924546}
   cashAppAddress: $domportera
+  creditsButtons:
+  - button: {fileID: 1225908821}
+    link: https://github.com/keijiro/OscJack
+  - button: {fileID: 465727299}
+    link: https://github.com/yasirkula/UnityNativeFilePicker
+  - button: {fileID: 2118137441}
+    link: https://github.com/sanukin39/UniClipboard
+  - button: {fileID: 266912985}
+    link: https://github.com/yasirkula/UnityIngameDebugConsole
+  - button: {fileID: 1831099155}
+    link: https://odininspector.com/odin-serializer
+  donationButtons:
+  - button: {fileID: 694122699}
+    address: 0xB5bC4949AB6A74ffA6f4dFcd16dC3673Cb9629dF
+  - button: {fileID: 1055881435}
+    address: addr1q8r9v9j7zdcpnxenald5ynmzjp77aeehs5xscpurl3pstlvjd9x5dualtjfpuslq5dwgu04hdzpp36yza6s6k95c5uksqqhcnr
+  - button: {fileID: 1224961136}
+    address: nano_1i7nstxgmnyjfd9qhwknisk9yyxtjwj19kn9fgdtdgbyca8h1khjhswu6ef7
+  - button: {fileID: 393371853}
+    address: domportera@gmail.com
+  - button: {fileID: 2023924546}
+    address: $domportera
 --- !u!114 &367776141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7437,7 +7459,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Clipboard Copying
+  m_Text: 'Data Serialization:'
 --- !u!222 &700516331
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -18489,6 +18511,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1831099153}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1831099155 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2351738901980112071, guid: 602fe415d177c8547ae2aa9408670eab,
+    type: 3}
+  m_PrefabInstance: {fileID: 1831099153}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1834089554
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21674,7 +21708,7 @@ PrefabInstance:
     - target: {fileID: 792827400470567436, guid: 4bb426d7a31d6d94a94a198d4d09d115,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2408145027948096139, guid: 4bb426d7a31d6d94a94a198d4d09d115,
         type: 3}
