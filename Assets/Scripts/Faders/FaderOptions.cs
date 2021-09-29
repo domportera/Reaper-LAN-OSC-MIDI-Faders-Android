@@ -50,6 +50,7 @@ public class FaderOptions : MonoBehaviour
         closeButton.onClick.AddListener(Close);
         resetValuesButton.onClick.AddListener(ResetValues);
         deleteButton.onClick.AddListener(Delete);
+        nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
     }
 
     public void CheckForCCControl(int _value)
@@ -80,11 +81,18 @@ public class FaderOptions : MonoBehaviour
 
         if(!valid)
         {
-            Utilities.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name..");
+            Utilities.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
             return false;
         }
 
         return true;
+    }
+
+    void RemoveProblemCharactersInNameField(string _input)
+    {
+        _input.Replace("\"", "");
+        _input.Replace("\\", "");
+        nameField.SetTextWithoutNotify(_input);
     }
 
     void AddressTypeMenuChange(int _val)
@@ -140,7 +148,7 @@ public class FaderOptions : MonoBehaviour
         AddressType addressType = (AddressType)addressTypeDropdown.value;
         DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
         CurveType curveType = (CurveType)curveTypeDropdown.value;
-        MIDIChannel midiChannel = (MIDIChannel)(midiChannelDropdown.value - 1); //-1 becaise all channels is -1 in the enum, channel 1 is 0 in the enum, etc
+        MIDIChannel midiChannel = (MIDIChannel)(midiChannelDropdown.value - 1); //-1 because all channels is -1 in the enum, channel 1 is 0 in the enum, etc
         ValueRange valueRange = (ValueRange)(valueRangeDropdown.value);
 
         float smoothTime = smoothnessField.value;
