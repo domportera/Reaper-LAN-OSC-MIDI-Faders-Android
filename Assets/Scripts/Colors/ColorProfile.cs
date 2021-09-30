@@ -137,4 +137,24 @@ public class ColorPreset : ColorProfile
 		preset.tertiary = _profile.tertiary;
 		return preset;
 	}
+
+	public static ColorPreset BuiltInToPreset(ColorPresetBuiltIn _preset)
+    {
+		ColorPreset preset = new ColorPreset();
+		preset.background = _preset.background;
+		preset.primary = _preset.primary;
+		preset.secondary = _preset.secondary;
+		preset.tertiary = _preset.tertiary;
+		return preset;
+	}
+}
+
+[System.Serializable]
+public struct ColorPresetBuiltIn
+{
+	public string name;
+	public Color background;
+	public Color primary;
+	public Color secondary;
+	public Color tertiary;
 }
