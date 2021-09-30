@@ -65,8 +65,8 @@ public class ControlsManager : MonoBehaviour
         //populate ui with profile names to allow for saving
         PopulateProfileSelectionMenu();
 
-        //let color controller know we're ready for default color scheme
-        OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
+        //let color controller know we're ready for default color 
+        //OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
 	}
 
 	public void SetActiveProfile(string _name)
@@ -119,7 +119,7 @@ public class ControlsManager : MonoBehaviour
     {
         if(_name == DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead.");
+            Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
             return;
         }
 

@@ -8,8 +8,7 @@ using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviour
 {
-    [Space(20)]
-
+    [SerializeField] ControlsManager controlMan = null;
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
@@ -17,11 +16,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
     [SerializeField] Button optionsButton = null;
     [SerializeField] Button closeOptionsButton = null;
+    [SerializeField] Button newControllerButton = null;
+
     [Space(10)]
     [SerializeField] Slider faderWidthSlider = null;
     [SerializeField] Button faderPositionEnableButton = null;
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
+
     [SerializeField] Button setupButton;
     [SerializeField] Button closeSetupButton;
     [SerializeField] GameObject setupPanel;
@@ -30,7 +32,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button creditsButton;
     [SerializeField] Button closeCreditsButton;
     [SerializeField] GameObject creditsPanel;
-
     [SerializeField] List<CreditsButton> creditsButtons = new List<CreditsButton>();
     [SerializeField] List<DonationButton> donationButtons = new List<DonationButton>();
 
@@ -82,6 +83,7 @@ public class UIManager : MonoBehaviour
         faderWidthSlider.SetValueWithoutNotify(faderWidth);
         faderWidthSlider.onValueChanged.AddListener(SetFaderWidthBySlider);
         faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
+        newControllerButton.onClick.AddListener(controlMan.NewController);
 
         UnityAction toggleSetup = () => setupPanel.SetActive(!setupPanel.activeSelf);
         setupButton.onClick.AddListener(toggleSetup);

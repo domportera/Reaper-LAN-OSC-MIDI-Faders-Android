@@ -131,7 +131,12 @@ public class ProfilesManager : MonoBehaviour
     void SaveAs(string _saveName)
     {
         string profileName = _saveName;
-        bool canClose = controlMan.SaveControllersAs(profileName);
+        bool canSwitchProfiles = controlMan.SaveControllersAs(profileName);
+
+        if(canSwitchProfiles)
+        {
+            SetActiveProfile(_saveName);
+        }
     }
 
     void SetDefaultProfile()

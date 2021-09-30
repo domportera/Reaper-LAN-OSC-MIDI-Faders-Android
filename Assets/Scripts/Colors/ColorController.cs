@@ -52,12 +52,13 @@ public class ColorController : MonoBehaviour
     #region Universal Variables
     public static ColorController instance;
     static List<ColorSetter> colorSetters = new List<ColorSetter>();
-    const string colorsFolder = "/Colors/";
+    const string colorsFolder = "Colors";
     #endregion Universal Variables
 
     #region Preset Variables
     string presetsBasePath;
-    string fileExtensionPresets = ".colorPreset";
+    const string fileExtensionPresets = ".colorPreset";
+    const string choosePresetString = "Presets";
     #endregion Preset Variables
 
 
@@ -65,8 +66,8 @@ public class ColorController : MonoBehaviour
 
     private void Awake()
     {
-        profilesBasePath = Application.persistentDataPath + colorsFolder + "Profiles";
-        presetsBasePath = Application.persistentDataPath + colorsFolder + "Presets";
+        profilesBasePath = Path.Combine(Application.persistentDataPath, colorsFolder, "Profiles");
+        presetsBasePath = Path.Combine(Application.persistentDataPath, colorsFolder, "Presets");
         CheckBasePath();
 
         SingletonSetup();
@@ -163,7 +164,7 @@ public class ColorController : MonoBehaviour
         currentColorType = preview.colorType;
         HighlightSelectedColorType(preview.colorType);
 
-        SetSlidersToColor(CurrentColorProfile.GetColor(currentColorType));
+        SetSlidersToCurrentColor();
     }
 
     void HighlightSelectedColorType(ColorType _colorType)
@@ -179,6 +180,11 @@ public class ColorController : MonoBehaviour
                 butt.label.fontStyle = FontStyle.Normal;
             }
         }
+    }
+
+    void SetSlidersToCurrentColor()
+    {
+        SetSlidersToColor(CurrentColorProfile.GetColor(currentColorType));
     }
 
     void SetSlidersToColor(Color _color)
@@ -365,7 +371,7 @@ public class ColorController : MonoBehaviour
         Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
 
         UpdateAppColors();
-        SetSlidersToColor(CurrentColorProfile.GetColor(currentColorType));
+        SetSlidersToCurrentColor();
     }
     void RevertColorProfile()
     {
@@ -470,6 +476,7 @@ public class ColorController : MonoBehaviour
     void DeletePreset()
     {
         string presetName = presetDropdown.options[presetDropdown.value].text;
+
         string path = Path.Combine(presetsBasePath, presetName + fileExtensionPresets);
 
         if (File.Exists(path))
@@ -499,6 +506,12 @@ public class ColorController : MonoBehaviour
     void CreateDeleteWindow()
     {
         string currentPreset = presetDropdown.options[presetDropdown.value].text;
+
+        if (currentPreset == choosePresetString)
+        {
+            return;
+        }
+
         if (currentPreset != null && currentPreset != "")
         {
             Utilities.instance.VerificationWindow($"Are you sure you want to delete {currentPreset} color preset?", DeletePreset, null, "Delete");
@@ -522,6 +535,10 @@ public class ColorController : MonoBehaviour
         presetDropdown.ClearOptions();
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
 
+        Dropdown.OptionData titleData = new Dropdown.OptionData();
+        titleData.text = choosePresetString;
+        options.Add(titleData);
+
         foreach (string s in presets)
         {
             Dropdown.OptionData data = new Dropdown.OptionData();
@@ -534,8 +551,14 @@ public class ColorController : MonoBehaviour
 
     void DropdownSelection(int _selection)
     {
+        if(presetDropdown.options[_selection].text == choosePresetString)
+        {
+            return;
+        }
+
         ColorPreset preset = LoadPreset(presetDropdown.options[_selection].text);
         SetColorsFromPreset(preset);
+        SetSlidersToCurrentColor();
     }
 
     void SetColorsFromPreset(ColorPreset _preset)
