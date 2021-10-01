@@ -16,21 +16,7 @@ public class ColorSetter : MonoBehaviour
 
 	private void Awake()
 	{
-		text = GetComponent<Text>();
-		if (text == null)
-		{
-			image = GetComponent<Image>();
-			if (image == null)
-			{
-				Debug.LogWarning($"{name} has no component to color", this);
-				canColor = false;
-			}
-			else
-			{
-				canColor = true;
-				isImage = true;
-			}
-		}
+		GetColoredComponents();
 	}
 
 	private void Start()
@@ -54,6 +40,25 @@ public class ColorSetter : MonoBehaviour
 		else
 		{
 			image.color = _colors.GetColor(colorType);
+		}
+	}
+
+	void GetColoredComponents()
+    {
+		text = GetComponent<Text>();
+		if (text == null)
+		{
+			image = GetComponent<Image>();
+			if (image == null)
+			{
+				Debug.LogWarning($"{name} has no component to color", this);
+				canColor = false;
+			}
+			else
+			{
+				canColor = true;
+				isImage = true;
+			}
 		}
 	}
 }
