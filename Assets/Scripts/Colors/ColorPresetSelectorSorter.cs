@@ -5,12 +5,11 @@ using UnityEngine;
 
 public class ColorPresetSelectorSorter : MonoBehaviour
 {
-    [SerializeField] Transform parentToSortChildren;
     [SerializeField] GameObject[] objectsOnTop;
 
     public void SortChildren(List<ColorPresetSelector> _children)
     {
-        _children.OrderBy(child => child.Preset.name);
+        _children = _children.OrderBy(child => child.Preset.name, System.StringComparer.CurrentCultureIgnoreCase).ToList();
         for(int i = 0; i < _children.Count; i++)
         {
             _children[i].transform.SetSiblingIndex(i + objectsOnTop.Length);
