@@ -13,7 +13,6 @@ public class ColorPresetSelectorSorter : MonoBehaviour
         for(int i = 0; i < _children.Count; i++)
         {
             _children[i].transform.SetSiblingIndex(i + objectsOnTop.Length);
-            Debug.Log($"{i + objectsOnTop.Length} {_children[i].gameObject.name} | preset name: {_children[i].Preset.name}");
         }
     }
 }
