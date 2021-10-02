@@ -145,6 +145,7 @@ public class ColorPreset : ColorProfile
 		preset.primary = _preset.primary;
 		preset.secondary = _preset.secondary;
 		preset.tertiary = _preset.tertiary;
+		preset.name = _preset.name;
 		return preset;
 	}
 }

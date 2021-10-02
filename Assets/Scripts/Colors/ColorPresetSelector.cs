@@ -12,15 +12,27 @@ public class ColorPresetSelector : MonoBehaviour
     [SerializeField] Image buttonBorder;
     [SerializeField] PresetPaletteImage[] paletteImages = new PresetPaletteImage[0];
 
-    public void Initialize(string _presetName, ColorPreset _preset, Action _buttonFunction)
+    ColorPreset colorPreset;
+    public ColorPreset Preset
+    {
+        get { return colorPreset; }
+        private set
+        {
+            colorPreset = value;
+        }
+    }
+
+    public void Initialize(ColorPreset _preset, Action _buttonFunction)
     {
         button.onClick.AddListener(() => { _buttonFunction.Invoke(); });
         SetPaletteColors(_preset);
 
-        title.text = _presetName;
+        title.text = _preset.name;
         title.color = _preset.tertiary;
         background.color = _preset.background;
         buttonBorder.color = _preset.primary;
+
+        Preset = _preset;
     }
 
     void SetPaletteColors(ColorPreset _preset)

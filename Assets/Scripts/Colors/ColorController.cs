@@ -23,11 +23,6 @@ public class ColorController : MonoBehaviour
     [SerializeField] Button saveButton;
     [SerializeField] Button revertButton;
     [SerializeField] Button setAsDefaultButton;
-
-    [Header("Presets")]
-    [SerializeField] Dropdown presetDropdown;
-    [SerializeField] Button savePresetButton;
-    [SerializeField] Button deletePresetButton;
     #endregion Serialized Fields
 
     #region Profile Variables
@@ -56,14 +51,28 @@ public class ColorController : MonoBehaviour
     #region Preset Variables
     string presetsBasePath;
     const string fileExtensionPresets = ".colorPreset";
-    const string userPresetsString = "✦ Presets ✦";
-    const string builtInPrestsString = "✦ Built-in ✦";
+
+    [Header("Color Preset UI")]
+    [SerializeField] GameObject colorPresetPrefab;
+    [SerializeField] Transform builtInPresetParent;
+    [SerializeField] Transform userPresetParent;
+    [SerializeField] Button enablePresetWindowButton;
+    [SerializeField] Button closePresetWindowButton;
+    [SerializeField] GameObject presetWindow;
+    [SerializeField] Button deletePresetButton;
+    [SerializeField] Button savePresetButton;
+    [SerializeField] ColorPresetSelectorSorter userPresetSorter;
 
     [Header("Color Change Buttons")]
     [SerializeField] ColorButton[] colorTypeButtons;
 
     [Header("Built-in Themes")]
     [SerializeField] ColorPresetBuiltIn[] builtInPresets;
+
+    List<ColorPresetSelector> builtInPresetSelectors = new List<ColorPresetSelector>();
+    List<ColorPresetSelector> userPresetSelectors = new List<ColorPresetSelector>();
+
+    string currentPresetSelection = "";
     #endregion Preset Variables
 
 
@@ -474,33 +483,27 @@ public class ColorController : MonoBehaviour
         string path = Path.Combine(presetsBasePath, preset.name + fileExtensionPresets);
         File.WriteAllText(path, json);
         Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
-        PopulatePresetDropdown();
-        SetPresetDropdownValue(_name);
+
+        AddPresetSelectorAfterSave(preset);
     }
 
-    void SetPresetDropdownValue(string _presetName)
+    void AddPresetSelectorAfterSave(ColorPreset preset)
     {
-        for (int i = 0; i < presetDropdown.options.Count; i++)
-        {
-            if (presetDropdown.options[i].text == _presetName)
-            {
-                presetDropdown.SetValueWithoutNotify(i);
-                return;
-            }
-        }
-
-        Debug.LogError($"Dropdown value {_presetName} not found!");
+        AddPresetSelector(preset);
+        userPresetSorter.SortChildren(userPresetSelectors);
+        currentPresetSelection = preset.name;
     }
 
     void DeletePreset()
     {
-        string presetName = presetDropdown.options[presetDropdown.value].text;
+        string presetName = currentPresetSelection;
 
         string path = Path.Combine(presetsBasePath, presetName + fileExtensionPresets);
 
         if (File.Exists(path))
         {
             File.Delete(path);
+            RemoveUserPresetSelector(presetName);
             Utilities.instance.ConfirmationWindow($"{presetName} preset deleted!");
         }
         else
@@ -508,50 +511,124 @@ public class ColorController : MonoBehaviour
             Debug.LogError($"No preset found to delete with name {presetName}");
             Utilities.instance.ErrorWindow($"Error deleting preset {presetName}");
         }
-
-        PopulatePresetDropdown();
     }
 
     #endregion Saving and Loading Color Presets
 
     void InitializePresetUI()
     {
-        PopulatePresetDropdown();
-        presetDropdown.onValueChanged.AddListener(DropdownSelection);
+        PopulatePresetSelectors();
+        enablePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(true); });
+        closePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(false); });
         savePresetButton.onClick.AddListener(CreateSaveWindow);
         deletePresetButton.onClick.AddListener(CreateDeleteWindow);
     }
 
-    void CreateDeleteWindow()
+    void TogglePresetWindow(bool _on)
     {
-        string currentPreset = presetDropdown.options[presetDropdown.value].text;
+        presetWindow.SetActive(_on);
+    }
 
-        if (PresetDropdownSelectionIsTitle(currentPreset))
+    void PopulatePresetSelectors()
+    {
+        //populate built in preset selectors
+        builtInPresets.OrderBy(pre => pre.name);
+        foreach (ColorPresetBuiltIn c in builtInPresets)
         {
-            return;
+            ColorPreset preset = ColorPreset.BuiltInToPreset(c);
+            AddPresetSelector(preset, true);
         }
 
-        if(PresetDropdownSelectionIsBuiltIn(currentPreset))
+        //populate user presets
+        string[] presetNames = GetPresetNames();
+        Array.Sort(presetNames);
+        foreach(string presetName in presetNames)
         {
-            Utilities.instance.ErrorWindow($"Can't delete built-in presets!");
-            return;
-        }
-
-        if (currentPreset != null && currentPreset != "")
-        {
-            Utilities.instance.VerificationWindow($"Are you sure you want to delete {currentPreset} color preset?", DeletePreset, null, "Delete");
-        }
-        else
-        {
-            Utilities.instance.ErrorWindow($"No preset to delete!");
+            ColorPreset preset = LoadPreset(presetName);
+            AddPresetSelector(preset, false);
         }
     }
 
-    private bool PresetDropdownSelectionIsBuiltIn(string _presetName)
+    void AddPresetSelector(ColorPreset _preset, bool _isBuiltIn = false)
+    {
+        ColorPresetSelector selector = CreatePresetSelector(_preset);
+        Transform parent = _isBuiltIn ? builtInPresetParent : userPresetParent;
+        selector.transform.SetParent(parent, false);
+
+        selector.Initialize(_preset, () => { PresetSelection(_preset); });
+
+        if(_isBuiltIn)
+        {
+            builtInPresetSelectors.Add(selector);
+        }
+        else
+        {
+            userPresetSelectors.Add(selector);
+        }
+    }
+
+    void RemoveUserPresetSelector(string _name)
+    {
+        ColorPresetSelector selectorToRemove = null;
+        foreach(ColorPresetSelector c in userPresetSelectors)
+        {
+            if(c.Preset.name == _name)
+            {
+                selectorToRemove = c;
+                break;
+            }
+        }
+
+        if(selectorToRemove != null)
+        {
+            userPresetSelectors.Remove(selectorToRemove);
+            Destroy(selectorToRemove.gameObject);
+        }
+        else
+        {
+            Debug.LogError($"No preset selector found for {_name}");
+        }
+
+        currentPresetSelection = "";
+    }
+
+    void PresetSelection(ColorPreset _preset)
+    {
+        SetColorsFromPreset(_preset);
+        SetSlidersToCurrentColor();
+        currentPresetSelection = _preset.name;
+    }
+
+    ColorPresetSelector CreatePresetSelector(ColorPreset _preset)
+    {
+        GameObject presetSelector = Instantiate(colorPresetPrefab);
+        presetSelector.SetActive(true); //just in case the prefab is disabled accidentally
+        presetSelector.name = $"{_preset.name} Color Preset Selector";
+        ColorPresetSelector selector = presetSelector.GetComponent<ColorPresetSelector>();
+        return selector;
+    }
+
+    void CreateDeleteWindow()
+    {
+        if (string.IsNullOrEmpty(currentPresetSelection))
+        {
+            Utilities.instance.ErrorWindow($"No preset selected!");
+        }
+        else if (PresetIsBuiltIn(currentPresetSelection))
+        {
+            Utilities.instance.ErrorWindow($"Can't delete a built-in preset!");
+        }
+        else
+        {
+            Utilities.instance.VerificationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
+        }
+    }
+
+    bool PresetIsBuiltIn(string _preset)
     {
         foreach(ColorPresetBuiltIn c in builtInPresets)
         {
-            if(c.name == _presetName)
+            if(c.name == _preset)
             {
                 return true;
             }
@@ -563,71 +640,6 @@ public class ColorController : MonoBehaviour
     void CreateSaveWindow()
     {
         Utilities.instance.VerificationWindow("Enter Name:", SavePreset, null, "Save");
-    }
-
-
-    void PopulatePresetDropdown()
-    {
-        string[] presets = GetPresetNames();
-
-        presetDropdown.ClearOptions();
-        List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
-
-        //user preset title
-        Dropdown.OptionData titleData = new Dropdown.OptionData();
-        titleData.text = userPresetsString;
-        options.Add(titleData);
-
-        //user presets alphabetically
-        Array.Sort(presets);
-        foreach (string s in presets)
-        {
-            Dropdown.OptionData data = new Dropdown.OptionData();
-            data.text = s;
-            options.Add(data);
-        }
-
-        //add built-in title
-        bool shouldUseBuiltInTitle = presets.Length > 0 && builtInPresets.Length > 0;
-        if (shouldUseBuiltInTitle)
-        {
-            Dropdown.OptionData builtInTitleData = new Dropdown.OptionData();
-            builtInTitleData.text = builtInPrestsString;
-            options.Add(builtInTitleData);
-        }
-
-        //add built-in presets alphabetically
-        builtInPresets = builtInPresets.OrderBy(preset => preset.name).ToArray();
-        foreach(ColorPresetBuiltIn c in builtInPresets)
-        {
-            Dropdown.OptionData data = new Dropdown.OptionData();
-            data.text = c.name;
-            options.Add(data);
-        }
-
-        presetDropdown.options = options;
-    }
-
-    void DropdownSelection(int _selection)
-    {
-        if (IsPresetDropdownTitle(_selection))
-        {
-            presetDropdown.SetValueWithoutNotify(0);
-            return;
-        }
-
-        ColorPreset preset = SelectPreset(presetDropdown.options[_selection].text);
-        SetColorsFromPreset(preset);
-        SetSlidersToCurrentColor();
-    }
-
-    private bool IsPresetDropdownTitle(int _selection)
-    {
-        return presetDropdown.options[_selection].text == userPresetsString || presetDropdown.options[_selection].text == builtInPrestsString;
-    }
-    private bool PresetDropdownSelectionIsTitle(string _presetName)
-    {
-        return _presetName == userPresetsString || _presetName == builtInPrestsString;
     }
 
     void SetColorsFromPreset(ColorPreset _preset)
