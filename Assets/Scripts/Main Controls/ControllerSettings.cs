@@ -9,7 +9,6 @@ public class ControllerSettings
     public ControlType controlType;
     string address;
     public string name;
-    string controlObjectName;
     public MIDIChannel channel;
     public ValueRange range;
     public DefaultValueType defaultType;
@@ -61,7 +60,6 @@ public class ControllerSettings
 
         channel = _channel;
         name = _name;
-        controlObjectName = _name + " " + _controlType;
         controlType = _controlType;
         range = _range;
         defaultType = _defaultValueType;

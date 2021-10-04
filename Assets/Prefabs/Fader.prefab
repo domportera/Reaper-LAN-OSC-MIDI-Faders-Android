@@ -764,18 +764,7 @@ MonoBehaviour:
   m_Value: 64
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6639107686902870370}
-        m_MethodName: SetValue
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &3952130414508043373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -792,33 +781,11 @@ MonoBehaviour:
   - eventID: 2
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 6639107686902870370}
-          m_MethodName: StartSliding
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
   - eventID: 3
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 6639107686902870370}
-          m_MethodName: EndSliding
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
 --- !u!1 &3952130415065628901
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,9 +890,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   label: {fileID: 2068008581281656714}
   slider: {fileID: 3952130414508043374}
+  eventTrigger: {fileID: 3952130414508043373}
   sortLeftButton: {fileID: 1856118687597877314}
   sortRightButton: {fileID: 4749077034013500979}
-  faderColorController: {fileID: 0}
 --- !u!114 &6128979198620575949
 MonoBehaviour:
   m_ObjectHideFlags: 0

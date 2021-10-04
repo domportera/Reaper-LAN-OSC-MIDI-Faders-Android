@@ -665,7 +665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 1
+  colorType: 3
 --- !u!114 &2784571829508924932
 MonoBehaviour:
   m_ObjectHideFlags: 0

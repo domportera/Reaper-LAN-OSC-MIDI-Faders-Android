@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OscJack;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
@@ -10,9 +11,9 @@ public class FaderControl : MonoBehaviour
 
     [SerializeField] Text label = null;
     [SerializeField] Slider slider = null;
+    [SerializeField] EventTrigger eventTrigger = null;
     [SerializeField] Button sortLeftButton = null;
     [SerializeField] Button sortRightButton = null;
-    [SerializeField] ColorSetter faderColorController = null;
 
     OscPropertySender sender = null;
 
@@ -42,12 +43,10 @@ public class FaderControl : MonoBehaviour
         pModValue = defaultValue;
         targetModValue = defaultValue;
 
-        slider.maxValue = myController.max;
-        slider.minValue = myController.min;
+        InitializeFaderInteraction();
 
         sortLeftButton.onClick.AddListener(SortLeft);
         sortRightButton.onClick.AddListener(SortRight);
-
         SetSortButtonVisibility(false);
     }
 
@@ -83,6 +82,23 @@ public class FaderControl : MonoBehaviour
         }
 
         slider.SetValueWithoutNotify(modValue);
+    }
+
+    void InitializeFaderInteraction()
+    {
+        slider.maxValue = myController.max;
+        slider.minValue = myController.min;
+        slider.onValueChanged.AddListener(SetValue);
+
+        EventTrigger.Entry startEmtry = new EventTrigger.Entry();
+        startEmtry.eventID = EventTriggerType.PointerDown;
+        startEmtry.callback.AddListener((data) => { StartSliding(); });
+        eventTrigger.triggers.Add(startEmtry);
+
+        EventTrigger.Entry endEntry = new EventTrigger.Entry();
+        endEntry.eventID = EventTriggerType.PointerUp;
+        endEntry.callback.AddListener((data) => { EndSliding(); });
+        eventTrigger.triggers.Add(endEntry);
     }
 
     public void StartSliding()
@@ -185,11 +201,6 @@ public class FaderControl : MonoBehaviour
             sender.Send(MapValueToCurve(modValue, false));
         }
     }
-
-    public ColorSetter GetFaderColorController()
-    {
-        return faderColorController;
-	}
 
     int MapValueToCurve(float _value, bool _inverse)
     {
