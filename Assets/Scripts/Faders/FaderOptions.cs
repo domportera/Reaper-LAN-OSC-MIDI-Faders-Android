@@ -150,6 +150,7 @@ public class FaderOptions : MonoBehaviour
         CurveType curveType = (CurveType)curveTypeDropdown.value;
         MIDIChannel midiChannel = (MIDIChannel)(midiChannelDropdown.value - 1); //-1 because all channels is -1 in the enum, channel 1 is 0 in the enum, etc
         ValueRange valueRange = (ValueRange)(valueRangeDropdown.value);
+        InputType inputType = InputType.Touch; //hard-coded for now until other input types are implemented
 
         float smoothTime = smoothnessField.value;
         string controllerName = nameField.text;
@@ -157,7 +158,7 @@ public class FaderOptions : MonoBehaviour
         int result;
         int ccNumber = int.TryParse(ccChannelField.text, out result) ? result : -1; //this number should be validated by text field, so it should always be ok if text field is set up properly
 
-        controllerConfig.SetVariables(controllerName, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
+        controllerConfig.SetVariables(controllerName, inputType, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
 
         manager.RespawnController(controllerConfig);
     }
