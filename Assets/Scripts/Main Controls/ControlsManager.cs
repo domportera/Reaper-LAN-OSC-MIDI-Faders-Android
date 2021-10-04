@@ -13,13 +13,13 @@ public class ControlsManager : MonoBehaviour
 
     readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
-        new ControllerSettings("Pitch",             ControlType.Wheel, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Mod",               ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
-        new ControllerSettings("Foot Pedal",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
-        new ControllerSettings("Expression",        ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
-        new ControllerSettings("Breath Control",    ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
-        new ControllerSettings("Aftertouch",        ControlType.Fader, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Volume",            ControlType.Fader, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
+        new ControllerSettings("Pitch",             ControlType.ReturnToCenter, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Mod",               ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
+        new ControllerSettings("Foot Pedal",        ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
+        new ControllerSettings("Expression",        ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
+        new ControllerSettings("Breath Control",    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
+        new ControllerSettings("Aftertouch",        ControlType.Normal, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
+        new ControllerSettings("Volume",            ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
     };
 
     [SerializeField] ControllerType[] controllerTypes = null;
@@ -376,7 +376,7 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Fader, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, ControlType.Normal, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
         GameObject newController = SpawnController(newControl);
 
         if (newController != null)

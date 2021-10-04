@@ -6,82 +6,34 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
-public class FaderControl : MonoBehaviour
+public class FaderControl : Controller
 {
-
-    [SerializeField] Text label = null;
     [SerializeField] Slider slider = null;
     [SerializeField] EventTrigger eventTrigger = null;
-    [SerializeField] Button sortLeftButton = null;
-    [SerializeField] Button sortRightButton = null;
-
-    OscPropertySender sender = null;
-
-    ControllerSettings myController = null;
     
-    float modValue;
-    float pModValue;
-    float targetModValue;
-    float startingPoint;
-
-    const int FRAMES_TO_SEND_DUPLICATES = 10;
-    int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
-
-    public void Initialize(ControllerSettings _controller)
+    public override void Initialize(ControllerSettings _controller)
     {
-        sender = GetComponent<OscPropertySender>();
-        myController = _controller;
-
-        sender.SetAddress(myController.GetAddress());
-
-        label.text = myController.name;
-        name = myController.name + " " + myController.controlType;
-
-        //load default values
-        int defaultValue = myController.defaultValue;
-        modValue = defaultValue;
-        pModValue = defaultValue;
-        targetModValue = defaultValue;
-
+        base.Initialize(_controller);
         InitializeFaderInteraction();
-
-        sortLeftButton.onClick.AddListener(SortLeft);
-        sortRightButton.onClick.AddListener(SortRight);
-        SetSortButtonVisibility(false);
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
-        if(myController == null)
-        {
-            Debug.LogError("Null controller on " + gameObject.name);
-            return;
-        }
-
-        TweenModValue();
-
-        if (modValue == pModValue)
-        {
-            dupeCount++;
-
-            if (dupeCount > FRAMES_TO_SEND_DUPLICATES) //prevent int overflow
-            {
-                dupeCount = FRAMES_TO_SEND_DUPLICATES;
-            }
-
-        }
-        else
-        {
-            dupeCount = 0;
-        }
-
-        if (dupeCount < FRAMES_TO_SEND_DUPLICATES)
-        {
-            SendModValue();
-        }
-
+        base.Update();
         slider.SetValueWithoutNotify(modValue);
+    }
+
+    public override void SetSortButtonVisibility(bool _visible)
+    {
+        base.SetSortButtonVisibility(_visible);
+
+        Image[] sliderImages = slider.GetComponentsInChildren<Image>();
+
+        foreach (Image i in sliderImages)
+        {
+            i.enabled = !_visible;
+        }
     }
 
     void InitializeFaderInteraction()
@@ -90,10 +42,10 @@ public class FaderControl : MonoBehaviour
         slider.minValue = myController.min;
         slider.onValueChanged.AddListener(SetValue);
 
-        EventTrigger.Entry startEmtry = new EventTrigger.Entry();
-        startEmtry.eventID = EventTriggerType.PointerDown;
-        startEmtry.callback.AddListener((data) => { StartSliding(); });
-        eventTrigger.triggers.Add(startEmtry);
+        EventTrigger.Entry startEntry = new EventTrigger.Entry();
+        startEntry.eventID = EventTriggerType.PointerDown;
+        startEntry.callback.AddListener((data) => { StartSliding(); });
+        eventTrigger.triggers.Add(startEntry);
 
         EventTrigger.Entry endEntry = new EventTrigger.Entry();
         endEntry.eventID = EventTriggerType.PointerUp;
@@ -101,132 +53,14 @@ public class FaderControl : MonoBehaviour
         eventTrigger.triggers.Add(endEntry);
     }
 
-    public void StartSliding()
+
+    void StartSliding()
     {
 
     }
 
-    public void EndSliding()
+    void EndSliding()
     {
-        if(myController.controlType == ControlType.Wheel)
-        {
-            targetModValue = MapValueToCurve(myController.defaultValue, true);
-        }
-    }
-
-    public void SetValue(float _val)
-    {
-        targetModValue = _val;
-    }
-
-    void TweenModValue()
-    {
-        pModValue = modValue;
-
-        if (modValue == targetModValue)
-        {
-            return;
-        }
-
-        if (myController.smoothTime <= 0)
-        {
-            modValue = targetModValue;
-        }
-        else
-        {
-            float difference = (slider.maxValue - slider.minValue) * Time.deltaTime / myController.smoothTime;
-
-            //set to idle if close enough to zero
-            if (Mathf.Abs(modValue - targetModValue) < difference)
-            {
-                modValue = targetModValue;
-            }
-            else
-            {
-                //approach zerovalue
-                if (modValue > targetModValue)
-                {
-                    modValue -= difference;
-                }
-                else
-                {
-                    modValue += difference;
-                }
-            }
-        }
-    }
-
-    void SortLeft()
-    {
-        SortPosition(false);
-    }
-    
-    void SortRight()
-    {
-        SortPosition(true);
-    }
-
-    void SortPosition(bool _right)
-    {
-        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
-    }
-
-    public void SetSortButtonVisibility(bool _visible)
-    {
-        sortLeftButton.gameObject.SetActive(_visible);
-        sortRightButton.gameObject.SetActive(_visible);
-
-        Image[] sliderImages = slider.GetComponentsInChildren<Image>();
-
-        foreach(Image i in sliderImages)
-        {
-            i.enabled = !_visible;
-        }
-    }
-
-    void SetConnected()
-    {
-        IPSetter.SetConnected();
-    }
-
-    void InvalidClient()
-    {
-        IPSetter.InvalidClient();
-    }
-
-    void SendModValue()
-    {
-        if (IPSetter.IsConnected())
-        {
-            sender.Send(MapValueToCurve(modValue, false));
-        }
-    }
-
-    int MapValueToCurve(float _value, bool _inverse)
-    {
-        if (myController.curveType != CurveType.Linear)
-        {
-
-            int range = myController.GetRange();
-            float tempVal = _value - myController.min;
-            float ratio = tempVal / range;
-            float mappedRatio;
-
-            if (_inverse)
-            {
-                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio); 
-            }
-            else
-            {
-                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
-            }
-
-            return (int)(mappedRatio * range + myController.min);
-        }
-        else
-        {
-            return (int)_value;
-        }
-        
+        ReturnToCenter();
     }
 }

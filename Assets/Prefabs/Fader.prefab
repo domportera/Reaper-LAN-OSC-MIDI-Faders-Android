@@ -888,11 +888,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb1e800d2b9815346aa499553901ed76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  oscSender: {fileID: 6128979198620575949}
+  sortLeftButton: {fileID: 1856118687597877314}
+  sortRightButton: {fileID: 4749077034013500979}
   label: {fileID: 2068008581281656714}
   slider: {fileID: 3952130414508043374}
   eventTrigger: {fileID: 3952130414508043373}
-  sortLeftButton: {fileID: 1856118687597877314}
-  sortRightButton: {fileID: 4749077034013500979}
 --- !u!114 &6128979198620575949
 MonoBehaviour:
   m_ObjectHideFlags: 0
