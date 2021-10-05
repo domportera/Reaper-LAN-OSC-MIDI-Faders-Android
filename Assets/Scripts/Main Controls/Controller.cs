@@ -9,10 +9,9 @@ public class Controller : MonoBehaviour
     [SerializeField] OscPropertySender oscSender;
     [SerializeField] Button sortLeftButton = null;
     [SerializeField] Button sortRightButton = null;
-    [SerializeField] Text label = null;
-    protected ControllerSettings myController = null;
+    public ControllerSettings myController { get; private set; }
 
-    protected float modValue { get; private set; }
+    public float modValue { get; private set; }
     protected float pModValue{ get; private set; }
     protected float targetModValue { get; private set; }
 
@@ -37,9 +36,6 @@ public class Controller : MonoBehaviour
 
         oscSender.SetAddress(myController.GetAddress());
 
-        label.text = myController.name;
-        name = myController.name + " " + myController.controlType;
-
         //load default values
         int defaultValue = myController.defaultValue;
         modValue = defaultValue;
@@ -52,12 +48,28 @@ public class Controller : MonoBehaviour
     #region Sorting
     void InitializeSorting()
     {
-        sortLeftButton.onClick.AddListener(SortLeft);
-        sortRightButton.onClick.AddListener(SortRight);
+        if(sortLeftButton == null || sortRightButton == null)
+        {
+            Debug.LogError($"Sort button null - assign in inspector", this);
+            return;
+        }
+
+        if (sortLeftButton.onClick.GetPersistentEventCount() == 0)
+        {
+            sortLeftButton.onClick.AddListener(SortLeft);
+            sortRightButton.onClick.AddListener(SortRight);
+        }
+
         SetSortButtonVisibility(false);
     }
     public virtual void SetSortButtonVisibility(bool _visible)
     {
+        if (sortLeftButton == null || sortRightButton == null)
+        {
+            Debug.LogError($"Sort button null - assign in inspector", this);
+            return;
+        }
+
         sortLeftButton.gameObject.SetActive(_visible);
         sortRightButton.gameObject.SetActive(_visible);
     }
@@ -86,6 +98,11 @@ public class Controller : MonoBehaviour
     protected void SetValue (int _val)
     {
         targetModValue = _val;
+    }
+
+    public void SetValueAsPercentage (float _val)
+    {
+        targetModValue = Mathf.Clamp01(Mathf.Lerp(myController.min, myController.max, _val));
     }
 
     protected int MapValueToCurve(float _value, bool _inverse)

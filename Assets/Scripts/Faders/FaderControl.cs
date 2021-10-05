@@ -10,10 +10,13 @@ public class FaderControl : Controller
 {
     [SerializeField] Slider slider = null;
     [SerializeField] EventTrigger eventTrigger = null;
-    
+    [SerializeField] Text label = null;
+
     public override void Initialize(ControllerSettings _controller)
     {
         base.Initialize(_controller);
+        label.text = myController.name;
+        name = myController.name + " " + myController.controlType;
         InitializeFaderInteraction();
     }
 

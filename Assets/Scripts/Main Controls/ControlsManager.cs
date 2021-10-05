@@ -11,7 +11,7 @@ public class ControlsManager : MonoBehaviour
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
 
-    readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
+    public static readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
     {
         new ControllerSettings("Pitch",             InputType.Touch,    ControlType.ReturnToCenter, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
         new ControllerSettings("Mod",               InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
