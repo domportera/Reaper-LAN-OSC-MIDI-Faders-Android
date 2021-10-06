@@ -21,16 +21,22 @@ public class Controller2D : MonoBehaviour
     [SerializeField] Button button;
     [SerializeField] EventTrigger eventTrigger;
 
+    [Header("Aesthetics")]
+    [SerializeField] GameObject border;
+
     bool moving = false;
 
     readonly Vector2 NULL_VEC = Vector2.negativeInfinity;
     Vector2 currentTouchPosition;
 
-    float interactionPadding = 65f;
+    float originalWidth;
+
+    [SerializeField] float interactionPadding = 20f;
 
     private void Awake()
     {
         currentTouchPosition = NULL_VEC;
+        originalWidth = buttonRect.rect.width;
 
         horizontalController.Initialize(ControlsManager.defaultControllers[0]);
         verticalController.Initialize(ControlsManager.defaultControllers[1]);
@@ -225,5 +231,14 @@ public class Controller2D : MonoBehaviour
         }
         return nearest;
     }
+
+    public struct Controller2DFaderProperties
+    {
+        public bool showBorder;
+        public float widthModifier;
+        public ControllerSettings horizontalController;
+        public ControllerSettings verticalController;
+    }
+
 
 }

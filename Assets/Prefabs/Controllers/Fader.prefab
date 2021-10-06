@@ -331,7 +331,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 67}
-  m_SizeDelta: {x: 0, y: 62.940002}
+  m_SizeDelta: {x: 0, y: 128.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2068008581281656715
 CanvasRenderer:
@@ -362,18 +362,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 59
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 1
     m_MinSize: 0
-    m_MaxSize: 67
+    m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: LABEL
+  m_Text: Breath Control
 --- !u!114 &7101317872425197131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,8 +712,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 62}
-  m_SizeDelta: {x: 0, y: -62}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &3952130414508043374
 MonoBehaviour:
@@ -860,7 +860,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 186.65, y: 63}
-  m_SizeDelta: {x: 200, y: 867.43}
+  m_SizeDelta: {x: 200, y: 805}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &5933091251482720896
 MonoBehaviour:
@@ -891,9 +891,9 @@ MonoBehaviour:
   oscSender: {fileID: 6128979198620575949}
   sortLeftButton: {fileID: 1856118687597877314}
   sortRightButton: {fileID: 4749077034013500979}
-  label: {fileID: 2068008581281656714}
   slider: {fileID: 3952130414508043374}
   eventTrigger: {fileID: 3952130414508043373}
+  label: {fileID: 2068008581281656714}
 --- !u!114 &6128979198620575949
 MonoBehaviour:
   m_ObjectHideFlags: 0
