@@ -26,6 +26,8 @@ public class Controller2D : MonoBehaviour
     readonly Vector2 NULL_VEC = Vector2.negativeInfinity;
     Vector2 currentTouchPosition;
 
+    float interactionPadding = 65f;
+
     private void Awake()
     {
         currentTouchPosition = NULL_VEC;
@@ -34,6 +36,8 @@ public class Controller2D : MonoBehaviour
         verticalController.Initialize(ControlsManager.defaultControllers[1]);
         InitializeButtonInteraction();
     }
+
+    enum RectBounds { Left, Right, Top, Bottom }
 
     // Update is called once per frame
     protected void Update()
@@ -50,29 +54,50 @@ public class Controller2D : MonoBehaviour
     {
         EventTrigger.Entry startEntry = new EventTrigger.Entry();
         startEntry.eventID = EventTriggerType.PointerDown;
-        startEntry.callback.AddListener((data) => { EnableMovement(); });
+        startEntry.callback.AddListener((data) => { StartTouch(); });
         eventTrigger.triggers.Add(startEntry);
 
         EventTrigger.Entry endEntry = new EventTrigger.Entry();
         endEntry.eventID = EventTriggerType.PointerUp;
-        endEntry.callback.AddListener((data) => { DisableMovement(); });
+        endEntry.callback.AddListener((data) => { EndTouch(); });
         eventTrigger.triggers.Add(endEntry);
     }
 
-    void EnableMovement()
+    void StartTouch()
     {
         moving = true;
     }
 
-    void DisableMovement()
+    void EndTouch()
     {
         moving = false;
+        horizontalController.ReturnToCenter();
+        verticalController.ReturnToCenter();
     }
 
     void MoveComponentsWithMIDI()
     {
-        
-        
+        float xPercent = Mathf.InverseLerp(horizontalController.controllerSettings.min,
+            horizontalController.controllerSettings.max,
+            horizontalController.modValue);
+        float yPercent = Mathf.InverseLerp(verticalController.controllerSettings.min,
+            verticalController.controllerSettings.max,
+            verticalController.modValue);
+
+        float xMin = GetRectLocalBounds(RectBounds.Left, buttonRect) + interactionPadding;
+        float xMax = GetRectLocalBounds(RectBounds.Right, buttonRect) - interactionPadding;
+        float yMin = GetRectLocalBounds(RectBounds.Bottom, buttonRect) + interactionPadding;
+        float yMax = GetRectLocalBounds(RectBounds.Top, buttonRect) - interactionPadding;
+
+        verticalLine.localPosition = new Vector3(Mathf.Lerp(xMin, xMax, xPercent),
+            verticalLine.localPosition.y,
+            verticalLine.localPosition.z);
+        horizontalLine.localPosition = new Vector3(horizontalLine.localPosition.x,
+            Mathf.Lerp(yMin, yMax, yPercent),
+            horizontalLine.localPosition.z);
+        centerDot.localPosition = new Vector3(verticalLine.localPosition.x, horizontalLine.localPosition.y, centerDot.localPosition.z);
+
+        //Debug.Log($"modValue: {horizontalController.modValue} | xPercent: {xPercent} | xMin and max ({xMin}, {xMax})");
     }
 
     void SetTargetPosition()
@@ -99,11 +124,10 @@ public class Controller2D : MonoBehaviour
     /// <returns></returns>
     Vector2 GetTouchPositionWithinButton(Vector2 _touchPos)
     {
-        Vector2 buttonPos = GetButtonScreenPosition();
-        float xMin = buttonPos.x - buttonRect.rect.width * buttonRect.pivot.x;
-        float xMax = buttonPos.x + buttonRect.rect.width * (1 - buttonRect.pivot.x);
-        float yMin = buttonPos.y - buttonRect.rect.height * buttonRect.pivot.y;
-        float yMax = buttonPos.y + buttonRect.rect.height * (1 - buttonRect.pivot.y);
+        float xMin = GetRectScreenBounds(RectBounds.Left, buttonRect) + interactionPadding;
+        float xMax = GetRectScreenBounds(RectBounds.Right, buttonRect) - interactionPadding;
+        float yMin = GetRectScreenBounds(RectBounds.Bottom, buttonRect) + interactionPadding;
+        float yMax = GetRectScreenBounds(RectBounds.Top, buttonRect) - interactionPadding;
 
         float xPercent = Mathf.InverseLerp(xMin, xMax, _touchPos.x);
         float yPercent = Mathf.InverseLerp(yMin, yMax, _touchPos.y);
@@ -113,14 +137,55 @@ public class Controller2D : MonoBehaviour
         return new Vector2(xPercent, yPercent);
     }
 
-    Vector2 GetButtonScreenPosition()
+    float GetRectScreenBounds(RectBounds _side, RectTransform _rect)
     {
-        return RectTransformUtility.WorldToScreenPoint(null, buttonRect.position);
+        Vector2 _rectPos = GetRectScreenPosition(_rect);
+        switch (_side)
+        { 
+            case RectBounds.Left:
+                Vector3 rawLeft = new Vector3(_rect.position.x - buttonRect.rect.width * buttonRect.pivot.x, _rect.position.y, _rect.position.z);
+                return RectTransformUtility.WorldToScreenPoint(null, rawLeft).x;
+            case RectBounds.Right:
+                Vector3 rawRight = new Vector3(_rect.position.x + buttonRect.rect.width * (1 - buttonRect.pivot.x), _rect.position.y, _rect.position.z);
+                return RectTransformUtility.WorldToScreenPoint(null, rawRight).x;
+            case RectBounds.Top:
+                Vector3 rawTop = new Vector3(_rect.position.x, _rectPos.y + buttonRect.rect.height * (1 - buttonRect.pivot.y), _rect.position.z);
+                return RectTransformUtility.WorldToScreenPoint(null, rawTop).y;
+            case RectBounds.Bottom:
+                Vector3 rawBottom = new Vector3(_rect.position.x, _rectPos.y - buttonRect.rect.height * buttonRect.pivot.y, _rect.position.z);
+                return RectTransformUtility.WorldToScreenPoint(null, rawBottom).y;
+            default:
+                Debug.LogError($"Button bound {_side} not implemented", this);
+                return 0;
+        }
+    }
+
+    float GetRectLocalBounds(RectBounds _side, RectTransform _rect)
+    {
+        switch (_side)
+        {
+            case RectBounds.Left:
+                return -_rect.rect.width * _rect.pivot.x;
+            case RectBounds.Right:
+                return _rect.rect.width * (1 - _rect.pivot.x);
+            case RectBounds.Top:
+                return _rect.rect.height * (1 - _rect.pivot.y); ;
+            case RectBounds.Bottom:
+                return -_rect.rect.height * _rect.pivot.y; ;
+            default:
+                Debug.LogError($"Button bound {_side} not implemented", this);
+                return 0;
+        }
+    }
+
+    Vector2 GetRectScreenPosition(RectTransform _rect)
+    {
+        return RectTransformUtility.WorldToScreenPoint(null, _rect.position);
     }
 
     Vector2 GetTouchNearestToCenter()
     {
-        Vector2 buttonPos = GetButtonScreenPosition();
+        Vector2 buttonPos = GetRectScreenPosition(buttonRect);
         return GetTouchNearestTo(buttonPos);
     }
 

@@ -9,7 +9,7 @@ public class Controller : MonoBehaviour
     [SerializeField] OscPropertySender oscSender;
     [SerializeField] Button sortLeftButton = null;
     [SerializeField] Button sortRightButton = null;
-    public ControllerSettings myController { get; private set; }
+    public ControllerSettings controllerSettings { get; private set; }
 
     public float modValue { get; private set; }
     protected float pModValue{ get; private set; }
@@ -32,12 +32,12 @@ public class Controller : MonoBehaviour
             Debug.LogError("Null controller on " + gameObject.name, this);
         }
 
-        myController = _controller;
+        controllerSettings = _controller;
 
-        oscSender.SetAddress(myController.GetAddress());
+        oscSender.SetAddress(controllerSettings.GetAddress());
 
         //load default values
-        int defaultValue = myController.defaultValue;
+        int defaultValue = controllerSettings.defaultValue;
         modValue = defaultValue;
         pModValue = defaultValue;
         targetModValue = defaultValue;
@@ -102,29 +102,29 @@ public class Controller : MonoBehaviour
 
     public void SetValueAsPercentage (float _val)
     {
-        targetModValue = Mathf.Clamp01(Mathf.Lerp(myController.min, myController.max, _val));
+        targetModValue = Mathf.Lerp(controllerSettings.min, controllerSettings.max, Mathf.Clamp01(_val));
     }
 
     protected int MapValueToCurve(float _value, bool _inverse)
     {
-        if (myController.curveType != CurveType.Linear)
+        if (controllerSettings.curveType != CurveType.Linear)
         {
 
-            int range = myController.GetRange();
-            float tempVal = _value - myController.min;
+            int range = controllerSettings.GetRange();
+            float tempVal = _value - controllerSettings.min;
             float ratio = tempVal / range;
             float mappedRatio;
 
             if (_inverse)
             {
-                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio);
+                mappedRatio = controllerSettings.curveType == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio);
             }
             else
             {
-                mappedRatio = myController.curveType == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
+                mappedRatio = controllerSettings.curveType == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
             }
 
-            return (int)(mappedRatio * range + myController.min);
+            return (int)(mappedRatio * range + controllerSettings.min);
         }
         else
         {
@@ -142,14 +142,14 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        bool shouldSmooth = myController.smoothTime <= 0;
+        bool shouldSmooth = controllerSettings.smoothTime <= 0;
         if (shouldSmooth)
         {
             modValue = targetModValue;
         }
         else
         {
-            float difference = (myController.max - myController.min) * Time.deltaTime / myController.smoothTime;
+            float difference = (controllerSettings.max - controllerSettings.min) * Time.deltaTime / controllerSettings.smoothTime;
 
             //set to idle if close enough to zero
             if (Mathf.Abs(modValue - targetModValue) < difference)
@@ -171,11 +171,11 @@ public class Controller : MonoBehaviour
         }
     }
 
-    protected void ReturnToCenter()
+    public void ReturnToCenter()
     {
-        if (myController.controlType == ControlType.ReturnToCenter)
+        if (controllerSettings.controlType == ControlType.ReturnToCenter)
         {
-            SetValue(MapValueToCurve(myController.defaultValue, true));
+            SetValue(MapValueToCurve(controllerSettings.defaultValue, true));
         }
     }
     #endregion Mod Value Manipulation

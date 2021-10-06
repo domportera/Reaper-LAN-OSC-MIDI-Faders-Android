@@ -15,8 +15,8 @@ public class FaderControl : Controller
     public override void Initialize(ControllerSettings _controller)
     {
         base.Initialize(_controller);
-        label.text = myController.name;
-        name = myController.name + " " + myController.controlType;
+        label.text = controllerSettings.name;
+        name = controllerSettings.name + " " + controllerSettings.controlType;
         InitializeFaderInteraction();
     }
 
@@ -41,8 +41,8 @@ public class FaderControl : Controller
 
     void InitializeFaderInteraction()
     {
-        slider.maxValue = myController.max;
-        slider.minValue = myController.min;
+        slider.maxValue = controllerSettings.max;
+        slider.minValue = controllerSettings.min;
         slider.onValueChanged.AddListener(SetValue);
 
         EventTrigger.Entry startEntry = new EventTrigger.Entry();
