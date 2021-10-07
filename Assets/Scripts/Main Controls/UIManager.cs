@@ -104,7 +104,7 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void SpawnFaderOptions(ControllerSettings _config, GameObject _control)
+    public void SpawnControllerOptions(ControllerSettings _config, GameObject _control)
     {
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well

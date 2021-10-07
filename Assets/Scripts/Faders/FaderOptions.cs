@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,6 +29,8 @@ public class FaderOptions : MonoBehaviour
 
     Dictionary<Dropdown, string[]> dropDownEntryNames = new Dictionary<Dropdown, string[]>();
 
+    ControlsManager.ControllerData controlData;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -36,12 +39,11 @@ public class FaderOptions : MonoBehaviour
         gameObject.SetActive(false);
 
         PopulateDropdowns();
-        SetFieldsToControllerValues();
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
 
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
 
-        if(controllerConfig.addressType != AddressType.CC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
+        if(controllerConfig.addressType != AddressType.MidiCC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
         {
             ccChannelField.gameObject.SetActive(false);
         }
@@ -53,9 +55,15 @@ public class FaderOptions : MonoBehaviour
         nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
     }
 
+    public void Initialize(ControlsManager.ControllerData _data)
+    {
+        controlData = _data;
+        SetFieldsToControllerValues();
+    }
+
     public void CheckForCCControl(int _value)
     {
-        if ((AddressType)_value == AddressType.CC)
+        if ((AddressType)_value == AddressType.MidiCC)
         {
             ccChannelField.gameObject.SetActive(true);
         }
@@ -68,9 +76,9 @@ public class FaderOptions : MonoBehaviour
     bool VerifyUniqueName(string _s)
     {
         bool valid = true;
-        List<ControllerSettings> controllers = manager.GetAllControllers();
+        List<ControlsManager.ControllerData> controllers = manager.GetAllControllers();
 
-        foreach(ControllerSettings set in controllers)
+        foreach(ControlsManager.ControllerData set in controllers)
         {
             if(set.name == _s)
             {
@@ -99,19 +107,19 @@ public class FaderOptions : MonoBehaviour
     {
         switch((AddressType)_val)
         {
-            case AddressType.CC:
+            case AddressType.MidiCC:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
                 valueRangeDropdown.gameObject.SetActive(true);
                 ccChannelField.SetTextWithoutNotify("");
                 ccChannelField.gameObject.SetActive(true);
                 break;
-            case AddressType.Pitch:
+            case AddressType.MidiPitch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
                 valueRangeDropdown.gameObject.SetActive(true);
                 ccChannelField.SetTextWithoutNotify("");
                 ccChannelField.gameObject.SetActive(false);
                 break;
-            case AddressType.Aftertouch:
+            case AddressType.MidiAftertouch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
                 valueRangeDropdown.gameObject.SetActive(false);
                 ccChannelField.SetTextWithoutNotify("");
@@ -135,7 +143,7 @@ public class FaderOptions : MonoBehaviour
         curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.curveType);
 
         smoothnessField.SetValueWithoutNotify(controllerConfig.smoothTime);
-        nameField.SetTextWithoutNotify(controllerConfig.name);
+        nameField.SetTextWithoutNotify(controlData.name);
         ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
 
         AddressTypeMenuChange((int)controllerConfig.addressType);
@@ -144,7 +152,7 @@ public class FaderOptions : MonoBehaviour
     void SetControllerValuesToFields()
     {
         //_ = VerifyUniqueName(nameField.text); //not sure if this is necessary - should be tested. Disabling for now
-        ControlType controlType = (ControlType)controlTypeDropdown.value;
+        ControlBehaviorType controlType = (ControlBehaviorType)controlTypeDropdown.value;
         AddressType addressType = (AddressType)addressTypeDropdown.value;
         DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
         CurveType curveType = (CurveType)curveTypeDropdown.value;
@@ -158,51 +166,20 @@ public class FaderOptions : MonoBehaviour
         int result;
         int ccNumber = int.TryParse(ccChannelField.text, out result) ? result : -1; //this number should be validated by text field, so it should always be ok if text field is set up properly
 
-        controllerConfig.SetVariables(controllerName, inputType, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
+        controllerConfig.SetVariables(inputType, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
+        controlData.name = controllerName;
 
-        manager.RespawnController(controllerConfig);
+        manager.RespawnController(controlData);
     }
 
     void PopulateDropdowns()
     {
-        dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlType)));
+        dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlBehaviorType)));
         dropDownEntryNames.Add(addressTypeDropdown, Enum.GetNames(typeof(AddressType)));
         dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
-
-        string[] midiChannelNames = new string[] //pair with enum
-        {
-            "All Channels",
-            "Channel 1",
-            "Channel 2",
-            "Channel 3",
-            "Channel 4",
-            "Channel 5",
-            "Channel 6",
-            "Channel 7",
-            "Channel 8",
-            "Channel 9",
-            "Channel 10",
-            "Channel 11",
-            "Channel 12",
-            "Channel 13",
-            "Channel 14",
-            "Channel 15",
-            "Channel 16"
-        };
-
-        string[] valueRangeNames = new string[]
-        {
-            "7-bit (0-127)",
-            "14-bit (0-16383)",
-            "8-bit (0-255)",
-            "7-bit (-64-63)",
-            "14-bit(-16384-16383)",
-            "8-bit(-128-127)"
-        };
-
-        dropDownEntryNames.Add(midiChannelDropdown, midiChannelNames);
-        dropDownEntryNames.Add(valueRangeDropdown, valueRangeNames);
+        dropDownEntryNames.Add(midiChannelDropdown, EnumUtility.GetMidiChannelNameArray());
+        dropDownEntryNames.Add(valueRangeDropdown, EnumUtility.GetValueRangeNameArray());
 
         foreach (KeyValuePair<Dropdown, string[]> pair in dropDownEntryNames)
         {
@@ -227,7 +204,7 @@ public class FaderOptions : MonoBehaviour
     public void Delete()
     {
         //delete from ControlsManager and destroy objects
-        manager.DestroyController(controllerConfig);
+        manager.DestroyController(controlData);
         uiManager.DestroyControllerObjects(controllerConfig);
     }
 

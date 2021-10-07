@@ -11,22 +11,22 @@ public class ControlsManager : MonoBehaviour
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
 
-    public static readonly ControllerSettings[] defaultControllers = new ControllerSettings[]
+    public static readonly List<ControllerData> defaultControllers = new List<ControllerData>
     {
-        new ControllerSettings("Pitch",             InputType.Touch,    ControlType.ReturnToCenter, AddressType.Pitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Mod",               InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
-        new ControllerSettings("Foot Pedal",        InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 4),
-        new ControllerSettings("Expression",        InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11),
-        new ControllerSettings("Breath Control",    InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 2),
-        new ControllerSettings("Aftertouch",        InputType.Touch,    ControlType.Normal, AddressType.Aftertouch,      ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear),
-        new ControllerSettings("Volume",            InputType.Touch,    ControlType.Normal, AddressType.CC,              ValueRange.SevenBit,    DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 7)
+        new FaderData("Pitch",          new ControllerSettings(InputType.Touch,    ControlBehaviorType.ReturnToCenter,     AddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
+        new FaderData("Mod",            new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 1)),
+        new FaderData("Foot Pedal",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 4)),
+        new FaderData("Expression",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 11)),
+        new FaderData("Breath Control", new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 2)),
+        new FaderData("Aftertouch",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiAftertouch,      ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
+        new FaderData("Volume",         new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 7))
     };
 
-    [SerializeField] ControllerType[] controllerTypes = null;
+    [SerializeField] ControllerPrefabs[] controllerPrefabs = null;
 
-    List<ControllerSettings> controllers = new List<ControllerSettings>();
+    List<ControllerData> controllers = new List<ControllerData>();
 
-    Dictionary<ControllerSettings, GameObject> controllerObjects = new Dictionary<ControllerSettings, GameObject>();
+    Dictionary<ControllerData, GameObject> controllerObjects = new Dictionary<ControllerData, GameObject>();
 
     static int uniqueIDGen = 0;
 
@@ -47,6 +47,18 @@ public class ControlsManager : MonoBehaviour
 
     public class ProfileEvent : UnityEvent<string> { }
     public ProfileEvent OnProfileLoaded = new ProfileEvent();
+
+    readonly Dictionary<Type, ControllerType> controllerTypes = new Dictionary<Type, ControllerType>()
+    {
+        {typeof(FaderData), ControllerType.Fader },
+        {typeof(Controller2DData), ControllerType.Controller2D }
+    };
+
+    public static readonly Dictionary<Type, Type> controllerClasses = new Dictionary<Type, Type>()
+    {
+        {typeof(FaderControl), typeof(FaderData) },
+        {typeof(Controller2D), typeof(Controller2DData) }
+    };
 
     void Awake()
     {
@@ -76,7 +88,7 @@ public class ControlsManager : MonoBehaviour
         ipSetter.TryConnect();
     }
 
-    public List<ControllerSettings> GetAllControllers()
+    public List<ControllerData> GetAllControllers()
     {
         return controllers;
     }
@@ -125,7 +137,7 @@ public class ControlsManager : MonoBehaviour
 
         controllers.Sort((s1, s2) => s1.name.CompareTo(s2.name));
 
-        string json = JsonUtility.ToJson(new FaderSaver(controllers, _name), true);
+        string json = JsonUtility.ToJson(new ProfileSaveData(controllers, _name), true);
         SaveControlsFile(_name, json);
 
         Utilities.instance.ConfirmationWindow($"Saved {_name}");
@@ -197,22 +209,22 @@ public class ControlsManager : MonoBehaviour
 
             if (json != null)
             {
-                FaderSaver loadedData = JsonUtility.FromJson<FaderSaver>(json);
+                ProfileSaveData loadedData = JsonUtility.FromJson<ProfileSaveData>(json);
                 NukeControllers();
 
                 if (loadedData != null || loadedData.GetControllers().Count > 0)
                 {
-                    List<ControllerSettings> temp = loadedData.GetControllers();
+                    List<ControllerData> temp = loadedData.GetControllers();
 
                     //properly initialize each controller settings
-                    for (int i = 0; i < temp.Count; i++)
-                    {
-                        temp[i] = new ControllerSettings(temp[i]);
-                    }
+                    //for (int i = 0; i < temp.Count; i++)
+                    //{
+                    //    temp[i] = new ControllerData(temp[i]);
+                    //}
 
                     controllers = temp;
+                    SpawnControllers(temp);
                     OnProfileLoaded.Invoke(_profile);
-                    SpawnControllers();
                 }
                 else
                 {
@@ -241,28 +253,39 @@ public class ControlsManager : MonoBehaviour
     {
         Debug.Log("Spawning Defaults");
         NukeControllers();
-        controllers = new List<ControllerSettings>();
 
-        for (int i = 0; i < defaultControllers.Length; i++)
+        for (int i = 0; i < defaultControllers.Count; i++)
         {
-            ControllerSettings c = new ControllerSettings(defaultControllers[i]);
+            ControllerData c = defaultControllers[i];
+            switch (c)
+            {
+                case FaderData fader:
+                    c = new FaderData(fader);
+                    break;
+                case Controller2DData control2D:
+                    c = new Controller2DData(control2D);
+                    break;
+                default:
+                    Debug.Log($"No way to spawn {c.GetType()}", this);
+                    break;
+            }
             c.SetPosition(i);
             controllers.Add(c);
         }
 
-        SpawnControllers(true);
+        SpawnControllers(controllers, true);
     }
 
     void NukeControllers()
     {
-        foreach(ControllerSettings c in controllers)
+        foreach(ControllerData c in controllers)
         {
             uiManager.DestroyControllerGroup(c);
         }
 
-        controllerObjects = new Dictionary<ControllerSettings, GameObject>();
+        controllerObjects = new Dictionary<ControllerData, GameObject>();
 
-        controllers = new List<ControllerSettings>();
+        controllers.Clear();
     }
 
     void PopulateProfileSelectionMenu()
@@ -360,14 +383,14 @@ public class ControlsManager : MonoBehaviour
         return uniqueIDGen++;
     }
 
-    void SpawnControllers(bool _isDefault = false)
+    void SpawnControllers(List<ControllerData> _controllers, bool _isDefault = false)
     {
         if (!_isDefault)
         {
-            controllers.Sort((s1, s2) => s1.GetPosition().CompareTo(s2.GetPosition()));
+            _controllers.Sort((s1, s2) => s1.GetPosition().CompareTo(s2.GetPosition()));
         }
 
-        foreach (ControllerSettings set in controllers)
+        foreach (ControllerData set in _controllers)
         {
             SpawnController(set);
         }
@@ -376,7 +399,12 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        ControllerSettings newControl = new ControllerSettings(NEW_CONTROLLER_NAME, InputType.Touch, ControlType.Normal, AddressType.CC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear);
+        
+    }
+
+    void NewFader()
+    {
+        FaderData newControl = new FaderData(NEW_CONTROLLER_NAME, new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
         GameObject newController = SpawnController(newControl);
 
         if (newController != null)
@@ -385,60 +413,46 @@ public class ControlsManager : MonoBehaviour
         }
     }
 
-    public GameObject SpawnController (ControllerSettings _config)
+    public GameObject SpawnController (ControllerData _data)
     {
-        bool error = true;
-        string errorDebug = "doesn't exist!";
         GameObject control = null;
-        foreach (ControllerType t in controllerTypes)
-        {
-            if (t.controlType == _config.controlType)
-            {
-                //spawn this type
-                if (t.controlObject != null)
-                {
-                    control = SpawnControllerObject(_config, t.controlObject);
-                    controllerObjects.Add(_config, control);
-                    error = false;
-                    break;
-                }
-                else
-                {
-                    //let it continue looking for one that does have a game object if it exists, but throw an appropriate error
-                    errorDebug = "exists, but doesn't have a game object!";
-                }
-            }
-        }
-       
-        if (error)
-        {
-            Debug.LogError($"{typeof(ControllerType).ToString()} for {_config.controlType.ToString()} {errorDebug}!");
-        }
+        GameObject prefab = GetControllerPrefabFromType(_data.GetType());
 
-        if(control == null)
-        {
-            Debug.LogError("Null control object! not in controller types?");
-        }
+        //spawn this type
+        control = SpawnControllerObject(_data, prefab);
+        controllerObjects.Add(_data, control);
 
-        uiManager.SpawnFaderOptions(_config, control);
+        uiManager.SpawnFaderOptions(_data, control);
 
-        if(!controllers.Contains(_config))
+        if(!controllers.Contains(_data))
         {
-            controllers.Add(_config);
+            controllers.Add(_data);
         }
 
         return control;
     }
 
-    GameObject SpawnControllerObject(ControllerSettings _config, GameObject _controlObject)
+    GameObject SpawnControllerObject(ControllerData _config, GameObject _controlObject)
     {
         GameObject control = Instantiate(_controlObject);
         control.transform.SetParent(controllerParent, false);
-        control.GetComponentInChildren<FaderControl>().Initialize(_config);
+
+        switch (_config)
+        {
+            case FaderData fader:
+                control.GetComponentInChildren<FaderControl>().Initialize(fader);
+                break;
+            case Controller2DData control2D:
+                control.GetComponentInChildren<Controller2D>().Initialize(control2D);
+                break;
+            default:
+                Debug.Log($"No way to spawn {_config.GetType()}", this);
+                break;
+        }
         return control;
     }
 
-    public void RespawnController(ControllerSettings _config)
+    public void RespawnController(ControllerData _config)
     {
         DestroyController(_config);
         GameObject control = SpawnController(_config);
@@ -446,29 +460,55 @@ public class ControlsManager : MonoBehaviour
         ipSetter.TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
     }
 
-    public void DestroyController(ControllerSettings _config)
+    public void DestroyController(ControllerData _config)
     {
         Destroy(controllerObjects[_config]);
         controllerObjects.Remove(_config);
         controllers.Remove(_config);
     }
 
+    GameObject GetControllerPrefabFromType(Type _type)
+    {
+        ControllerType controllerType = controllerTypes[_type];
+        return GetControllerPrefabFromType(controllerType);
+       
+    }
+    
+    GameObject GetControllerPrefabFromType(ControllerType _type)
+    {
+        foreach (ControllerPrefabs p in controllerPrefabs)
+        {
+            if (p.controlType == _type)
+            {
+                if (p.controlPrefab == null)
+                {
+                    Debug.LogError($"No prefab assigned to controller type {_type}", this);
+                }
+
+                return p.controlPrefab;
+            }
+        }
+
+        Debug.LogError($"No ControllerType implemented in list for type {_type}", this);
+        return null;
+    }
+
 
     [Serializable]
-    class FaderSaver
+    class ProfileSaveData
     {
-        public List<ControllerSettings> configs;
+        public List<ControllerData> controllers;
         public string name = null;
 
-        public FaderSaver(List<ControllerSettings> _controllers, string _name)
+        public ProfileSaveData(List<ControllerData> _controllerData, string _name)
         {
-            configs = _controllers;
+            controllers = _controllerData;
             name = _name;
         }
 
-        public List<ControllerSettings> GetControllers()
+        public List<ControllerData> GetControllers()
         {
-            return configs;
+            return controllers;
         }
 
         public string GetName()
@@ -477,8 +517,71 @@ public class ControlsManager : MonoBehaviour
         }
     }
 
+    //used to pair prefabs with their control type
     [Serializable]
+    struct ControllerPrefabs
+    {
+        public ControllerType controlType;
+        public GameObject controlPrefab;
+    }
 
+    [Serializable]
+    public abstract class ControllerData
+    {
+        public string name;
+        public List<ControllerSettings> controllers;
+
+        [SerializeField] protected int position = NULL_POSITION;
+        protected const int NULL_POSITION = -1;
+
+        public void SetPosition(int _index)
+        {
+            position = _index;
+        }
+
+        public int GetPosition()
+        {
+            return position;
+        }
+
+    }
+
+    [Serializable]
+    public class FaderData : ControllerData
+    {
+        public FaderData(string name, ControllerSettings config)
+        {
+            controllers = new List<ControllerSettings>();
+            controllers.Add(config);
+            this.name = name;
+        }
+
+        public FaderData(FaderData _data)
+        {
+            name = _data.name;
+            controllers = _data.controllers;
+            position = _data.GetPosition();
+        }
+    }
+
+    [Serializable]
+    public class Controller2DData : ControllerData
+    {
+        public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
+        {
+            controllers.Add(horizontalConfig);
+            controllers.Add(verticalConfig);
+            this.name = name;
+        }
+        public Controller2DData(Controller2DData _data)
+        {
+            name = _data.name;
+            controllers = _data.controllers;
+            position = _data.GetPosition();
+        }
+    }
+
+    [Serializable]
     class ProfilesMetadata
     {
         [SerializeField] List<string> profileNames;
@@ -530,12 +633,4 @@ public class ControlsManager : MonoBehaviour
             name = _name;
 		}
 	}
-}
-
-//used to pair prefabs with their control type
-[Serializable]
-struct ControllerType
-{
-    public ControlType controlType;
-    public GameObject controlObject;
 }

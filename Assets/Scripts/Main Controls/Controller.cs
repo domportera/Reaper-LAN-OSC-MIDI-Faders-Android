@@ -25,14 +25,14 @@ public class Controller : MonoBehaviour
         SendValuesWithDuplicates();
     }
 
-    public virtual void Initialize(ControllerSettings _controller)
+    public virtual void Initialize(ControlsManager.ControllerData _controller, int whichIndex = 0)
     {
         if (_controller == null)
         {
             Debug.LogError("Null controller on " + gameObject.name, this);
         }
 
-        controllerSettings = _controller;
+        controllerSettings = _controller.controllers[0];
 
         oscSender.SetAddress(controllerSettings.GetAddress());
 
@@ -173,7 +173,7 @@ public class Controller : MonoBehaviour
 
     public void ReturnToCenter()
     {
-        if (controllerSettings.controlType == ControlType.ReturnToCenter)
+        if (controllerSettings.controlType == ControlBehaviorType.ReturnToCenter)
         {
             SetValue(MapValueToCurve(controllerSettings.defaultValue, true));
         }

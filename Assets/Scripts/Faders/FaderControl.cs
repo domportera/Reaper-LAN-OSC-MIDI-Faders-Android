@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using OscJack;
 using UnityEngine;
@@ -12,11 +13,18 @@ public class FaderControl : Controller
     [SerializeField] EventTrigger eventTrigger = null;
     [SerializeField] Text label = null;
 
-    public override void Initialize(ControllerSettings _controller)
+    public override void Initialize(ControlsManager.ControllerData _controller, int whichIndex = 0)
     {
+        Type controllerType = _controller.GetType();
+        if(controllerType != ControlsManager.controllerClasses[this.GetType()])
+        {
+            Debug.LogError($"Gave wrong controller data type {controllerType} to {this.GetType()}", this);
+            return;
+        }
+
         base.Initialize(_controller);
-        label.text = controllerSettings.name;
-        name = controllerSettings.name + " " + controllerSettings.controlType;
+        label.text = _controller.name;
+        name = _controller.name + " " + controllerSettings.controlType;
         InitializeFaderInteraction();
     }
 

@@ -31,16 +31,20 @@ public class Controller2D : MonoBehaviour
 
     float originalWidth;
 
+    ControlsManager.Controller2DData controlData;
+
     [SerializeField] float interactionPadding = 20f;
 
     private void Awake()
     {
         currentTouchPosition = NULL_VEC;
         originalWidth = buttonRect.rect.width;
-
-        horizontalController.Initialize(ControlsManager.defaultControllers[0]);
-        verticalController.Initialize(ControlsManager.defaultControllers[1]);
         InitializeButtonInteraction();
+    }
+
+    private void Start()
+    {
+        
     }
 
     enum RectBounds { Left, Right, Top, Bottom }
@@ -54,6 +58,13 @@ public class Controller2D : MonoBehaviour
         }
 
         MoveComponentsWithMIDI();
+    }
+
+    public void Initialize(ControlsManager.Controller2DData _data)
+    {
+        verticalController.Initialize(_data, 0);
+        horizontalController.Initialize(_data, 1);
+        controlData = _data;
     }
 
     void InitializeButtonInteraction()

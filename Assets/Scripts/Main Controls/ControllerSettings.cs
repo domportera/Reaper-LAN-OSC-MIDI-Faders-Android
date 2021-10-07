@@ -6,10 +6,9 @@ using UnityEngine.Events;
 [System.Serializable]
 public class ControllerSettings
 {
-    public ControlType controlType;
+    public ControlBehaviorType controlType;
     public InputType inputType;
     string address;
-    public string name;
     public MIDIChannel channel;
     public ValueRange range;
     public DefaultValueType defaultType;
@@ -24,27 +23,22 @@ public class ControllerSettings
     public int ccNumber;
     int id; //not currently in use, could be useful some day?
 
-    public const int NULL_POSITION = -1;
-
-    [SerializeField] int position = NULL_POSITION;
-
     public string profileName;
 
     public ControllerSettings(ControllerSettings _c)
     {
-        SetVariables(_c.name, _c.inputType, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
+        SetVariables(_c.inputType, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
         id = ControlsManager.GetUniqueID();
-        position = _c.position;
     }
 
-    public ControllerSettings(string _name, InputType _inputType, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public ControllerSettings(InputType _inputType, ControlBehaviorType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {
-        SetVariables(_name, _inputType, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
+        SetVariables(_inputType, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
         id = ControlsManager.GetUniqueID();
     }
 
-    public void SetVariables(string _name, InputType _inputType, ControlType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public void SetVariables(InputType _inputType, ControlBehaviorType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber, float _smoothTime)
     {
         //add channel if not set to all channels
@@ -60,7 +54,6 @@ public class ControllerSettings
         SetDefault(_defaultValueType);
 
         channel = _channel;
-        name = _name;
         controlType = _controlType;
         range = _range;
         defaultType = _defaultValueType;
@@ -83,17 +76,17 @@ public class ControllerSettings
     {
         switch (_type)
         {
-            case AddressType.CC:
+            case AddressType.MidiCC:
                 if (_ccNumber < 0 || _ccNumber > 127)
                 {
                     _ccNumber = 127;
                 }
                 address += "cc/" + _ccNumber;
                 break;
-            case AddressType.Aftertouch:
+            case AddressType.MidiAftertouch:
                 address += "channelPressure";
                 break;
-            case AddressType.Pitch:
+            case AddressType.MidiPitch:
                 address += "pitch";
                 break;
             default:
@@ -145,17 +138,6 @@ public class ControllerSettings
                 break;
         }
     }
-
-    public void SetPosition(int _index)
-    {
-        position = _index;
-    }
-
-    public int GetPosition()
-    {
-        return position;
-    }
-
     public int GetRange()
     {
         return Mathf.Abs(max - min) + 1; //since we're using  ints, 0-127 is actually 128 total values, so +1
