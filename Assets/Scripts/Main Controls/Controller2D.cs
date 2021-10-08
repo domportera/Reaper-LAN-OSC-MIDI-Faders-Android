@@ -35,8 +35,13 @@ public class Controller2D : MonoBehaviour
 
     [SerializeField] float interactionPadding = 20f;
 
+    bool isUnityEditor = false;
+
     private void Awake()
     {
+#if UNITY_EDITOR
+        isUnityEditor = true;
+#endif
         currentTouchPosition = NULL_VEC;
         originalWidth = buttonRect.rect.width;
         InitializeButtonInteraction();
@@ -213,9 +218,11 @@ public class Controller2D : MonoBehaviour
 
     Vector2 GetTouchNearestTo(Vector2 _pos)
     {
-#if UNITY_EDITOR
-        return Input.mousePosition;
-#endif
+        if (isUnityEditor)
+        {
+            return Input.mousePosition;
+        }
+
         int touchCount = Input.touchCount;
         Vector2 nearest = NULL_VEC;
         float nearestDistance = float.PositiveInfinity;

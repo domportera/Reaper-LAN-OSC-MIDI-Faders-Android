@@ -104,7 +104,7 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void SpawnControllerOptions(ControllerSettings _config, GameObject _control)
+    public void SpawnControllerOptions(ControlsManager.ControllerData _config, GameObject _control)
     {
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well
@@ -162,7 +162,7 @@ public class UIManager : MonoBehaviour
         AddOptionsButtonToLayout(_button);
     }
 
-    public void DestroyControllerGroup(ControllerSettings _config)
+    public void DestroyControllerGroup(ControlsManager.ControllerData _config)
     {
         DestroyControllerGroup(GetButtonGroupByConfig(_config));
     }

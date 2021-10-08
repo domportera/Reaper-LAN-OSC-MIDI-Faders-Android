@@ -422,7 +422,7 @@ public class ControlsManager : MonoBehaviour
         control = SpawnControllerObject(_data, prefab);
         controllerObjects.Add(_data, control);
 
-        uiManager.SpawnFaderOptions(_data, control);
+        uiManager.SpawnControllerOptions(_data, control);
 
         if(!controllers.Contains(_data))
         {
