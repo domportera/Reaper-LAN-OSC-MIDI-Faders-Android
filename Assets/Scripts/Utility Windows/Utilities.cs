@@ -21,6 +21,7 @@ public class Utilities : MonoBehaviour
 
     [Space(20)]
     [SerializeField] GameObject verificationWindowPrefab = null;
+    [SerializeField] GameObject multiOptionWindowPrefab = null;
 
     public static Utilities instance;
 
@@ -52,15 +53,28 @@ public class Utilities : MonoBehaviour
 
     public void VerificationWindow(string _text, UnityAction _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
     {
-        GameObject window = Instantiate(verificationWindowPrefab, confirmationWindow.transform.parent);
+        GameObject window = InstantiateWindow(verificationWindowPrefab);
         VerifyWindow verify = window.GetComponent<VerifyWindow>();
         verify.SetActions(_text, _confirm, _cancel, _confirmButtonLabel, _cancelButtonLabel);
     }
     public void VerificationWindow(string _inputLabel, UnityAction<string> _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
     {
-        GameObject window = Instantiate(verificationWindowPrefab, confirmationWindow.transform.parent);
+        GameObject window = InstantiateWindow(verificationWindowPrefab);
         VerifyWindow verify = window.GetComponent<VerifyWindow>();
         verify.SetActionsInputField(_inputLabel, _confirm, _cancel, _confirmButtonLabel, _cancelButtonLabel);
+    }
+
+    public void MultiOptionWindow(string _text, MultiOptionAction[] _actions)
+    {
+        GameObject window = InstantiateWindow(multiOptionWindowPrefab);
+        MultiOptionWindow multiWindow = window.GetComponent<MultiOptionWindow>();
+        multiWindow.SetActions(_text, _actions);
+    }
+
+    GameObject InstantiateWindow(GameObject _prefab)
+    {
+        GameObject window = Instantiate(_prefab, confirmationWindow.transform.parent);
+        return window;
     }
 
     void HideErrorWindow()

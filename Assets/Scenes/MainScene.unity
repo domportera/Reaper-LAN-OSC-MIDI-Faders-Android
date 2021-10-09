@@ -5242,12 +5242,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controllerParent: {fileID: 308370035}
-  controllerTypes:
+  controllerPrefabs:
   - controlType: 0
-    controlObject: {fileID: 4082389996907021769, guid: ee2201da1946ff94b8baa0293ec9f8ae,
+    controlPrefab: {fileID: 4082389996907021769, guid: ee2201da1946ff94b8baa0293ec9f8ae,
       type: 3}
   - controlType: 1
-    controlObject: {fileID: 4082389996907021769, guid: ee2201da1946ff94b8baa0293ec9f8ae,
+    controlPrefab: {fileID: 5524197209181307799, guid: 81d360f21b435f941a160785580af1c7,
       type: 3}
 --- !u!4 &367776139
 Transform:
@@ -13013,6 +13013,7 @@ MonoBehaviour:
   confirmationDisplayTime: 3
   verificationWindowPrefab: {fileID: 2784571829508924954, guid: 57266b972dbb974478f244c9120b90b3,
     type: 3}
+  multiOptionWindowPrefab: {fileID: 0}
 --- !u!4 &1146821941
 Transform:
   m_ObjectHideFlags: 0

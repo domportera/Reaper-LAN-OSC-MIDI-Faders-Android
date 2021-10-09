@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using static ControlsManager;
 using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviour
@@ -104,7 +105,7 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void SpawnControllerOptions(ControlsManager.ControllerData _config, GameObject _control)
+    public void SpawnControllerOptions(ControllerData _config, GameObject _control)
     {
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well
@@ -162,7 +163,7 @@ public class UIManager : MonoBehaviour
         AddOptionsButtonToLayout(_button);
     }
 
-    public void DestroyControllerGroup(ControlsManager.ControllerData _config)
+    public void DestroyControllerGroup(ControllerData _config)
     {
         DestroyControllerGroup(GetButtonGroupByConfig(_config));
     }
@@ -195,7 +196,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void DestroyControllerObjects(ControllerSettings _config)
+    public void DestroyControllerObjects(ControllerData _config)
     {
         ControllerUIGroup buttonGroup = GetButtonGroupByConfig(_config);
         DestroyControllerGroup(buttonGroup);
@@ -237,7 +238,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    ControllerUIGroup GetButtonGroupByConfig(ControllerSettings _config)
+    ControllerUIGroup GetButtonGroupByConfig(ControllerData _config)
     {
         foreach (ControllerUIGroup cbg in controllerUIs)
         {
@@ -292,7 +293,7 @@ public class UIManager : MonoBehaviour
         List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
         for (int i = 0; i < controllerUIs.Count; i++)
         {
-            if(controllerUIs[i].controllerConfig.name == ControlsManager.NEW_CONTROLLER_NAME)
+            if(controllerUIs[i].controllerConfig.GetName() == NEW_CONTROLLER_NAME)
             {
                 unnamedControls.Add(controllerUIs[i]);
                 controllerUIs.Remove(controllerUIs[i]);
@@ -376,23 +377,24 @@ public class UIManager : MonoBehaviour
         //should be public get private set
         public FaderOptions faderOptions;
         public Button faderMenuButton;
-        public ControllerSettings controllerConfig;
+        public ControllerData controllerConfig;
         public Toggle activationToggle;
         public GameObject controlObject;
         FaderControl control;
         RectTransform controlObjectTransform;
 
-        public ControllerUIGroup(ControllerSettings _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
+        public ControllerUIGroup(ControllerData _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
         {
             faderOptions = Instantiate(_faderOptionsPrefab).GetComponent<FaderOptions>();
-            faderOptions.gameObject.name = _config.name + " Options Panel";
-            faderOptions.controllerConfig = _config;
+            faderOptions.Initialize(_config);
+            faderOptions.gameObject.name = _config.GetName() + " Options Panel";
+            faderOptions.controllerConfig = _config.GetController();
 
             controllerConfig = _config;
 
             faderMenuButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
-            faderMenuButton.gameObject.name = _config.name + " Options";
-            faderMenuButton.GetComponentInChildren<Text>().text = _config.name + " Options"; // change visible button title
+            faderMenuButton.gameObject.name = _config.GetName() + " Options";
+            faderMenuButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
             faderMenuButton.onClick.AddListener(DisplayFaderOptions);
 
             activationToggle = faderMenuButton.GetComponentInChildren<Toggle>();

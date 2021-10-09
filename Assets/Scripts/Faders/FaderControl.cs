@@ -23,8 +23,8 @@ public class FaderControl : Controller
         }
 
         base.Initialize(_controller);
-        label.text = _controller.name;
-        name = _controller.name + " " + controllerSettings.controlType;
+        label.text = _controller.GetName();
+        name = _controller.GetName() + " " + controllerSettings.controlType;
         InitializeFaderInteraction();
     }
 

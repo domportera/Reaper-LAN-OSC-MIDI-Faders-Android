@@ -80,7 +80,7 @@ public class FaderOptions : MonoBehaviour
 
         foreach(ControlsManager.ControllerData set in controllers)
         {
-            if(set.name == _s)
+            if(set.GetName() == _s)
             {
                 valid = false;
                 break;
@@ -130,7 +130,10 @@ public class FaderOptions : MonoBehaviour
     
     private void OnEnable()
     {
-        SetFieldsToControllerValues();
+        if (controlData != null)
+        {
+            SetFieldsToControllerValues();
+        }
     }
 
     void SetFieldsToControllerValues()
@@ -143,7 +146,7 @@ public class FaderOptions : MonoBehaviour
         curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.curveType);
 
         smoothnessField.SetValueWithoutNotify(controllerConfig.smoothTime);
-        nameField.SetTextWithoutNotify(controlData.name);
+        nameField.SetTextWithoutNotify(controlData.GetName());
         ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
 
         AddressTypeMenuChange((int)controllerConfig.addressType);
@@ -167,7 +170,7 @@ public class FaderOptions : MonoBehaviour
         int ccNumber = int.TryParse(ccChannelField.text, out result) ? result : -1; //this number should be validated by text field, so it should always be ok if text field is set up properly
 
         controllerConfig.SetVariables(inputType, controlType, addressType, valueRange, defaultValueType, midiChannel, curveType, ccNumber, smoothTime);
-        controlData.name = controllerName;
+        controlData.SetName(controllerName);
 
         manager.RespawnController(controlData);
     }
@@ -205,7 +208,7 @@ public class FaderOptions : MonoBehaviour
     {
         //delete from ControlsManager and destroy objects
         manager.DestroyController(controlData);
-        uiManager.DestroyControllerObjects(controllerConfig);
+        uiManager.DestroyControllerObjects(controlData);
     }
 
     public void Apply()

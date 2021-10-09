@@ -135,7 +135,7 @@ public class ControlsManager : MonoBehaviour
             return;
         }
 
-        controllers.Sort((s1, s2) => s1.name.CompareTo(s2.name));
+        controllers.Sort((s1, s2) => s1.GetName().CompareTo(s2.GetName()));
 
         string json = JsonUtility.ToJson(new ProfileSaveData(controllers, _name), true);
         SaveControlsFile(_name, json);
@@ -356,11 +356,16 @@ public class ControlsManager : MonoBehaviour
         try
         {
             string path = Path.Combine(basePath, _fileNameSansExtension + _fileNameExtension);
-            StreamReader sr = new StreamReader(path);
-            string json = sr.ReadToEnd();
-            sr.Close();
-
-            return json;
+            if (File.Exists(path))
+            {
+                string json = File.ReadAllText(path);
+                return json;
+            }
+            else
+            {
+                Debug.LogWarning($"No file at {path} exists");
+                return null;
+            }
         }
         catch (Exception e)
         {
@@ -528,8 +533,8 @@ public class ControlsManager : MonoBehaviour
     [Serializable]
     public abstract class ControllerData
     {
-        public string name;
-        public List<ControllerSettings> controllers;
+        [SerializeField] protected string name;
+        [SerializeField] protected List<ControllerSettings> controllers;
 
         [SerializeField] protected int position = NULL_POSITION;
         protected const int NULL_POSITION = -1;
@@ -544,6 +549,30 @@ public class ControlsManager : MonoBehaviour
             return position;
         }
 
+        public ControllerSettings GetController()
+        {
+            if(controllers.Count > 0)
+            {
+                return controllers[0];
+            }
+
+            return null;
+        }
+
+        public List<ControllerSettings> GetControllers()
+        {
+            return controllers;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+
+        public void SetName(string _name)
+        {
+            name = _name;
+        }
     }
 
     [Serializable]
@@ -578,6 +607,15 @@ public class ControlsManager : MonoBehaviour
             name = _data.name;
             controllers = _data.controllers;
             position = _data.GetPosition();
+        }
+
+        public ControllerSettings GetLeftController()
+        {
+            return controllers[0];
+        }
+        public ControllerSettings GetRightController()
+        {
+            return controllers[1];
         }
     }
 

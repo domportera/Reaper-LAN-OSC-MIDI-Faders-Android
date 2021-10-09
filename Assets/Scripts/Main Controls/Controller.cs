@@ -32,7 +32,7 @@ public class Controller : MonoBehaviour
             Debug.LogError("Null controller on " + gameObject.name, this);
         }
 
-        controllerSettings = _controller.controllers[0];
+        controllerSettings = _controller.GetController();
 
         oscSender.SetAddress(controllerSettings.GetAddress());
 
