@@ -383,7 +383,7 @@ public class UIManager : MonoBehaviour
         FaderControl control;
         RectTransform controlObjectTransform;
 
-        public ControllerUIGroup(ControllerData _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
+        private ControllerUIGroup(ControllerData _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
         {
             faderOptions = Instantiate(_faderOptionsPrefab).GetComponent<FaderOptions>();
             faderOptions.Initialize(_config);
@@ -403,6 +403,16 @@ public class UIManager : MonoBehaviour
             controlObjectTransform = _controlObject.GetComponent<RectTransform>();
 
             control = _controlObject.GetComponent<FaderControl>();
+        }
+
+        public static ControllerUIGroup CreateFaderUIGroup()
+        {
+
+        }
+
+        public static ControllerUIGroup CreateController2DUIGroup()
+        {
+
         }
 
         public void SetFaderWidth(float _width)
