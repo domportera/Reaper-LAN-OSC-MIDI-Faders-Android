@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;
     [SerializeField] GameObject faderOptionsPrefab = null;
+    [SerializeField] GameObject controller2DOptionsPrefab = null;
     [SerializeField] GameObject faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
     [SerializeField] GameObject sliderButtonVerticalLayoutParent = null;
     [SerializeField] Button optionsButton = null;
@@ -115,13 +116,56 @@ public class UIManager : MonoBehaviour
             DestroyControllerGroup(dupe);
         }
 
-        ControllerUIGroup buttonGroup = new ControllerUIGroup(_config, faderOptionsPrefab, faderOptionsActivationPrefab, _control);
-
-        buttonGroup.faderOptions.transform.SetParent(optionsPanel.transform, false);
-        controllerUIs.Add(buttonGroup);
-        SetFaderWidth(buttonGroup);
+        InitializeControllerOptions(_config, _control);
         SortOptionsButtons();
         RefreshFaderLayoutGroup();
+    }
+
+    void InitializeControllerOptions(ControllerData _config, GameObject _control)
+    {
+        ControllerUIGroup buttonGroup;
+
+        switch (_config)
+        {
+            case FaderData fader:
+                GameObject faderOptions = InitializeFaderOptions(fader);
+                buttonGroup = new ControllerUIGroup(fader, faderOptionsActivationPrefab, _control, faderOptions);
+                break;
+            case Controller2DData control2D:
+                GameObject controlOptions = InitializeController2DOptions(control2D);
+                buttonGroup = new ControllerUIGroup(control2D, faderOptionsActivationPrefab, _control, controlOptions);
+                break;
+            default:
+                buttonGroup = null;
+                Debug.LogError($"Unhandled ControllerData type {_config.GetType()}");
+                break;
+        }
+
+        //buttonGroup.optionsMenu.transform.SetParent(optionsPanel.transform, false);
+        if (buttonGroup != null)
+        {
+            SetFaderWidth(buttonGroup);
+            controllerUIs.Add(buttonGroup);
+        }
+    }
+
+    GameObject InitializeFaderOptions(FaderData _config)
+    {
+        GameObject menuObj = Instantiate(faderOptionsPrefab, optionsPanel.transform, false);
+        FaderOptions faderOptions = menuObj.GetComponent<FaderOptions>();
+        faderOptions.Initialize(_config);
+        faderOptions.gameObject.name = _config.GetName() + " Options Panel";
+        faderOptions.controllerConfig = _config.GetController();
+        return menuObj;
+    }
+
+    GameObject InitializeController2DOptions(Controller2DData _config)
+    {
+        GameObject menuObj = Instantiate(controller2DOptionsPrefab, optionsPanel.transform, false);
+        Controller2DOptions controllerOptions = menuObj.GetComponent<Controller2DOptions>();
+        controllerOptions.Initialize(_config);
+        controllerOptions.gameObject.name = _config.GetName() + " Options Panel";
+        return menuObj;
     }
 
     void InitializeCreditsButtons()
@@ -204,7 +248,7 @@ public class UIManager : MonoBehaviour
 
     void RemoveFromLayout(ControllerUIGroup _buttonGroup)
     {
-        LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.faderMenuButton.gameObject);
+        LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.activateFaderOptionsButton.gameObject);
 
         if (layout != null)
         {
@@ -224,20 +268,6 @@ public class UIManager : MonoBehaviour
         layoutCounts.Add(lay);
     }
 
-    bool GetControllerEnabled(FaderOptions _faderOptions)
-    {
-        ControllerUIGroup group = GetButtonGroupByFaderOptions(_faderOptions);
-
-        if(group.activationToggle.isOn)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     ControllerUIGroup GetButtonGroupByConfig(ControllerData _config)
     {
         foreach (ControllerUIGroup cbg in controllerUIs)
@@ -247,20 +277,6 @@ public class UIManager : MonoBehaviour
                 return cbg;
             }
         }
-        return null;
-    }
-
-    ControllerUIGroup GetButtonGroupByFaderOptions(FaderOptions _faderOptions)
-    {
-        foreach (ControllerUIGroup cbg in controllerUIs)
-        {
-            if(cbg.faderOptions == _faderOptions)
-            {
-                return cbg;
-            }
-        }
-
-        Debug.LogError("Didn't find a match for button group! Returning empty.");
         return null;
     }
 
@@ -313,7 +329,7 @@ public class UIManager : MonoBehaviour
         //place buttons
         foreach (ControllerUIGroup c in controllerUIs)
         {
-            AddOptionsButtonToLayout(c.faderMenuButton.gameObject);
+            AddOptionsButtonToLayout(c.activateFaderOptionsButton.gameObject);
         }
     }
 
@@ -375,44 +391,27 @@ public class UIManager : MonoBehaviour
     class ControllerUIGroup
     {
         //should be public get private set
-        public FaderOptions faderOptions;
-        public Button faderMenuButton;
-        public ControllerData controllerConfig;
-        public Toggle activationToggle;
-        public GameObject controlObject;
-        FaderControl control;
+        public Button activateFaderOptionsButton { get; private set; }
+        Toggle activationToggle;
+        GameObject controlObject;
         RectTransform controlObjectTransform;
+        public ControllerData controllerConfig { get; private set; }
+        public GameObject optionsMenu { get; private set; }
 
-        private ControllerUIGroup(ControllerData _config, GameObject _faderOptionsPrefab, GameObject _optionsActivateButtonPrefab, GameObject _controlObject)
+        public ControllerUIGroup(ControllerData _config, GameObject _optionsActivateButtonPrefab, GameObject _controlObject, GameObject _optionsMenu)
         {
-            faderOptions = Instantiate(_faderOptionsPrefab).GetComponent<FaderOptions>();
-            faderOptions.Initialize(_config);
-            faderOptions.gameObject.name = _config.GetName() + " Options Panel";
-            faderOptions.controllerConfig = _config.GetController();
-
             controllerConfig = _config;
-
-            faderMenuButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
-            faderMenuButton.gameObject.name = _config.GetName() + " Options";
-            faderMenuButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
-            faderMenuButton.onClick.AddListener(DisplayFaderOptions);
-
-            activationToggle = faderMenuButton.GetComponentInChildren<Toggle>();
-            activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
+            optionsMenu = _optionsMenu;
             controlObject = _controlObject;
+
+            activateFaderOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
+            activateFaderOptionsButton.gameObject.name = _config.GetName() + " Options";
+            activateFaderOptionsButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
+            activateFaderOptionsButton.onClick.AddListener(DisplayFaderOptions);
+
+            activationToggle = activateFaderOptionsButton.GetComponentInChildren<Toggle>();
+            activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             controlObjectTransform = _controlObject.GetComponent<RectTransform>();
-
-            control = _controlObject.GetComponent<FaderControl>();
-        }
-
-        public static ControllerUIGroup CreateFaderUIGroup()
-        {
-
-        }
-
-        public static ControllerUIGroup CreateController2DUIGroup()
-        {
-
         }
 
         public void SetFaderWidth(float _width)
@@ -422,7 +421,7 @@ public class UIManager : MonoBehaviour
 
         void DisplayFaderOptions()
         {
-            faderOptions.gameObject.SetActive(true);
+            optionsMenu.SetActive(true);
         }
 
         public void ToggleControlVisibility(bool _b)
@@ -442,13 +441,26 @@ public class UIManager : MonoBehaviour
 
         public void SetPostionMode(bool _b)
         {
-            control.SetSortButtonVisibility(_b);
+            switch(controllerConfig)
+            {
+                case FaderData faderData:
+                    FaderControl faderControl = controlObject.GetComponent<FaderControl>();
+                    faderControl.SetSortButtonVisibility(_b);
+                    break;
+                case Controller2DData control2DData:
+                    Controller2D control2D = controlObject.GetComponent<Controller2D>();
+                    control2D.SetSortButtonVisibility(_b);
+                    break;
+                default:
+                    Debug.LogError($"{controllerConfig.GetType()} not implemented");
+                    break;
+            }
         }
 
         public void SelfDestruct()
         {
-            Destroy(faderOptions.gameObject);
-            Destroy(faderMenuButton.gameObject);
+            Destroy(optionsMenu);
+            Destroy(activateFaderOptionsButton.gameObject);
             Destroy(controlObject);
         }
     }

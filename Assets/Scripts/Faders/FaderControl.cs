@@ -16,7 +16,7 @@ public class FaderControl : Controller
     public override void Initialize(ControlsManager.ControllerData _controller, int whichIndex = 0)
     {
         Type controllerType = _controller.GetType();
-        if(controllerType != ControlsManager.controllerClasses[this.GetType()])
+        if(controllerType != ControlsManager.controllerClassesByControl[this.GetType()])
         {
             Debug.LogError($"Gave wrong controller data type {controllerType} to {this.GetType()}", this);
             return;

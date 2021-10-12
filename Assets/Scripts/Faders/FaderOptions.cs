@@ -32,22 +32,20 @@ public class FaderOptions : MonoBehaviour
     ControlsManager.ControllerData controlData;
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
         manager = FindObjectOfType<ControlsManager>();
         uiManager = FindObjectOfType<UIManager>();
+        InitializeUI();
+        CheckForCCControl((int)controllerConfig.addressType);
         gameObject.SetActive(false);
+    }
 
+    private void InitializeUI()
+    {
         PopulateDropdowns();
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
-
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
-
-        if(controllerConfig.addressType != AddressType.MidiCC) //this needs to be re-enabled if CC is selected from Control Type/ MIDI Parameter
-        {
-            ccChannelField.gameObject.SetActive(false);
-        }
-
         applyAndCloseButton.onClick.AddListener(Apply);
         closeButton.onClick.AddListener(Close);
         resetValuesButton.onClick.AddListener(ResetValues);

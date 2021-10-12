@@ -1,21 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static ControlsManager;
 
 public class Controller2DOptions : MonoBehaviour
 {
     [SerializeField] FaderOptions horizontalOptions;
     [SerializeField] FaderOptions verticalOptions;
 
-    // Start is called before the first frame update
-    void Start()
+    public void Initialize(Controller2DData _data)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        horizontalOptions.controllerConfig = _data.GetHorizontalController();
+        verticalOptions.controllerConfig = _data.GetVerticalController();
+        horizontalOptions.Initialize(_data);
+        verticalOptions.Initialize(_data);
     }
 }

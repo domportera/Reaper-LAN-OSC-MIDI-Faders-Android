@@ -72,6 +72,11 @@ public class Controller2D : MonoBehaviour
         controlData = _data;
     }
 
+    public void SetSortButtonVisibility(bool _visible)
+    {
+        throw new NotImplementedException();
+    }
+
     void InitializeButtonInteraction()
     {
         EventTrigger.Entry startEntry = new EventTrigger.Entry();

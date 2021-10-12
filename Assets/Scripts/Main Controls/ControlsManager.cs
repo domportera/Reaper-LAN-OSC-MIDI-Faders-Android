@@ -54,10 +54,16 @@ public class ControlsManager : MonoBehaviour
         {typeof(Controller2DData), ControllerType.Controller2D }
     };
 
-    public static readonly Dictionary<Type, Type> controllerClasses = new Dictionary<Type, Type>()
+    public static readonly Dictionary<Type, Type> controllerClassesByControl = new Dictionary<Type, Type>()
     {
         {typeof(FaderControl), typeof(FaderData) },
         {typeof(Controller2D), typeof(Controller2DData) }
+    };
+
+    public static readonly Dictionary<Type, Type> controllerClassesByData = new Dictionary<Type, Type>()
+    {
+        {typeof(FaderData), typeof(FaderControl) },
+        {typeof(Controller2DData), typeof(Controller2D) }
     };
 
     void Awake()
@@ -535,8 +541,9 @@ public class ControlsManager : MonoBehaviour
     {
         [SerializeField] protected string name;
         [SerializeField] protected List<ControllerSettings> controllers;
-
         [SerializeField] protected int position = NULL_POSITION;
+        [SerializeField] protected bool enabled = true;
+
         protected const int NULL_POSITION = -1;
 
         public void SetPosition(int _index)
@@ -572,6 +579,11 @@ public class ControlsManager : MonoBehaviour
         public void SetName(string _name)
         {
             name = _name;
+        }
+
+        public void SetEnabled(bool _enabled)
+        {
+            enabled = _enabled;
         }
     }
 
@@ -609,11 +621,11 @@ public class ControlsManager : MonoBehaviour
             position = _data.GetPosition();
         }
 
-        public ControllerSettings GetLeftController()
+        public ControllerSettings GetHorizontalController()
         {
             return controllers[0];
         }
-        public ControllerSettings GetRightController()
+        public ControllerSettings GetVerticalController()
         {
             return controllers[1];
         }
