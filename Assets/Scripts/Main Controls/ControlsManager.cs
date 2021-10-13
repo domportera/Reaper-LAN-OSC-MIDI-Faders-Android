@@ -66,8 +66,20 @@ public class ControlsManager : MonoBehaviour
         {typeof(Controller2DData), typeof(Controller2D) }
     };
 
+    public static ControlsManager instance;
+
     void Awake()
     {
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogError($"There is a second ControlsManager in the scene!", this);
+            Debug.LogError($"This is the first one", instance);
+        }
+
         basePath = Path.Combine(Application.persistentDataPath, "Controllers");
         uiManager = FindObjectOfType<UIManager>();
         ipSetter = FindObjectOfType<IPSetter>();
@@ -543,6 +555,7 @@ public class ControlsManager : MonoBehaviour
         [SerializeField] protected List<ControllerSettings> controllers;
         [SerializeField] protected int position = NULL_POSITION;
         [SerializeField] protected bool enabled = true;
+        [SerializeField] protected float width = 1f;
 
         protected const int NULL_POSITION = -1;
 
