@@ -24,17 +24,18 @@ namespace OscJack
         OscClient _client;
         PropertyInfo _propertyInfo;
 
+        public 
+
         void UpdateSettings()
         {
             try
             {
                 _client = OscMaster.GetSharedClient(_ipAddress, _udpPort);
-
-                SendMessage("SetConnected"); //let IPSetter know the client is connected
             }
             catch
             {
-                SendMessage("InvalidClient"); //let IPSetter know that the client is invalid
+                _client = null;
+                Debug.LogError($"OSC connection failed with address {_ipAddress}:{_udpPort}");
             }
         }
 
@@ -55,6 +56,7 @@ namespace OscJack
 
         public void Send(int data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _intValue) return;
             _client.Send(_oscAddress, data);
             _intValue = data;
@@ -62,6 +64,7 @@ namespace OscJack
 
         public void Send(int data1, int data2)
         {
+            if (_client is null) return;
             if (!_keepSending && data1 == _intValue) return;
             _client.Send(_oscAddress, data1, data2);
             _intValue = data1;
@@ -71,12 +74,14 @@ namespace OscJack
 
         public void Send(float data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _floatValue) return;
             _client.Send(_oscAddress, data);
             _floatValue = data;
         }
         public void Send(float data1, float data2)
         {
+            if (_client is null) return;
             if (!_keepSending && data1 == _floatValue) return;
             _client.Send(_oscAddress, data1, data2);
             _floatValue = data1;
@@ -86,6 +91,7 @@ namespace OscJack
 
         public void Send(Vector2 data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _vector2Value) return;
             _client.Send(_oscAddress, data.x, data.y);
             _vector2Value = data;
@@ -95,6 +101,7 @@ namespace OscJack
 
         public void Send(Vector3 data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _vector3Value) return;
             _client.Send(_oscAddress, data.x, data.y, data.z);
             _vector3Value = data;
@@ -104,6 +111,7 @@ namespace OscJack
 
         public void Send(Vector4 data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _vector4Value) return;
             _client.Send(_oscAddress, data.x, data.y, data.z, data.w);
             _vector4Value = data;
@@ -113,6 +121,7 @@ namespace OscJack
 
         public void Send(Vector2Int data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _vector2IntValue) return;
             _client.Send(_oscAddress, data.x, data.y);
             _vector2IntValue = data;
@@ -122,6 +131,7 @@ namespace OscJack
 
         public void Send(Vector3Int data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _vector3IntValue) return;
             _client.Send(_oscAddress, data.x, data.y, data.z);
             _vector3IntValue = data;
@@ -131,6 +141,7 @@ namespace OscJack
 
         public void Send(string data)
         {
+            if (_client is null) return;
             if (!_keepSending && data == _stringValue) return;
             _client.Send(_oscAddress, data);
             _stringValue = data;

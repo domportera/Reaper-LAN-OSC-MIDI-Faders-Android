@@ -151,18 +151,17 @@ public class UIManager : MonoBehaviour
     GameObject InitializeFaderOptions(FaderData _config, GameObject _controlObj)
     {
         GameObject menuObj = Instantiate(faderOptionsPrefab, optionsPanel.transform, false);
-        ControllerOptionsMenu faderOptions = menuObj.GetComponent<ControllerOptionsMenu>();
+        FaderOptions faderOptions = menuObj.GetComponent<FaderOptions>();
         faderOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>());
         faderOptions.gameObject.name = _config.GetName() + " Options Panel";
-        faderOptions.controllerConfig = _config.GetController();
         return menuObj;
     }
 
-    GameObject InitializeController2DOptions(Controller2DData _config, GameObject _control)
+    GameObject InitializeController2DOptions(Controller2DData _config, GameObject _controlObj)
     {
         GameObject menuObj = Instantiate(controller2DOptionsPrefab, optionsPanel.transform, false);
         Controller2DOptions controllerOptions = menuObj.GetComponent<Controller2DOptions>();
-        controllerOptions.Initialize(_config, _control.GetComponent<RectTransform>());
+        controllerOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>());
         controllerOptions.gameObject.name = _config.GetName() + " Options Panel";
         return menuObj;
     }

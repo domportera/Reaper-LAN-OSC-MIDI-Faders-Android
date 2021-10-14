@@ -30,10 +30,6 @@ public class ControlsManager : MonoBehaviour
 
     static int uniqueIDGen = 0;
 
-    UIManager uiManager;
-    IPSetter ipSetter;
-    ProfilesManager profileManager;
-
     public const string NEW_CONTROLLER_NAME = "New Controller";
 
     //saving variables
@@ -81,9 +77,6 @@ public class ControlsManager : MonoBehaviour
         }
 
         basePath = Path.Combine(Application.persistentDataPath, "Controllers");
-        uiManager = FindObjectOfType<UIManager>();
-        ipSetter = FindObjectOfType<IPSetter>();
-        profileManager = FindObjectOfType<ProfilesManager>();
 
         //load profile file names
         LoadProfileNames();
@@ -99,11 +92,10 @@ public class ControlsManager : MonoBehaviour
         //OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
 	}
 
-	public void SetActiveProfile(string _name)
+    public void SetActiveProfile(string _name)
     {
         NukeControllers();
         LoadControllers(_name);
-        ipSetter.TryConnect();
     }
 
     public List<ControllerData> GetAllControllers()
@@ -188,7 +180,7 @@ public class ControlsManager : MonoBehaviour
             string profileName = _name;
             profileNames.AddProfile(profileName);
             SaveProfileNames();
-            profileManager.AddToProfileButtons(profileName);
+            ProfilesManager.instance.AddToProfileButtons(profileName);
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
             SaveControllers(_name);
@@ -298,17 +290,16 @@ public class ControlsManager : MonoBehaviour
     {
         foreach(ControllerData c in controllers)
         {
-            uiManager.DestroyControllerGroup(c);
+            UIManager.instance.DestroyControllerGroup(c);
         }
 
-        controllerObjects = new Dictionary<ControllerData, GameObject>();
-
+        controllerObjects.Clear();
         controllers.Clear();
     }
 
     void PopulateProfileSelectionMenu()
     {
-        profileManager.PopulateProfileButtons(profileNames.GetNames(), profileNames.GetDefaultProfileName());
+        ProfilesManager.instance.PopulateProfileButtons(profileNames.GetNames(), profileNames.GetDefaultProfileName());
     }
 
     void LoadDefaultProfile ()
@@ -445,7 +436,7 @@ public class ControlsManager : MonoBehaviour
         control = SpawnControllerObject(_data, prefab);
         controllerObjects.Add(_data, control);
 
-        uiManager.SpawnControllerOptions(_data, control);
+        UIManager.instance.SpawnControllerOptions(_data, control);
 
         if(!controllers.Contains(_data))
         {
@@ -480,7 +471,6 @@ public class ControlsManager : MonoBehaviour
         DestroyController(_config);
         GameObject control = SpawnController(_config);
         control.transform.SetSiblingIndex(_config.GetPosition()); //there are bound to be issues here with ordering when faders are deleted and stuff
-        ipSetter.TryConnect(); //quick and easy way - reconnect all sliders when done respawning a controller
     }
 
     public void DestroyController(ControllerData _config)

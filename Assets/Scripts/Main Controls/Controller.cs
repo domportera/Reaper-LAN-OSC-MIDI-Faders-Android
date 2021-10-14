@@ -18,6 +18,11 @@ public class Controller : MonoBehaviour
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
 
+    protected virtual void Start()
+    {
+        IPSetter.instance.TryConnect(oscSender);
+    }
+
     // Update is called once per frame
     protected virtual void Update()
     {
@@ -200,23 +205,8 @@ public class Controller : MonoBehaviour
 
     void SendModValue()
     {
-        if (IPSetter.IsConnected())
-        {
-            oscSender.Send(MapValueToCurve(modValue, false));
-        }
+        oscSender.Send(MapValueToCurve(modValue, false));
     }
 
-    //SetConnected and InvalidClient are here because the OscPropertySender can't access
-    //the IP address on its own, so it instead uses SendMessage.
-    //I'm certain there's a smarter way to do it but I'm going to defer to my past self
-    //for now until I have a reason to change it
-    void SetConnected()
-    {
-        IPSetter.SetConnected();
-    }
-    void InvalidClient()
-    {
-        IPSetter.InvalidClient();
-    }
     #endregion OSC Communication
 }

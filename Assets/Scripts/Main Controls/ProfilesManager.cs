@@ -30,9 +30,20 @@ public class ProfilesManager : MonoBehaviour
 
     [SerializeField] bool debug = false;
 
+    public static ProfilesManager instance;
 
     private void Awake()
 	{
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogError($"There is a second ProfilesManager in the scene!", this);
+            Debug.LogError($"This is the first one", instance);
+        }
+
         //profiles
         saveButton.onClick.AddListener(Save);
 

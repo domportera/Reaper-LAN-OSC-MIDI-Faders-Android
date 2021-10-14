@@ -13,14 +13,28 @@ public class IPSetter : MonoBehaviour
 
     string currentIP;
     int currentPort = int.MinValue;
-    static bool ipSet = false;
 
     const string IP_ADDRESS_PLAYER_PREF = "IP Address";
     const string PORT_PLAYER_PREF = "Port";
 
+    public static IPSetter instance;
+
     // Start is called before the first frame update
     void Awake()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Debug.LogError($"There is a second IPSetter in the scene!", this);
+            Debug.LogError($"This is the first one", instance);
+        }
+
+        ipAddressField.onEndEdit.AddListener(SetIP);
+        portField.onEndEdit.AddListener(SetPort);
+
         Load();
     }
 
@@ -53,23 +67,7 @@ public class IPSetter : MonoBehaviour
         PlayerPrefs.SetInt(PORT_PLAYER_PREF, currentPort);
     }
 
-    public static void SetConnected()
-    {
-        ipSet = true;
-    }
-
-    public static bool IsConnected()
-    {
-        return ipSet;
-    }
-
-    public static void InvalidClient()
-    {
-        //error message for invalid client
-        Debug.LogError("Error creating client - check IP");
-    }
-
-    public void SetIP(string _ip)
+    void SetIP(string _ip)
     {
         //validate ip
         string ipString = _ip.Trim();
@@ -78,7 +76,7 @@ public class IPSetter : MonoBehaviour
         if(valid)
         {
             currentIP = ipString;
-            TryConnect();
+            TryConnectAll();
         }
         else
         {
@@ -86,34 +84,29 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    public void SetPort(string _port)
+    void SetPort(string _port)
     {
         //validate ip
         string portString = _port.Trim();
         int port;
-        bool valid = int.TryParse(_port, out port);
+        bool valid = int.TryParse(portString, out port);
 
-        if(port > 65535)
+        if(valid)
         {
-            valid = false;
-        }
-
-        if (valid)
-        {
-            currentPort = port;
-            TryConnect();
+            SetPort(port);
         }
         else
         {
-            Utilities.instance.ErrorWindow("Invalid Port");
+            Debug.LogError($"Couldn't parse integer from port field", this);
         }
     }
 
     void SetPort(int _port)
     {
         bool valid = true;
+        const int MAX_PORT = 65535;
 
-        if (_port > 65535)
+        if (_port > MAX_PORT)
         {
             valid = false;
         }
@@ -121,26 +114,30 @@ public class IPSetter : MonoBehaviour
         if (valid)
         {
             currentPort = _port;
-            TryConnect();
+            TryConnectAll();
         }
         else
         {
-            Utilities.instance.ErrorWindow("Invalid Port");
+            Utilities.instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
         }
     }
 
-    public void TryConnect()
+    public void TryConnectAll()
     {
         OscPropertySender[] senders = FindObjectsOfType<OscPropertySender>();
 
+        foreach(OscPropertySender sender in senders)
+        {
+            TryConnect(sender);
+        }
+    }
+
+    public void TryConnect(OscPropertySender _sender)
+    {
         //only connect if we have a port and an IP
         if (currentPort != int.MinValue && currentIP != null)
         {
-            foreach (OscPropertySender send in senders)
-            {
-                send.ChangeConnection(currentIP, currentPort);
-            }
-
+            _sender.ChangeConnection(currentIP, currentPort);
             Save();
         }
     }
