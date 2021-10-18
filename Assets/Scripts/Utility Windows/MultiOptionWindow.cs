@@ -8,6 +8,12 @@ public class MultiOptionWindow : MonoBehaviour
     [SerializeField] GameObject buttonPrefab;
     [SerializeField] Transform buttonParent;
     [SerializeField] Text text;
+    [SerializeField] Button closeButton;
+
+    private void Awake()
+    {
+        closeButton.onClick.AddListener(CloseWindow);
+    }
 
     public void SetActions(string _text, MultiOptionAction[] _actions)
     {
