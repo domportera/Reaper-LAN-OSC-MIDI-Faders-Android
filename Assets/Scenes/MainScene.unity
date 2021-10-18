@@ -5282,6 +5282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b01eb5b8d0d41ac419bc3cda99514714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   controllerParent: {fileID: 308370035}
   controllerPrefabs:
   - controlType: 0
@@ -5316,12 +5317,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12bd4f2974cf3904294ff92ada7f4446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   optionsPanel: {fileID: 1029842943}
   sliderOptionsButtonLayoutPrefab: {fileID: 2763013774932209352, guid: d68371dac9b0cbc49812feb1beba257d,
     type: 3}
   faderOptionsPrefab: {fileID: 466389951522933312, guid: 0df9c5e3395d1b84bbd33776fabe2690,
     type: 3}
-  controller2DOptionsPrefab: {fileID: 0}
+  controller2DOptionsPrefab: {fileID: 466389951522933312, guid: 1d632ed613e5d56408e3b6c1c14201f1,
+    type: 3}
   faderOptionsActivationPrefab: {fileID: 3922850765117330703, guid: e16e5deffa54a02449cf4bd4da01a6fa,
     type: 3}
   sliderButtonVerticalLayoutParent: {fileID: 1549930368}
@@ -9575,7 +9578,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d86edc0d9d425de439b62f77e8069e87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controlMan: {fileID: 367776138}
   toggleProfileWindowButton: {fileID: 1340599851}
   profileWindow: {fileID: 1122121492}
   closeProfileWindowButton: {fileID: 693319446}
@@ -13167,7 +13169,8 @@ MonoBehaviour:
   confirmationDisplayTime: 3
   verificationWindowPrefab: {fileID: 2784571829508924954, guid: 57266b972dbb974478f244c9120b90b3,
     type: 3}
-  multiOptionWindowPrefab: {fileID: 0}
+  multiOptionWindowPrefab: {fileID: 2784571829508924954, guid: 5273301d7ad66a245a7b4f35d68585d6,
+    type: 3}
 --- !u!4 &1146821941
 Transform:
   m_ObjectHideFlags: 0

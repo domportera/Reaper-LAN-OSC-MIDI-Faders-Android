@@ -15,7 +15,7 @@ public class MultiOptionWindow : MonoBehaviour
 
         foreach(MultiOptionAction a in _actions)
         {
-            GameObject newButtonObj = Instantiate(buttonPrefab);
+            GameObject newButtonObj = Instantiate(buttonPrefab, buttonParent);
             newButtonObj.SetActive(true);
             Button button = newButtonObj.GetComponent<Button>();
             button.GetComponentInChildren<Text>().text = a.name;

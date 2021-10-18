@@ -66,11 +66,11 @@ public class ImportExport : MonoBehaviour
         CreateZipFile(GetExportPath());
 	}
 
-    void CreateZipFile(string _path, float _delay = 0f)
+    void CreateZipFile(string _destinationPath, float _delay = 0f)
     {
-        ZipFile.CreateFromDirectory(Application.persistentDataPath, _path, System.IO.Compression.CompressionLevel.Optimal, false);
+        ZipFile.CreateFromDirectory(Application.persistentDataPath, _destinationPath, System.IO.Compression.CompressionLevel.Optimal, false);
         Utilities.instance.ConfirmationWindow("Backup created! Check your Downloads folder.");
-        Debug.Log($"Exported backup to {_path}");
+        Debug.Log($"Exported backup to {_destinationPath}");
     }
 
     string GetExportPath()

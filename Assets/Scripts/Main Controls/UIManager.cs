@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using static ControlsManager;
 using static UnityEngine.UI.Dropdown;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviourExtended
 {
     [SerializeField] GameObject optionsPanel = null;
     [SerializeField] GameObject sliderOptionsButtonLayoutPrefab = null;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-public enum ControlBehaviorType { Normal, ReturnToCenter };
+public enum ControlBehaviorType { Normal, ReturnToDefault };
 public enum ControllerType { Fader, Controller2D };
 public enum DefaultValueType { Min, Mid, Max };
 public enum AddressType { MidiCC, MidiPitch, MidiAftertouch };

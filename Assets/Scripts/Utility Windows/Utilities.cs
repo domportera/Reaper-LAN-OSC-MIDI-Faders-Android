@@ -64,7 +64,7 @@ public class Utilities : MonoBehaviour
         verify.SetActionsInputField(_inputLabel, _confirm, _cancel, _confirmButtonLabel, _cancelButtonLabel);
     }
 
-    public void MultiOptionWindow(string _text, MultiOptionAction[] _actions)
+    public void MultiOptionWindow(string _text, params MultiOptionAction[] _actions)
     {
         GameObject window = InstantiateWindow(multiOptionWindowPrefab);
         MultiOptionWindow multiWindow = window.GetComponent<MultiOptionWindow>();

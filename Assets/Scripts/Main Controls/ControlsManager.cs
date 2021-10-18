@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ControlsManager : MonoBehaviour
+public class ControlsManager : MonoBehaviourExtended
 {
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
 
     public static readonly List<ControllerData> defaultControllers = new List<ControllerData>
     {
-        new FaderData("Pitch",          new ControllerSettings(InputType.Touch,    ControlBehaviorType.ReturnToCenter,     AddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
+        new FaderData("Pitch",          new ControllerSettings(InputType.Touch,    ControlBehaviorType.ReturnToDefault,     AddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
         new FaderData("Mod",            new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 1)),
         new FaderData("Foot Pedal",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 4)),
         new FaderData("Expression",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 11)),
@@ -25,6 +26,7 @@ public class ControlsManager : MonoBehaviour
     [SerializeField] ControllerPrefabs[] controllerPrefabs = null;
 
     List<ControllerData> controllers = new List<ControllerData>();
+    public ReadOnlyCollection<ControllerData> Controllers { get { return controllers.AsReadOnly(); } }
 
     Dictionary<ControllerData, GameObject> controllerObjects = new Dictionary<ControllerData, GameObject>();
 
@@ -32,14 +34,13 @@ public class ControlsManager : MonoBehaviour
 
     public const string NEW_CONTROLLER_NAME = "New Controller";
 
-    //saving variables
-    public const string DEFAULT_SAVE_NAME = "Default";
-    const string PROFILE_NAME_SAVE_NAME = "Profiles"; //name of json file that stores all profile names
-    ProfilesMetadata profileNames = null;
+    readonly FaderData defaultFader = new FaderData(NEW_CONTROLLER_NAME,
+        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
 
-    string basePath;
-    const string CONTROLS_EXTENSION = ".controls";
-    const string PROFILES_EXTENSION = ".profiles";
+    readonly Controller2DData defaultController2D = new Controller2DData(NEW_CONTROLLER_NAME,
+        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
+        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11));
+
 
     public class ProfileEvent : UnityEvent<string> { }
     public ProfileEvent OnProfileLoaded = new ProfileEvent();
@@ -75,22 +76,7 @@ public class ControlsManager : MonoBehaviour
             Debug.LogError($"There is a second ControlsManager in the scene!", this);
             Debug.LogError($"This is the first one", instance);
         }
-
-        basePath = Path.Combine(Application.persistentDataPath, "Controllers");
-
-        //load profile file names
-        LoadProfileNames();
-
     }
-
-	private void Start()
-    {
-        //populate ui with profile names to allow for saving
-        PopulateProfileSelectionMenu();
-
-        //let color controller know we're ready for default color 
-        //OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
-	}
 
     public void SetActiveProfile(string _name)
     {
@@ -98,100 +84,8 @@ public class ControlsManager : MonoBehaviour
         LoadControllers(_name);
     }
 
-    public List<ControllerData> GetAllControllers()
-    {
-        return controllers;
-    }
-
-    public void SetDefaultProfile(string _profile)
-    {
-        profileNames.SetDefaultProfile(_profile);
-        SaveProfileNames();
-    }
-
-    public void DeleteProfile(string _name)
-    {
-        if(_name == DEFAULT_SAVE_NAME)
-        {
-            Utilities.instance.ErrorWindow("Can't delete default profile");
-            return;
-        }
-        //remove profile from current list of profiles
-        profileNames.RemoveProfile(_name);
-
-        //delete file
-        DeleteFile(_name);
-
-        //Save profiles
-        SaveProfileNames();
-
-        //reload profiles
-        //LoadProfileNames();
-
-        //repopulate dropdown
-        PopulateProfileSelectionMenu();
-
-        //load controller profile
-        LoadDefaultProfile();
-    }
-
     #region Saving and Loading
 
-    public void SaveControllers(string _name)
-    {
-        if(_name == DEFAULT_SAVE_NAME)
-        {
-            Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
-            return;
-        }
-
-        controllers.Sort((s1, s2) => s1.GetName().CompareTo(s2.GetName()));
-
-        string json = JsonUtility.ToJson(new ProfileSaveData(controllers, _name), true);
-        SaveControlsFile(_name, json);
-
-        Utilities.instance.ConfirmationWindow($"Saved {_name}");
-    }
-
-    public bool SaveControllersAs(string _name)
-    {
-        if (_name == DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
-        {
-            Utilities.instance.ErrorWindow("Profile with this name already exists, please use another.");
-            return false;
-        }
-
-        List<char> invalidChars = GetInvalidFileNameCharacters(_name);
-        if(invalidChars.Count > 0)
-        {
-            if (invalidChars.Count == 1)
-            {
-                Utilities.instance.ErrorWindow($"Chosen profile name contains an invalid character.");
-            }
-            else
-            {
-                Utilities.instance.ErrorWindow($"Chosen profile name contains {invalidChars.Count} invalid characters.");
-            }
-            return false;
-		}
-
-        if (_name.Length > 0)
-        {
-            string profileName = _name;
-            profileNames.AddProfile(profileName);
-            SaveProfileNames();
-            ProfilesManager.instance.AddToProfileButtons(profileName);
-            //add this profile to  working profiles in profile selection ui
-            //switch to this profile
-            SaveControllers(_name);
-            return true;
-        }
-        else
-        {
-            Utilities.instance.ErrorWindow("Please enter a name.");
-            return false;
-        }
-    }
 
     public static List<char> GetInvalidFileNameCharacters(string _name)
     {
@@ -209,52 +103,35 @@ public class ControlsManager : MonoBehaviour
         return invalidChars;
     }
 
-    void LoadControllers(string _profile)
+    public void LoadControllers(string _profile)
     {
         Debug.Log($"Loading {_profile}");
 
-        if (_profile != DEFAULT_SAVE_NAME)
+        if (_profile != ProfilesManager.DEFAULT_SAVE_NAME)
         {
-            string json = LoadControlsFile(_profile);
+            ProfilesManager.ProfileSaveData loadedData = ProfilesManager.instance.LoadControlsFile(_profile);
 
-            if (json != null)
+            NukeControllers();
+
+            if (loadedData != null || loadedData.GetControllers().Count > 0)
             {
-                ProfileSaveData loadedData = JsonUtility.FromJson<ProfileSaveData>(json);
-                NukeControllers();
-
-                if (loadedData != null || loadedData.GetControllers().Count > 0)
-                {
-                    List<ControllerData> temp = loadedData.GetControllers();
-
-                    //properly initialize each controller settings
-                    //for (int i = 0; i < temp.Count; i++)
-                    //{
-                    //    temp[i] = new ControllerData(temp[i]);
-                    //}
-
-                    controllers = temp;
-                    SpawnControllers(temp);
-                    OnProfileLoaded.Invoke(_profile);
-                }
-                else
-                {
-                    //spawn defaults if no save data
-                    SpawnDefaultControllers();
-                    OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
-                    Debug.LogError($"Saved data for {_profile} was empty");
-                }
+                List<ControllerData> temp = loadedData.GetControllers();
+                controllers = temp;
+                SpawnControllers(controllers);
+                OnProfileLoaded.Invoke(_profile);
             }
             else
             {
-                Debug.LogError($"JSON object for {_profile} was null");
-                OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
+                //spawn defaults if no save data
                 SpawnDefaultControllers();
+                OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
+                Debug.LogError($"Saved data for {_profile} was empty");
             }
         }
         else
         {
             Debug.Log($"Profile was default");
-            OnProfileLoaded.Invoke(DEFAULT_SAVE_NAME);
+            OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
             SpawnDefaultControllers();
         }
     }
@@ -288,106 +165,13 @@ public class ControlsManager : MonoBehaviour
 
     void NukeControllers()
     {
-        foreach(ControllerData c in controllers)
+        foreach(ControllerData c in Controllers)
         {
             UIManager.instance.DestroyControllerGroup(c);
         }
 
         controllerObjects.Clear();
         controllers.Clear();
-    }
-
-    void PopulateProfileSelectionMenu()
-    {
-        ProfilesManager.instance.PopulateProfileButtons(profileNames.GetNames(), profileNames.GetDefaultProfileName());
-    }
-
-    void LoadDefaultProfile ()
-    {
-        if (profileNames.GetNames().Count < 1)
-        {
-            LoadControllers(DEFAULT_SAVE_NAME);
-        }
-        else
-        {
-            LoadControllers(profileNames.GetDefaultProfileName());
-        }
-    }
-
-    void LoadProfileNames()
-    {
-        string json = LoadFile(PROFILE_NAME_SAVE_NAME, PROFILES_EXTENSION);
-
-        if (json != null)
-        {
-            profileNames = JsonUtility.FromJson<ProfilesMetadata>(json);
-        }
-        else
-        {
-            profileNames = new ProfilesMetadata(new List<string> { });
-        }
-    }
-
-    void SaveProfileNames()
-    {
-        string json = JsonUtility.ToJson(profileNames, true);
-        SaveFile(PROFILE_NAME_SAVE_NAME, PROFILES_EXTENSION, json);
-    }
-
-    void SaveControlsFile(string _fileNameSansExtension, string _data)
-    {
-        if(!Directory.Exists(basePath))
-        {
-            Directory.CreateDirectory(basePath);
-		}
-
-        SaveFile(_fileNameSansExtension, CONTROLS_EXTENSION, _data);
-    }
-
-    void SaveFile(string _fileNameSansExtension, string _fileExtension, string _data)
-    {
-        if (!Directory.Exists(basePath))
-        {
-            Directory.CreateDirectory(basePath);
-        }
-
-        string path = Path.Combine(basePath, _fileNameSansExtension + _fileExtension);
-        File.WriteAllText(path, _data);
-    }
-
-    string LoadControlsFile(string _fileNameSansExtension)
-    {
-        return LoadFile(_fileNameSansExtension, CONTROLS_EXTENSION);
-    }
-
-    string LoadFile(string _fileNameSansExtension, string _fileNameExtension)
-    {
-        try
-        {
-            string path = Path.Combine(basePath, _fileNameSansExtension + _fileNameExtension);
-            if (File.Exists(path))
-            {
-                string json = File.ReadAllText(path);
-                return json;
-            }
-            else
-            {
-                Debug.LogWarning($"No file at {path} exists");
-                return null;
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Failure to load {_fileNameSansExtension}!\n" + e);
-            return null;
-        }
-    }
-
-    void DeleteFile(string _fileNameSansExtension)
-    {
-        string filePath = basePath + _fileNameSansExtension + CONTROLS_EXTENSION;
-
-        File.Delete(filePath);
     }
 
     #endregion Saving and Loading
@@ -413,12 +197,29 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        
+        MultiOptionAction faderAction = new MultiOptionAction("Fader", () => NewController(ControllerType.Fader));
+        MultiOptionAction controller2DAction = new MultiOptionAction("2D Controller", () => NewController(ControllerType.Controller2D));
+        Utilities.instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction);
     }
 
-    void NewFader()
+    void NewController(ControllerType _type)
     {
-        FaderData newControl = new FaderData(NEW_CONTROLLER_NAME, new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
+        ControllerData newControl;
+
+        switch (_type)
+        {
+            case ControllerType.Fader:
+                newControl = new FaderData(defaultFader);
+                break;
+            case ControllerType.Controller2D:
+                newControl = new Controller2DData(defaultController2D);
+                break;
+            default:
+                newControl = null;
+                Debug.LogError($"Controller type {_type} not implemented in ControlsManager", this);
+                break;
+        }
+
         GameObject newController = SpawnController(newControl);
 
         if (newController != null)
@@ -438,7 +239,7 @@ public class ControlsManager : MonoBehaviour
 
         UIManager.instance.SpawnControllerOptions(_data, control);
 
-        if(!controllers.Contains(_data))
+        if(!Controllers.Contains(_data))
         {
             controllers.Add(_data);
         }
@@ -506,30 +307,6 @@ public class ControlsManager : MonoBehaviour
         return null;
     }
 
-
-    [Serializable]
-    class ProfileSaveData
-    {
-        public List<ControllerData> controllers;
-        public string name = null;
-
-        public ProfileSaveData(List<ControllerData> _controllerData, string _name)
-        {
-            controllers = _controllerData;
-            name = _name;
-        }
-
-        public List<ControllerData> GetControllers()
-        {
-            return controllers;
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-    }
-
     //used to pair prefabs with their control type
     [Serializable]
     struct ControllerPrefabs
@@ -542,7 +319,7 @@ public class ControlsManager : MonoBehaviour
     public abstract class ControllerData
     {
         [SerializeField] protected string name;
-        [SerializeField] protected List<ControllerSettings> controllers;
+        [SerializeField] protected List<ControllerSettings> controllers = new List<ControllerSettings>();
         [SerializeField] protected int position = NULL_POSITION;
         [SerializeField] protected bool enabled = true;
         [SerializeField] protected float width = 1f;
@@ -588,6 +365,11 @@ public class ControlsManager : MonoBehaviour
         {
             enabled = _enabled;
         }
+
+        public void SetWidth(float value)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [Serializable]
@@ -595,7 +377,6 @@ public class ControlsManager : MonoBehaviour
     {
         public FaderData(string name, ControllerSettings config)
         {
-            controllers = new List<ControllerSettings>();
             controllers.Add(config);
             this.name = name;
         }
@@ -634,56 +415,5 @@ public class ControlsManager : MonoBehaviour
         }
     }
 
-    [Serializable]
-    class ProfilesMetadata
-    {
-        [SerializeField] List<string> profileNames;
-        [SerializeField] string defaultProfileName;
-
-        public ProfilesMetadata(List<string> _profileNames)
-        {
-            profileNames = _profileNames;
-            defaultProfileName = DEFAULT_SAVE_NAME;
-        }
-
-        public void AddProfile(string _name)
-        {
-            profileNames.Add(_name);
-        }
-
-        public void RemoveProfile(string _name)
-        {
-            profileNames.Remove(_name);
-
-            if(_name == defaultProfileName)
-            {
-                defaultProfileName = DEFAULT_SAVE_NAME;
-            }
-        }
-
-        public List<string> GetNames()
-        {
-            return profileNames;
-        }
-
-        public string GetDefaultProfileName()
-        {
-            return defaultProfileName;
-        }
-
-        public void SetDefaultProfile(string _name)
-        {
-            defaultProfileName = _name;
-        }
-    }
-
-    public class Profile
-    {
-        public string name;
-
-        public Profile(string _name)
-        {
-            name = _name;
-		}
-	}
+    
 }

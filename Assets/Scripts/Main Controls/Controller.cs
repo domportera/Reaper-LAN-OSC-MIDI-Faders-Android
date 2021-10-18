@@ -178,7 +178,7 @@ public class Controller : MonoBehaviour
 
     public void ReturnToCenter()
     {
-        if (controllerSettings.controlType == ControlBehaviorType.ReturnToCenter)
+        if (controllerSettings.controlType == ControlBehaviorType.ReturnToDefault)
         {
             SetValue(MapValueToCurve(controllerSettings.defaultValue, true));
         }

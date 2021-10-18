@@ -11,7 +11,6 @@ public class ControllerOptionsMenu : MonoBehaviour
 {
     public ControllerSettings controllerConfig;
 
-    //[SerializeField] InputField nameField = null;
     [SerializeField] InputField ccChannelField = null;
     [SerializeField] Slider smoothnessField = null;
     [SerializeField] Dropdown controlTypeDropdown = null;
@@ -31,7 +30,6 @@ public class ControllerOptionsMenu : MonoBehaviour
     {
         InitializeUI();
         CheckForCCControl((int)controllerConfig.addressType);
-        gameObject.SetActive(false);
     }
 
     private void InitializeUI()

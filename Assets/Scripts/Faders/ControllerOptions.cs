@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.UI;
 using static ControlsManager;
 
-public class ControllerOptions : MonoBehaviour
+public abstract class ControllerOptions : MonoBehaviour
 {
     [SerializeField] protected InputField nameField;
     [SerializeField] protected Slider widthSlider;
@@ -21,6 +22,11 @@ public class ControllerOptions : MonoBehaviour
         applyButton.onClick.AddListener(Apply);
         closeButton.onClick.AddListener(Close);
         deleteButton.onClick.AddListener(Delete);
+    }
+
+    protected void Start()
+    {
+        gameObject.SetActive(false);
     }
 
     protected void BaseInitialize(ControllerData _data, RectTransform _controlObjectTransform)
@@ -42,18 +48,18 @@ public class ControllerOptions : MonoBehaviour
         nameField.SetTextWithoutNotify(_input);
     }
 
-    protected virtual void SetControllerValuesToFields(ControllerOptionsMenu _menu)
+    protected void SetControllerMasterVariables()
     {
         string controllerName = nameField.text;
-        //_ = VerifyUniqueName(nameField.text); //not sure if this is necessary - should be tested. Disabling for now
         controlData.SetName(controllerName);
+        //controlData.SetWidth(widthSlider.value);
     }
 
 
     protected bool VerifyUniqueName(string _s)
     {
         bool valid = true;
-        List<ControllerData> controllers = ControlsManager.instance.GetAllControllers();
+        ReadOnlyCollection<ControllerData> controllers = ControlsManager.instance.Controllers;
 
         foreach (ControllerData set in controllers)
         {
@@ -82,6 +88,7 @@ public class ControllerOptions : MonoBehaviour
 
     protected virtual void Apply()
     {
+        SetControllerMasterVariables();
         ControlsManager.instance.RespawnController(controlData);
         Utilities.instance.ConfirmationWindow("Settings applied!");
     }

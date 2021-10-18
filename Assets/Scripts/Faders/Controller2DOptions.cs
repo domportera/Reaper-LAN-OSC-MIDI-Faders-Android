@@ -18,15 +18,10 @@ public class Controller2DOptions : ControllerOptions
         BaseInitialize(_data, _controlObjectTransform);
     }
 
-    protected override void SetControllerValuesToFields(ControllerOptionsMenu _menu)
-    {
-        base.SetControllerValuesToFields(_menu);
-        horizontalOptions.SetControllerValuesToFields();
-        verticalOptions.SetControllerValuesToFields();
-    }
-
     protected override void Apply()
     {
+        horizontalOptions.SetControllerValuesToFields();
+        verticalOptions.SetControllerValuesToFields();
         base.Apply();
     }
 }

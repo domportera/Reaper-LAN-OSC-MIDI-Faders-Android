@@ -26,7 +26,7 @@ public class ColorController : MonoBehaviour
     #endregion Serialized Fields
 
     #region Profile Variables
-    const string DEFAULT_COLOR_PROFILE = ControlsManager.DEFAULT_SAVE_NAME + " Colors";
+    const string DEFAULT_COLOR_PROFILE = ProfilesManager.DEFAULT_SAVE_NAME + " Colors";
     ColorType currentColorType = ColorType.Background;
     string fileExtensionProfiles = ".color";
     string profilesBasePath;
@@ -82,7 +82,6 @@ public class ColorController : MonoBehaviour
     {
         profilesBasePath = Path.Combine(Application.persistentDataPath, colorsFolder, "Profiles");
         presetsBasePath = Path.Combine(Application.persistentDataPath, colorsFolder, "Presets");
-        CheckBasePath();
 
         SingletonSetup();
         InitializeUI();
@@ -311,31 +310,33 @@ public class ColorController : MonoBehaviour
             return;
         }
 
-        string path = Path.Combine(profilesBasePath, _name + fileExtensionProfiles);
-        string json = JsonUtility.ToJson(CurrentColorProfile, true);
-        File.WriteAllText(path, json);
+        bool saved = FileHandler.SaveJson(CurrentColorProfile, profilesBasePath, _name, fileExtensionProfiles);
 
-        if (_name != DEFAULT_COLOR_PROFILE)
+        if (saved)
         {
-            Utilities.instance.ConfirmationWindow($"Saved color profile for {_name}!");
+            if (_name != DEFAULT_COLOR_PROFILE)
+            {
+                Utilities.instance.ConfirmationWindow($"Saved color profile for {_name}!");
+            }
+            else
+            {
+                Utilities.instance.ConfirmationWindow($"Set default colors!");
+            }
         }
         else
         {
-            Utilities.instance.ConfirmationWindow($"Set default colors!");
+            Utilities.instance.ErrorWindow($"Error saving colors for profile {_name}. Check Log for details.");
         }
-
-
-        Debug.Log($"Saved\n" + json);
     }
 
     ColorProfile GetDefaultColorProfile()
     {
-        string path = Path.Combine(profilesBasePath, DEFAULT_COLOR_PROFILE + fileExtensionProfiles);
+        ColorProfile defaultProfile = FileHandler.LoadJson<ColorProfile>(profilesBasePath, DEFAULT_COLOR_PROFILE, fileExtensionProfiles);
 
-        if (File.Exists(path))
+        if (defaultProfile != null)
         {
             //load that file and set as current color profile
-            return GetColorProfileFromFile(path);
+            return defaultProfile;
         }
         else
         {
@@ -343,38 +344,19 @@ public class ColorController : MonoBehaviour
         }
     }
 
-    ColorProfile GetColorProfileFromFile(string _path)
-    {
-        string json = File.ReadAllText(_path);
-        return JsonUtility.FromJson<ColorProfile>(json);
-    }
-
-    void CheckBasePath()
-    {
-        if (!Directory.Exists(profilesBasePath))
-        {
-            Directory.CreateDirectory(profilesBasePath);
-        }
-
-        if (!Directory.Exists(presetsBasePath))
-        {
-            Directory.CreateDirectory(presetsBasePath);
-        }
-    }
-
     void LoadAndSetColorProfile(string _profile)
     {
-        if (_profile == ControlsManager.DEFAULT_SAVE_NAME)
+        if (_profile == ProfilesManager.DEFAULT_SAVE_NAME)
         {
             _profile = DEFAULT_COLOR_PROFILE;
         }
 
-        string fullPath = Path.Combine(profilesBasePath, _profile + fileExtensionProfiles);
+        ColorProfile colorProfile = FileHandler.LoadJson<ColorProfile>(profilesBasePath, _profile, fileExtensionProfiles);
 
-        if (File.Exists(fullPath))
+        if (colorProfile != null)
         {
             //load that file and set as current color profile
-            CurrentColorProfile = GetColorProfileFromFile(fullPath);
+            CurrentColorProfile = colorProfile;
         }
         else
         {
@@ -382,11 +364,12 @@ public class ColorController : MonoBehaviour
             CurrentColorProfile = new ColorProfile(GetDefaultColorProfile(), _profile);
         }
 
-        Debug.Log($"Loaded Colors\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
+        Debug.Log($"Loaded Colors: {CurrentColorProfile.name}\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
 
         UpdateAppColors();
         SetSlidersToCurrentColor();
     }
+
     void RevertColorProfile()
     {
         LoadAndSetColorProfile(CurrentColorProfile.name);
@@ -399,6 +382,11 @@ public class ColorController : MonoBehaviour
 
     string[] GetPresetNames()
     {
+        if(!Directory.Exists(presetsBasePath))
+        {
+            return new string[0];
+        }
+
         string[] fileNames = Directory.GetFiles(presetsBasePath, "*" + fileExtensionPresets);
 
         for (int i = 0; i < fileNames.Length; i++)
@@ -440,12 +428,11 @@ public class ColorController : MonoBehaviour
 
     ColorPreset LoadPreset(string _name)
     {
-        string path = Path.Combine(presetsBasePath, _name + fileExtensionPresets);
-        if (File.Exists(path))
+        ColorPreset preset = FileHandler.LoadJson<ColorPreset>(presetsBasePath, _name, fileExtensionPresets);
+
+        if (preset != null)
         {
-            //load
-            string json = File.ReadAllText(path);
-            return JsonUtility.FromJson<ColorPreset>(json);
+            return preset;
         }
         else
         {
@@ -479,10 +466,16 @@ public class ColorController : MonoBehaviour
 
         ColorPreset preset = ColorPreset.ProfileToPreset(CurrentColorProfile);
         preset.name = _name;
-        string json = JsonUtility.ToJson(preset, true);
-        string path = Path.Combine(presetsBasePath, preset.name + fileExtensionPresets);
-        File.WriteAllText(path, json);
-        Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
+        bool saved = FileHandler.SaveJson(preset, presetsBasePath, preset.name, fileExtensionPresets);
+
+        if (saved)
+        {
+            Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
+        }
+        else
+        {
+            Utilities.instance.ErrorWindow($"Error saving preset {preset.name}. Check the Log for details.");
+        }
 
         AddPresetSelectorAfterSave(preset);
     }
@@ -498,18 +491,17 @@ public class ColorController : MonoBehaviour
     {
         string presetName = currentPresetSelection;
 
-        string path = Path.Combine(presetsBasePath, presetName + fileExtensionPresets);
+        bool deleted = FileHandler.DeleteFile(presetsBasePath, presetName, fileExtensionPresets);
 
-        if (File.Exists(path))
+        if (deleted)
         {
-            File.Delete(path);
             RemoveUserPresetSelector(presetName);
             Utilities.instance.ConfirmationWindow($"{presetName} preset deleted!");
         }
         else
         {
             Debug.LogError($"No preset found to delete with name {presetName}");
-            Utilities.instance.ErrorWindow($"Error deleting preset {presetName}");
+            Utilities.instance.ErrorWindow($"Error deleting preset {presetName}. Check the Log for details.");
         }
     }
 
