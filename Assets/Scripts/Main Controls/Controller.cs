@@ -7,8 +7,6 @@ using UnityEngine.UI;
 public class Controller : MonoBehaviour
 {
     [SerializeField] OscPropertySender oscSender;
-    [SerializeField] Button sortLeftButton = null;
-    [SerializeField] Button sortRightButton = null;
     public ControllerSettings controllerSettings { get; private set; }
 
     public float modValue { get; private set; }
@@ -42,57 +40,11 @@ public class Controller : MonoBehaviour
         oscSender.SetAddress(controllerSettings.GetAddress());
 
         //load default values
-        int defaultValue = controllerSettings.defaultValue;
+        int defaultValue = controllerSettings.DefaultValue;
         modValue = defaultValue;
         pModValue = defaultValue;
         targetModValue = defaultValue;
-
-        InitializeSorting();
     }
-
-    #region Sorting
-    void InitializeSorting()
-    {
-        if(sortLeftButton == null || sortRightButton == null)
-        {
-            Debug.LogError($"Sort button null - assign in inspector", this);
-            return;
-        }
-
-        if (sortLeftButton.onClick.GetPersistentEventCount() == 0)
-        {
-            sortLeftButton.onClick.AddListener(SortLeft);
-            sortRightButton.onClick.AddListener(SortRight);
-        }
-
-        SetSortButtonVisibility(false);
-    }
-    public virtual void SetSortButtonVisibility(bool _visible)
-    {
-        if (sortLeftButton == null || sortRightButton == null)
-        {
-            Debug.LogError($"Sort button null - assign in inspector", this);
-            return;
-        }
-
-        sortLeftButton.gameObject.SetActive(_visible);
-        sortRightButton.gameObject.SetActive(_visible);
-    }
-    void SortLeft()
-    {
-        SortPosition(false);
-    }
-
-    void SortRight()
-    {
-        SortPosition(true);
-    }
-
-    void SortPosition(bool _right)
-    {
-        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
-    }
-    #endregion Sorting
 
     #region Mod Value Manipulation
     protected void SetValue(float _val)
@@ -107,29 +59,28 @@ public class Controller : MonoBehaviour
 
     public void SetValueAsPercentage (float _val)
     {
-        targetModValue = Mathf.Lerp(controllerSettings.min, controllerSettings.max, Mathf.Clamp01(_val));
+        targetModValue = Mathf.Lerp(controllerSettings.Min, controllerSettings.Max, Mathf.Clamp01(_val));
     }
 
     protected int MapValueToCurve(float _value, bool _inverse)
     {
-        if (controllerSettings.curveType != CurveType.Linear)
+        if (controllerSettings.Curve != CurveType.Linear)
         {
-
             int range = controllerSettings.GetRange();
-            float tempVal = _value - controllerSettings.min;
+            float tempVal = _value - controllerSettings.Min;
             float ratio = tempVal / range;
             float mappedRatio;
 
             if (_inverse)
             {
-                mappedRatio = controllerSettings.curveType == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio);
+                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio);
             }
             else
             {
-                mappedRatio = controllerSettings.curveType == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
+                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
             }
 
-            return (int)(mappedRatio * range + controllerSettings.min);
+            return (int)(mappedRatio * range + controllerSettings.Min);
         }
         else
         {
@@ -147,14 +98,14 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        bool shouldSmooth = controllerSettings.smoothTime <= 0;
+        bool shouldSmooth = controllerSettings.SmoothTime <= 0;
         if (shouldSmooth)
         {
             modValue = targetModValue;
         }
         else
         {
-            float difference = (controllerSettings.max - controllerSettings.min) * Time.deltaTime / controllerSettings.smoothTime;
+            float difference = (controllerSettings.Max - controllerSettings.Min) * Time.deltaTime / controllerSettings.SmoothTime;
 
             //set to idle if close enough to zero
             if (Mathf.Abs(modValue - targetModValue) < difference)
@@ -178,9 +129,9 @@ public class Controller : MonoBehaviour
 
     public void ReturnToCenter()
     {
-        if (controllerSettings.controlType == ControlBehaviorType.ReturnToDefault)
+        if (controllerSettings.ControlType == ControlBehaviorType.ReturnToDefault)
         {
-            SetValue(MapValueToCurve(controllerSettings.defaultValue, true));
+            SetValue(MapValueToCurve(controllerSettings.DefaultValue, true));
         }
     }
     #endregion Mod Value Manipulation
@@ -209,4 +160,13 @@ public class Controller : MonoBehaviour
     }
 
     #endregion OSC Communication
+}
+
+interface ISortingMember
+{
+    void InitializeSorting();
+    void SetSortButtonVisibility(bool _visible);
+    void SortLeft();
+    void SortRight();
+    void SortPosition(bool _right);
 }

@@ -6,9 +6,9 @@ using System.Reflection;
 public enum ControlBehaviorType { Normal, ReturnToDefault };
 public enum ControllerType { Fader, Controller2D };
 public enum DefaultValueType { Min, Mid, Max };
-public enum AddressType { MidiCC, MidiPitch, MidiAftertouch };
+public enum OSCAddressType { MidiCC, MidiPitch, MidiAftertouch };
 public enum CurveType { Linear, Exponential, Logarithmic}
-public enum InputType { Touch }
+public enum InputMethod { Touch }
 public enum ValueRange
 {
     [Description("7-bit (0-127)")]      SevenBit,

@@ -6,39 +6,48 @@ using UnityEngine.Events;
 [System.Serializable]
 public class ControllerSettings
 {
-    public ControlBehaviorType controlType;
-    public InputType inputType;
-    string address;
-    public MIDIChannel channel;
-    public ValueRange range;
-    public DefaultValueType defaultType;
-    public int min;
-    public int max;
-    public int mid;
-    public int defaultValue;
-    public float smoothTime;
-    public CurveType curveType;
-    public UnityEvent OnUpdate = new UnityEvent();
-    public AddressType addressType;
-    public int ccNumber;
-    int id; //not currently in use, could be useful some day?
+    [SerializeField] ControlBehaviorType controlType;
+    [SerializeField] InputMethod inputType;
+    [SerializeField] MIDIChannel channel;
+    [SerializeField] ValueRange range;
+    [SerializeField] DefaultValueType defaultType;
+    [SerializeField] int min;
+    [SerializeField] int max;
+    [SerializeField] int mid;
+    [SerializeField] int defaultValue;
+    [SerializeField] float smoothTime;
+    [SerializeField] CurveType curveType;
+    [SerializeField] int ccNumber;
+    [SerializeField] OSCAddressType addressType;
 
-    public string profileName;
+    public ControlBehaviorType ControlType { get { return controlType; } }
+    public InputMethod InputType { get { return inputType; } }
+    public MIDIChannel Channel { get { return channel; } }
+    public ValueRange Range { get { return range; } }
+    public DefaultValueType DefaultType { get { return defaultType; } }
+    public int Min { get { return min; } }
+    public int Max { get { return max; } }
+    public int Mid { get { return mid; } }
+    public int DefaultValue { get { return defaultValue; } }
+    public float SmoothTime { get { return smoothTime; } }
+    public CurveType Curve { get { return curveType; } }
+    public int CCNumber { get { return ccNumber; } }
+    public OSCAddressType AddressType { get { return addressType; } }
+
+    string address;
 
     public ControllerSettings(ControllerSettings _c)
     {
         SetVariables(_c.inputType, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
-        id = ControlsManager.GetUniqueID();
     }
 
-    public ControllerSettings(InputType _inputType, ControlBehaviorType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public ControllerSettings(InputMethod _inputType, ControlBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {
         SetVariables(_inputType, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
-        id = ControlsManager.GetUniqueID();
     }
 
-    public void SetVariables(InputType _inputType, ControlBehaviorType _controlType, AddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public void SetVariables(InputMethod _inputType, ControlBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber, float _smoothTime)
     {
         //add channel if not set to all channels
@@ -62,31 +71,21 @@ public class ControllerSettings
         addressType = _addressType;
     }
 
-    public int GetID()
-    {
-        return id;
-    }
-
-    public void SetNewID()
-    {
-        id = ControlsManager.GetUniqueID();
-    }
-
-    void SetAddress(AddressType _type, int _ccNumber)
+    void SetAddress(OSCAddressType _type, int _ccNumber)
     {
         switch (_type)
         {
-            case AddressType.MidiCC:
+            case OSCAddressType.MidiCC:
                 if (_ccNumber < 0 || _ccNumber > 127)
                 {
                     _ccNumber = 127;
                 }
                 address += "cc/" + _ccNumber;
                 break;
-            case AddressType.MidiAftertouch:
+            case OSCAddressType.MidiAftertouch:
                 address += "channelPressure";
                 break;
-            case AddressType.MidiPitch:
+            case OSCAddressType.MidiPitch:
                 address += "pitch";
                 break;
             default:
@@ -138,6 +137,8 @@ public class ControllerSettings
                 break;
         }
     }
+
+    #region Getters
     public int GetRange()
     {
         return Mathf.Abs(max - min) + 1; //since we're using  ints, 0-127 is actually 128 total values, so +1
@@ -147,4 +148,5 @@ public class ControllerSettings
     {
         return address;
     }
+    #endregion Getters
 }

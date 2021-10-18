@@ -12,17 +12,6 @@ public class ControlsManager : MonoBehaviourExtended
     //this class needs to create our wheel controls
     [SerializeField] RectTransform controllerParent = null;
 
-    public static readonly List<ControllerData> defaultControllers = new List<ControllerData>
-    {
-        new FaderData("Pitch",          new ControllerSettings(InputType.Touch,    ControlBehaviorType.ReturnToDefault,     AddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
-        new FaderData("Mod",            new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 1)),
-        new FaderData("Foot Pedal",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 4)),
-        new FaderData("Expression",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 11)),
-        new FaderData("Breath Control", new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 2)),
-        new FaderData("Aftertouch",     new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiAftertouch,      ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
-        new FaderData("Volume",         new ControllerSettings(InputType.Touch,    ControlBehaviorType.Normal,             AddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 7))
-    };
-
     [SerializeField] ControllerPrefabs[] controllerPrefabs = null;
 
     List<ControllerData> controllers = new List<ControllerData>();
@@ -30,22 +19,45 @@ public class ControlsManager : MonoBehaviourExtended
 
     Dictionary<ControllerData, GameObject> controllerObjects = new Dictionary<ControllerData, GameObject>();
 
-    static int uniqueIDGen = 0;
+    #region Default Controller Values
+    public static readonly List<ControllerData> defaultControllers = new List<ControllerData>
+    {
+        new FaderData("Pitch",          new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.ReturnToDefault,     OSCAddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
+        new FaderData("Mod",            new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 1)),
+        new FaderData("Foot Pedal",     new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 4)),
+        new FaderData("Expression",     new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 11)),
+        new FaderData("Breath Control", new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 2)),
+        new FaderData("Aftertouch",     new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiAftertouch,      ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear)),
+        new FaderData("Volume",         new ControllerSettings(InputMethod.Touch,    ControlBehaviorType.Normal,             OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid, MIDIChannel.All, CurveType.Linear, 7))
+    };
 
-    public const string NEW_CONTROLLER_NAME = "New Controller";
+    const string NEW_FADER_NAME = "New Fader";
+    const string NEW_CONTROLLER_2D_NAME = "New 2D Controller";
 
-    readonly FaderData defaultFader = new FaderData(NEW_CONTROLLER_NAME,
-        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
+    static readonly Dictionary<ControllerType, string> newControllerNames = new Dictionary<ControllerType, string>()
+    {
+        { ControllerType.Fader, NEW_FADER_NAME },
+        { ControllerType.Controller2D, NEW_CONTROLLER_2D_NAME }
+    };
 
-    readonly Controller2DData defaultController2D = new Controller2DData(NEW_CONTROLLER_NAME,
-        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
-        new ControllerSettings(InputType.Touch, ControlBehaviorType.Normal, AddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11));
+    public static string GetDefaultControllerName(ControllerData _controller)
+    {
+        ControllerType type = controllerTypes[_controller.GetType()];
+        return newControllerNames[type];
+    }
 
+    readonly FaderData defaultFader = new FaderData(NEW_FADER_NAME,
+        new ControllerSettings(InputMethod.Touch, ControlBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
+
+    readonly Controller2DData defaultController2D = new Controller2DData(NEW_CONTROLLER_2D_NAME,
+        new ControllerSettings(InputMethod.Touch, ControlBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
+        new ControllerSettings(InputMethod.Touch, ControlBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11));
+    #endregion Default Controller Values
 
     public class ProfileEvent : UnityEvent<string> { }
     public ProfileEvent OnProfileLoaded = new ProfileEvent();
 
-    readonly Dictionary<Type, ControllerType> controllerTypes = new Dictionary<Type, ControllerType>()
+    public static readonly Dictionary<Type, ControllerType> controllerTypes = new Dictionary<Type, ControllerType>()
     {
         {typeof(FaderData), ControllerType.Fader },
         {typeof(Controller2DData), ControllerType.Controller2D }
@@ -175,11 +187,6 @@ public class ControlsManager : MonoBehaviourExtended
     }
 
     #endregion Saving and Loading
-
-    public static int GetUniqueID()
-    {
-        return uniqueIDGen++;
-    }
 
     void SpawnControllers(List<ControllerData> _controllers, bool _isDefault = false)
     {

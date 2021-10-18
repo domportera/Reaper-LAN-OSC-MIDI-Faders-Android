@@ -632,12 +632,8 @@ MonoBehaviour:
     defaultValue: 0
     smoothTime: 0
     curveType: 0
-    OnUpdate:
-      m_PersistentCalls:
-        m_Calls: []
-    addressType: 0
     ccNumber: 0
-    profileName: 
+    addressType: 0
   ccChannelField: {fileID: 3049014047308417119}
   smoothnessField: {fileID: 6291279662669614102}
   controlTypeDropdown: {fileID: 5301422954332506711}
@@ -2531,6 +2527,46 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1297043136570913063}
     m_Modifications:
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 104.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -33
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246159864021621590, guid: d00d406103daa36459ab6903f056c18d,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5937110715140160397, guid: d00d406103daa36459ab6903f056c18d,
         type: 3}
       propertyPath: colorType
@@ -3185,7 +3221,7 @@ PrefabInstance:
     - target: {fileID: 2408145027948096139, guid: 4bb426d7a31d6d94a94a198d4d09d115,
         type: 3}
       propertyPath: m_Text
-      value: Smoothing
+      value: Width
       objectReference: {fileID: 0}
     - target: {fileID: 2408145027948096139, guid: 4bb426d7a31d6d94a94a198d4d09d115,
         type: 3}

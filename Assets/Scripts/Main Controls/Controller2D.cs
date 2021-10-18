@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Controller2D : MonoBehaviour
+public class Controller2D : MonoBehaviour, ISortingMember
 {
     [Header("Visuals")]
     [SerializeField] RectTransform horizontalLine;
@@ -22,7 +22,15 @@ public class Controller2D : MonoBehaviour
     [SerializeField] EventTrigger eventTrigger;
 
     [Header("Aesthetics")]
+    [SerializeField] bool showBorder;
     [SerializeField] GameObject border;
+    [SerializeField] Text title;
+
+    [SerializeField] List<Image> controlImages = new List<Image>();
+
+    [Header("Sorting")]
+    [SerializeField] Button sortLeftButton;
+    [SerializeField] Button sortRightButton;
 
     bool moving = false;
 
@@ -44,12 +52,13 @@ public class Controller2D : MonoBehaviour
 #endif
         currentTouchPosition = NULL_VEC;
         originalWidth = buttonRect.rect.width;
-        InitializeButtonInteraction();
+
+        border.SetActive(showBorder);
     }
 
     private void Start()
     {
-        
+        InitializeButtonInteraction();
     }
 
     enum RectBounds { Left, Right, Top, Bottom }
@@ -70,11 +79,8 @@ public class Controller2D : MonoBehaviour
         verticalController.Initialize(_data, 0);
         horizontalController.Initialize(_data, 1);
         controlData = _data;
-    }
-
-    public void SetSortButtonVisibility(bool _visible)
-    {
-        throw new NotImplementedException();
+        title.text = _data.GetName();
+        InitializeSorting();
     }
 
     void InitializeButtonInteraction()
@@ -104,11 +110,11 @@ public class Controller2D : MonoBehaviour
 
     void MoveComponentsWithMIDI()
     {
-        float xPercent = Mathf.InverseLerp(horizontalController.controllerSettings.min,
-            horizontalController.controllerSettings.max,
+        float xPercent = Mathf.InverseLerp(horizontalController.controllerSettings.Min,
+            horizontalController.controllerSettings.Max,
             horizontalController.modValue);
-        float yPercent = Mathf.InverseLerp(verticalController.controllerSettings.min,
-            verticalController.controllerSettings.max,
+        float yPercent = Mathf.InverseLerp(verticalController.controllerSettings.Min,
+            verticalController.controllerSettings.Max,
             verticalController.modValue);
 
         float xMin = GetRectLocalBounds(RectBounds.Left, buttonRect) + interactionPadding;
@@ -263,5 +269,38 @@ public class Controller2D : MonoBehaviour
         public ControllerSettings verticalController;
     }
 
+    #region Sorting
+    public void InitializeSorting()
+    {
+        sortLeftButton.onClick.AddListener(SortLeft);
+        sortRightButton.onClick.AddListener(SortRight);
+        SetSortButtonVisibility(false);
+    }
+
+    public void SetSortButtonVisibility(bool _visible)
+    {
+        sortLeftButton.gameObject.SetActive(_visible);
+        sortRightButton.gameObject.SetActive(_visible);
+        foreach (Image i in controlImages)
+        {
+            i.enabled = !_visible;
+        }
+    }
+
+    public void SortLeft()
+    {
+        SortPosition(false);
+    }
+
+    public void SortRight()
+    {
+        SortPosition(true);
+    }
+
+    public void SortPosition(bool _right)
+    {
+        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
+    }
+    #endregion Sorting
 
 }

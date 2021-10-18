@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviourExtended
     [SerializeField] Button faderPositionEnableButton = null;
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
+    [SerializeField] Button optionsButtonSortingButton = null;
 
     [SerializeField] Button setupButton;
     [SerializeField] Button closeSetupButton;
@@ -62,6 +63,8 @@ public class UIManager : MonoBehaviourExtended
 
     public static UIManager instance;
 
+    bool sortOptionsByName = false;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -86,6 +89,8 @@ public class UIManager : MonoBehaviourExtended
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
         faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
+        optionsButtonSortingButton.onClick.AddListener(() => SwitchOptionsButtonSorting(!sortOptionsByName));
+        SwitchOptionsButtonSorting(false);
         newControllerButton.onClick.AddListener(ControlsManager.instance.NewController);
 
         UnityAction toggleSetup = () => setupPanel.SetActive(!setupPanel.activeSelf);
@@ -98,6 +103,13 @@ public class UIManager : MonoBehaviourExtended
 
         InitializeCreditsButtons();
         InitializeDonationButtons();
+    }
+
+    private void SwitchOptionsButtonSorting(bool _byName)
+    {
+        sortOptionsByName = _byName;
+        optionsButtonSortingButton.GetComponentInChildren<Text>().text = $"Sort Options: {(sortOptionsByName ? "Name" : "Layout")}";
+        SortOptionsButtons();
     }
 
     //used by options button in scene
@@ -307,7 +319,7 @@ public class UIManager : MonoBehaviourExtended
         List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
         for (int i = 0; i < controllerUIs.Count; i++)
         {
-            if(controllerUIs[i].controllerConfig.GetName() == NEW_CONTROLLER_NAME)
+            if (controllerUIs[i].controllerConfig.GetName() == ControlsManager.GetDefaultControllerName(controllerUIs[i].controllerConfig))
             {
                 unnamedControls.Add(controllerUIs[i]);
                 controllerUIs.Remove(controllerUIs[i]);
@@ -316,7 +328,14 @@ public class UIManager : MonoBehaviourExtended
         }
 
         //sort buttons
-        controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetPosition().CompareTo(s2.controllerConfig.GetPosition()));
+        if (sortOptionsByName)
+        {
+            controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetName().CompareTo(s2.controllerConfig.GetName()));
+        }
+        else
+        {
+            controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetPosition().CompareTo(s2.controllerConfig.GetPosition()));
+        }
 
         //add unnamed ones to the end
         foreach (ControllerUIGroup c in unnamedControls)
@@ -345,11 +364,6 @@ public class UIManager : MonoBehaviourExtended
         optionsButton.gameObject.SetActive(!positionMode);
         optionsPanel.SetActive(!positionMode);
         faderPositionExitButton.gameObject.SetActive(positionMode);
-
-        if(!positionMode)
-        {
-            Utilities.instance.ConfirmationWindow("Don't forget to save!");
-        }
     }
 
     public LayoutGroup GetControllerLayoutGroup()

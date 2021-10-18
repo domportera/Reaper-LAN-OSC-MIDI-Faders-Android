@@ -29,7 +29,7 @@ public class ControllerOptionsMenu : MonoBehaviour
     void Start()
     {
         InitializeUI();
-        CheckForCCControl((int)controllerConfig.addressType);
+        CheckForCCControl((int)controllerConfig.AddressType);
     }
 
     private void InitializeUI()
@@ -48,7 +48,7 @@ public class ControllerOptionsMenu : MonoBehaviour
 
     public void CheckForCCControl(int _value)
     {
-        if ((AddressType)_value == AddressType.MidiCC)
+        if ((OSCAddressType)_value == OSCAddressType.MidiCC)
         {
             ccChannelField.gameObject.SetActive(true);
         }
@@ -61,21 +61,21 @@ public class ControllerOptionsMenu : MonoBehaviour
 
     void AddressTypeMenuChange(int _val)
     {
-        switch((AddressType)_val)
+        switch((OSCAddressType)_val)
         {
-            case AddressType.MidiCC:
+            case OSCAddressType.MidiCC:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
                 valueRangeDropdown.gameObject.SetActive(true);
                 ccChannelField.SetTextWithoutNotify("");
                 ccChannelField.gameObject.SetActive(true);
                 break;
-            case AddressType.MidiPitch:
+            case OSCAddressType.MidiPitch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
                 valueRangeDropdown.gameObject.SetActive(true);
                 ccChannelField.SetTextWithoutNotify("");
                 ccChannelField.gameObject.SetActive(false);
                 break;
-            case AddressType.MidiAftertouch:
+            case OSCAddressType.MidiAftertouch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
                 valueRangeDropdown.gameObject.SetActive(false);
                 ccChannelField.SetTextWithoutNotify("");
@@ -94,28 +94,28 @@ public class ControllerOptionsMenu : MonoBehaviour
 
     void SetFieldsToControllerValues()
     {
-        controlTypeDropdown.SetValueWithoutNotify((int)controllerConfig.controlType);
-        midiChannelDropdown.SetValueWithoutNotify((int)controllerConfig.channel);
-        addressTypeDropdown.SetValueWithoutNotify((int)controllerConfig.addressType);
-        valueRangeDropdown.SetValueWithoutNotify((int)controllerConfig.range);
-        defaultValueDropdown.SetValueWithoutNotify((int)controllerConfig.defaultType);
-        curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.curveType);
+        controlTypeDropdown.SetValueWithoutNotify((int)controllerConfig.ControlType);
+        midiChannelDropdown.SetValueWithoutNotify((int)controllerConfig.Channel);
+        addressTypeDropdown.SetValueWithoutNotify((int)controllerConfig.AddressType);
+        valueRangeDropdown.SetValueWithoutNotify((int)controllerConfig.Range);
+        defaultValueDropdown.SetValueWithoutNotify((int)controllerConfig.DefaultType);
+        curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.Curve);
 
-        smoothnessField.SetValueWithoutNotify(controllerConfig.smoothTime);
-        ccChannelField.SetTextWithoutNotify(controllerConfig.ccNumber.ToString());
+        smoothnessField.SetValueWithoutNotify(controllerConfig.SmoothTime);
+        ccChannelField.SetTextWithoutNotify(controllerConfig.CCNumber.ToString());
 
-        AddressTypeMenuChange((int)controllerConfig.addressType);
+        AddressTypeMenuChange((int)controllerConfig.AddressType);
     }
 
     public void SetControllerValuesToFields()
     {
         ControlBehaviorType controlType = (ControlBehaviorType)controlTypeDropdown.value;
-        AddressType addressType = (AddressType)addressTypeDropdown.value;
+        OSCAddressType addressType = (OSCAddressType)addressTypeDropdown.value;
         DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
         CurveType curveType = (CurveType)curveTypeDropdown.value;
         MIDIChannel midiChannel = (MIDIChannel)(midiChannelDropdown.value - 1); //-1 because all channels is -1 in the enum, channel 1 is 0 in the enum, etc
         ValueRange valueRange = (ValueRange)(valueRangeDropdown.value);
-        InputType inputType = InputType.Touch; //hard-coded for now until other input types are implemented
+        InputMethod inputType = InputMethod.Touch; //hard-coded for now until other input types are implemented
 
         float smoothTime = smoothnessField.value;
 
@@ -128,7 +128,7 @@ public class ControllerOptionsMenu : MonoBehaviour
     void PopulateDropdowns()
     {
         dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlBehaviorType)));
-        dropDownEntryNames.Add(addressTypeDropdown, Enum.GetNames(typeof(AddressType)));
+        dropDownEntryNames.Add(addressTypeDropdown, Enum.GetNames(typeof(OSCAddressType)));
         dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
         dropDownEntryNames.Add(midiChannelDropdown, EnumUtility.GetMidiChannelNameArray());
