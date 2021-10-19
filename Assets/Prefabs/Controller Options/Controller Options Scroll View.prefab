@@ -283,8 +283,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7460453912559268659}
   m_HandleRect: {fileID: 3727959618378577698}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.53008837
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -348,7 +348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8450647081534942698}
   m_Layer: 5
-  m_Name: Control Type Parent
+  m_Name: Release Behavior Parent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -367,7 +367,7 @@ RectTransform:
   m_Children:
   - {fileID: 1401284982972834978}
   m_Father: {fileID: 4826515485610667275}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -440,10 +440,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3891406682207801731}
-  - {fileID: 8450647081534942698}
-  - {fileID: 1958646454355057065}
   - {fileID: 4094133796432376916}
+  - {fileID: 1958646454355057065}
   - {fileID: 827667887566212072}
+  - {fileID: 8450647081534942698}
   - {fileID: 2949282674938829440}
   - {fileID: 8272889461188549288}
   - {fileID: 1297043136570913063}
@@ -538,7 +538,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 905.33, y: 1701.08}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1966671807217425396
 CanvasRenderer:
@@ -620,20 +620,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5202b334ae6442b46899abac0560e75b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controllerConfig:
-    controlType: 0
-    inputType: 0
-    channel: 0
-    range: 0
-    defaultType: 0
-    min: 0
-    max: 0
-    mid: 0
-    defaultValue: 0
-    smoothTime: 0
-    curveType: 0
-    ccNumber: 0
-    addressType: 0
   ccChannelField: {fileID: 3049014047308417119}
   smoothnessField: {fileID: 6291279662669614102}
   controlTypeDropdown: {fileID: 5301422954332506711}
@@ -643,6 +629,7 @@ MonoBehaviour:
   defaultValueDropdown: {fileID: 6562707663577028692}
   curveTypeDropdown: {fileID: 6562707663596052885}
   resetValuesButton: {fileID: 6063711504136769273}
+  toggleOptionParent: 1
 --- !u!1 &5899128938554997991
 GameObject:
   m_ObjectHideFlags: 0
@@ -1036,7 +1023,7 @@ RectTransform:
   m_Children:
   - {fileID: 140533577265741057}
   m_Father: {fileID: 4826515485610667275}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1326,7 +1313,7 @@ RectTransform:
   m_Children:
   - {fileID: 140533577536495538}
   m_Father: {fileID: 4826515485610667275}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1353,12 +1340,12 @@ PrefabInstance:
     - target: {fileID: 1603820294527966307, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}
       propertyPath: m_Name
-      value: ControlType
+      value: Release Behavior
       objectReference: {fileID: 0}
     - target: {fileID: 1979695516522766270, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}
       propertyPath: m_Text
-      value: Control Type
+      value: Release Behavior
       objectReference: {fileID: 0}
     - target: {fileID: 2762024943628359800, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}
@@ -2502,12 +2489,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bf47e53875252642a3d219104764f67, type: 3}
---- !u!224 &140533577265741057 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 4049758891319293609, guid: 8bf47e53875252642a3d219104764f67,
-    type: 3}
-  m_PrefabInstance: {fileID: 4161577613818629032}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6562707661858034676 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7121192749535647836, guid: 8bf47e53875252642a3d219104764f67,
@@ -2520,6 +2501,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d0b652f32a2cc243917e4028fa0f046, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &140533577265741057 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4049758891319293609, guid: 8bf47e53875252642a3d219104764f67,
+    type: 3}
+  m_PrefabInstance: {fileID: 4161577613818629032}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6151123865903590217
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2699,12 +2686,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d00d406103daa36459ab6903f056c18d, type: 3}
---- !u!224 &3049014047308417112 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 9155088584131404561, guid: d00d406103daa36459ab6903f056c18d,
-    type: 3}
-  m_PrefabInstance: {fileID: 6151123865903590217}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &3049014047308417119 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9155088584131404566, guid: d00d406103daa36459ab6903f056c18d,
@@ -2717,6 +2698,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d199490a83bb2b844b9695cbf13b01ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &3049014047308417112 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9155088584131404561, guid: d00d406103daa36459ab6903f056c18d,
+    type: 3}
+  m_PrefabInstance: {fileID: 6151123865903590217}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6651726303436449145
 PrefabInstance:
   m_ObjectHideFlags: 0

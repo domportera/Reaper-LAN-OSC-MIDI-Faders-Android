@@ -10,10 +10,8 @@ public class Controller2DOptions : ControllerOptions
 
     public void Initialize(Controller2DData _data, RectTransform _controlObjectTransform)
     {
-        horizontalOptions.controllerConfig = _data.GetHorizontalController();
-        verticalOptions.controllerConfig = _data.GetVerticalController();
-        horizontalOptions.Initialize(_data);
-        verticalOptions.Initialize(_data);
+        horizontalOptions.Initialize(_data.GetHorizontalController());
+        verticalOptions.Initialize(_data.GetVerticalController());
 
         BaseInitialize(_data, _controlObjectTransform);
     }

@@ -8,8 +8,7 @@ public class FaderOptions : ControllerOptions
     [SerializeField] ControllerOptionsMenu optionsMenu;
     public void Initialize(FaderData _data, RectTransform _controlObjectTransform)
     {
-        optionsMenu.controllerConfig = _data.GetController();
-        optionsMenu.Initialize(_data);
+        optionsMenu.Initialize(_data.GetController());
 
         BaseInitialize(_data, _controlObjectTransform);
     }

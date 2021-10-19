@@ -129,7 +129,7 @@ public class Controller : MonoBehaviour
 
     public void ReturnToCenter()
     {
-        if (controllerSettings.ControlType == ControlBehaviorType.ReturnToDefault)
+        if (controllerSettings.ReleaseBehavior == ReleaseBehaviorType.PitchWheel)
         {
             SetValue(MapValueToCurve(controllerSettings.DefaultValue, true));
         }

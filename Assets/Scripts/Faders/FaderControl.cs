@@ -26,7 +26,7 @@ public class FaderControl : Controller, ISortingMember
 
         base.Initialize(_controller);
         label.text = _controller.GetName();
-        name = _controller.GetName() + " " + controllerSettings.ControlType;
+        name = _controller.GetName() + " " + controllerSettings.ReleaseBehavior;
         InitializeFaderInteraction();
         InitializeSorting();
     }

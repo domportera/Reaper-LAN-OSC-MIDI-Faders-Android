@@ -6,7 +6,7 @@ using UnityEngine.Events;
 [System.Serializable]
 public class ControllerSettings
 {
-    [SerializeField] ControlBehaviorType controlType;
+    [SerializeField] ReleaseBehaviorType releaseBehavior;
     [SerializeField] InputMethod inputType;
     [SerializeField] MIDIChannel channel;
     [SerializeField] ValueRange range;
@@ -20,7 +20,7 @@ public class ControllerSettings
     [SerializeField] int ccNumber;
     [SerializeField] OSCAddressType addressType;
 
-    public ControlBehaviorType ControlType { get { return controlType; } }
+    public ReleaseBehaviorType ReleaseBehavior { get { return releaseBehavior; } }
     public InputMethod InputType { get { return inputType; } }
     public MIDIChannel Channel { get { return channel; } }
     public ValueRange Range { get { return range; } }
@@ -38,16 +38,16 @@ public class ControllerSettings
 
     public ControllerSettings(ControllerSettings _c)
     {
-        SetVariables(_c.inputType, _c.controlType, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
+        SetVariables(_c.inputType, _c.releaseBehavior, _c.addressType, _c.range, _c.defaultType, _c.channel, _c.curveType, _c.ccNumber, _c.smoothTime);
     }
 
-    public ControllerSettings(InputMethod _inputType, ControlBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public ControllerSettings(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber = -1, float _smoothTime = 0.1f)
     {
         SetVariables(_inputType, _controlType, _addressType, _range, _defaultValueType, _channel, _curveType, _ccNumber, _smoothTime);
     }
 
-    public void SetVariables(InputMethod _inputType, ControlBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
+    public void SetVariables(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCAddressType _addressType, ValueRange _range, DefaultValueType _defaultValueType,
         MIDIChannel _channel, CurveType _curveType, int _ccNumber, float _smoothTime)
     {
         //add channel if not set to all channels
@@ -63,7 +63,7 @@ public class ControllerSettings
         SetDefault(_defaultValueType);
 
         channel = _channel;
-        controlType = _controlType;
+        releaseBehavior = _controlType;
         range = _range;
         defaultType = _defaultValueType;
         smoothTime = _smoothTime;
@@ -149,4 +149,16 @@ public class ControllerSettings
         return address;
     }
     #endregion Getters
+
+    public override string ToString()
+    {
+        string result = $"Control Type: {releaseBehavior}\n" +
+            $"Input Type: {inputType}\n" +
+            $"Channel: {channel}\n" +
+            $"Range: {range}\n" +
+            $"Default Value: {defaultType}\n" +
+            $"Address Type: {addressType}\n";
+
+        return result;
+    }
 }

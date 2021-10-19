@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 
-public enum ControlBehaviorType { Normal, ReturnToDefault };
-public enum ControllerType { Fader, Controller2D };
+
 public enum DefaultValueType { Min, Mid, Max };
-public enum OSCAddressType { MidiCC, MidiPitch, MidiAftertouch };
 public enum CurveType { Linear, Exponential, Logarithmic}
 public enum InputMethod { Touch }
+
 public enum ValueRange
 {
     [Description("7-bit (0-127)")]      SevenBit,
@@ -19,6 +17,26 @@ public enum ValueRange
     //"14-bit(-16384-16383)",
     //"8-bit(-128-127)"
 };
+
+public enum ReleaseBehaviorType
+{
+    [Description("Stay")]   Normal,
+    [Description("Return")] PitchWheel
+};
+
+public enum ControllerType
+{
+    [Description("Fader")]          Fader,
+    [Description("2D Controller")]  Controller2D
+};
+
+public enum OSCAddressType
+{
+    [Description("CC (MIDI)")] MidiCC,
+    [Description("Pitch (MIDI)")] MidiPitch,
+    [Description("Aftertouch (MIDI)")] MidiAftertouch
+};
+
 public enum MIDIChannel
 {
     [Description("All")]        All = -1,
@@ -42,27 +60,27 @@ public enum MIDIChannel
 
 public static class EnumUtility
 {
-    public static string GetDescription(this Enum value)
+    public static string[] GetControllerBehaviorTypeNameArray()
     {
-        Type type = value.GetType();
-        string name = Enum.GetName(type, value);
-        if (name != null)
+        List<string> names = new List<string>();
+        foreach (ReleaseBehaviorType behaviorType in (ReleaseBehaviorType[])Enum.GetValues(typeof(ReleaseBehaviorType)))
         {
-            FieldInfo field = type.GetField(name);
-            if (field != null)
-            {
-                DescriptionAttribute attr =
-                       Attribute.GetCustomAttribute(field,
-                         typeof(DescriptionAttribute)) as DescriptionAttribute;
-                if (attr != null)
-                {
-                    return attr.Description;
-                }
-            }
+            names.Add(behaviorType.GetDescription());
         }
-        return null;
+
+        return names.ToArray();
     }
 
+    public static string[] GetOSCAddressTypeNameArray()
+    {
+        List<string> names = new List<string>();
+        foreach (OSCAddressType address in (OSCAddressType[])Enum.GetValues(typeof(OSCAddressType)))
+        {
+            names.Add(address.GetDescription());
+        }
+
+        return names.ToArray();
+    }
 
     public static string[] GetMidiChannelNameArray()
     {

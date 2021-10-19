@@ -9,7 +9,7 @@ using static UnityEngine.UI.Dropdown;
 
 public class ControllerOptionsMenu : MonoBehaviour
 {
-    public ControllerSettings controllerConfig;
+    ControllerSettings controllerConfig;
 
     [SerializeField] InputField ccChannelField = null;
     [SerializeField] Slider smoothnessField = null;
@@ -23,14 +23,7 @@ public class ControllerOptionsMenu : MonoBehaviour
 
     Dictionary<Dropdown, string[]> dropDownEntryNames = new Dictionary<Dropdown, string[]>();
 
-    ControlsManager.ControllerData controlData;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        InitializeUI();
-        CheckForCCControl((int)controllerConfig.AddressType);
-    }
+    [SerializeField] bool toggleOptionParent = false;
 
     private void InitializeUI()
     {
@@ -38,11 +31,14 @@ public class ControllerOptionsMenu : MonoBehaviour
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
         resetValuesButton.onClick.AddListener(ResetValues);
+
+        CheckForCCControl((int)controllerConfig.AddressType);
     }
 
-    public void Initialize(ControlsManager.ControllerData _data)
+    public void Initialize(ControllerSettings _data)
     {
-        controlData = _data;
+        controllerConfig = _data;
+        InitializeUI();
         SetFieldsToControllerValues();
     }
 
@@ -65,51 +61,56 @@ public class ControllerOptionsMenu : MonoBehaviour
         {
             case OSCAddressType.MidiCC:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
-                valueRangeDropdown.gameObject.SetActive(true);
+                ToggleUIObject(valueRangeDropdown, false);
+                ToggleUIObject(valueRangeDropdown, true);
                 ccChannelField.SetTextWithoutNotify("");
-                ccChannelField.gameObject.SetActive(true);
+                ToggleUIObject(ccChannelField, true);
                 break;
             case OSCAddressType.MidiPitch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
-                valueRangeDropdown.gameObject.SetActive(true);
+                ToggleUIObject(valueRangeDropdown, true);
                 ccChannelField.SetTextWithoutNotify("");
-                ccChannelField.gameObject.SetActive(false);
+                ToggleUIObject(ccChannelField, false);
                 break;
             case OSCAddressType.MidiAftertouch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
-                valueRangeDropdown.gameObject.SetActive(false);
+                ToggleUIObject(valueRangeDropdown, false);
                 ccChannelField.SetTextWithoutNotify("");
-                ccChannelField.gameObject.SetActive(false);
+                ToggleUIObject(ccChannelField, false);
                 break;
         }
     }
-    
-    private void OnEnable()
+
+    void ToggleUIObject(Selectable _object, bool _on)
     {
-        if (controlData != null)
+        if (toggleOptionParent)
         {
-            SetFieldsToControllerValues();
+            _object.transform.parent.gameObject.SetActive(_on);
+        }
+        else
+        {
+            _object.gameObject.SetActive(_on);
         }
     }
 
     void SetFieldsToControllerValues()
     {
-        controlTypeDropdown.SetValueWithoutNotify((int)controllerConfig.ControlType);
-        midiChannelDropdown.SetValueWithoutNotify((int)controllerConfig.Channel);
-        addressTypeDropdown.SetValueWithoutNotify((int)controllerConfig.AddressType);
-        valueRangeDropdown.SetValueWithoutNotify((int)controllerConfig.Range);
-        defaultValueDropdown.SetValueWithoutNotify((int)controllerConfig.DefaultType);
-        curveTypeDropdown.SetValueWithoutNotify((int)controllerConfig.Curve);
+        AddressTypeMenuChange((int)controllerConfig.AddressType);
+
+        controlTypeDropdown.SetValueWithoutNotify(controllerConfig.ReleaseBehavior.GetInt());
+        midiChannelDropdown.SetValueWithoutNotify(controllerConfig.Channel.GetInt());
+        addressTypeDropdown.SetValueWithoutNotify(controllerConfig.AddressType.GetInt());
+        valueRangeDropdown.SetValueWithoutNotify(controllerConfig.Range.GetInt());
+        defaultValueDropdown.SetValueWithoutNotify(controllerConfig.DefaultType.GetInt());
+        curveTypeDropdown.SetValueWithoutNotify(controllerConfig.Curve.GetInt());
 
         smoothnessField.SetValueWithoutNotify(controllerConfig.SmoothTime);
         ccChannelField.SetTextWithoutNotify(controllerConfig.CCNumber.ToString());
-
-        AddressTypeMenuChange((int)controllerConfig.AddressType);
     }
 
     public void SetControllerValuesToFields()
     {
-        ControlBehaviorType controlType = (ControlBehaviorType)controlTypeDropdown.value;
+        ReleaseBehaviorType controlType = (ReleaseBehaviorType)controlTypeDropdown.value;
         OSCAddressType addressType = (OSCAddressType)addressTypeDropdown.value;
         DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
         CurveType curveType = (CurveType)curveTypeDropdown.value;
@@ -127,8 +128,8 @@ public class ControllerOptionsMenu : MonoBehaviour
 
     void PopulateDropdowns()
     {
-        dropDownEntryNames.Add(controlTypeDropdown, Enum.GetNames(typeof(ControlBehaviorType)));
-        dropDownEntryNames.Add(addressTypeDropdown, Enum.GetNames(typeof(OSCAddressType)));
+        dropDownEntryNames.Add(controlTypeDropdown, EnumUtility.GetControllerBehaviorTypeNameArray());
+        dropDownEntryNames.Add(addressTypeDropdown, EnumUtility.GetOSCAddressTypeNameArray());
         dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
         dropDownEntryNames.Add(midiChannelDropdown, EnumUtility.GetMidiChannelNameArray());
