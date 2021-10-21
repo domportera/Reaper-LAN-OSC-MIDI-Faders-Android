@@ -36,7 +36,7 @@ public class ColorController : MonoBehaviour
         get { return currentColorProfile; }
         set {
             currentColorProfile = value;
-            Debug.Log($"Set Current Color Profile: {currentColorProfile.name}");
+            Debug.Log($"Set Current Color Profile: {currentColorProfile.Name}");
         }
     }
 
@@ -294,29 +294,36 @@ public class ColorController : MonoBehaviour
 
     void SaveDefaultProfile()
     {
-        SaveProfile(DEFAULT_COLOR_PROFILE, true);
+        ColorProfile defaultColorProfile = new ColorProfile(CurrentColorProfile, DEFAULT_COLOR_PROFILE);
+        SaveProfile(defaultColorProfile, true);
     }
 
     void SaveProfile()
     {
-        SaveProfile(CurrentColorProfile.name);
+        SaveProfile(CurrentColorProfile);
     }
 
-    void SaveProfile(string _name, bool _savingDefault = false)
+    public void SaveColorProfileByName(string _name)
     {
-        if (!_savingDefault && _name == DEFAULT_COLOR_PROFILE)
+        ColorProfile profile = new ColorProfile(CurrentColorProfile, _name);
+        SaveProfile(profile);
+    }
+
+    void SaveProfile(ColorProfile _colorProfile, bool _savingDefault = false)
+    {
+        if (!_savingDefault && _colorProfile.Name == DEFAULT_COLOR_PROFILE)
         {
             Utilities.instance.ErrorWindow($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
             return;
         }
 
-        bool saved = FileHandler.SaveJson(CurrentColorProfile, profilesBasePath, _name, fileExtensionProfiles);
+        bool saved = FileHandler.SaveJson(_colorProfile, profilesBasePath, _colorProfile.Name, fileExtensionProfiles);
 
         if (saved)
         {
-            if (_name != DEFAULT_COLOR_PROFILE)
+            if (_colorProfile.Name != DEFAULT_COLOR_PROFILE)
             {
-                Utilities.instance.ConfirmationWindow($"Saved color profile for {_name}!");
+                Utilities.instance.ConfirmationWindow($"Saved color profile for {_colorProfile.Name}!");
             }
             else
             {
@@ -325,7 +332,7 @@ public class ColorController : MonoBehaviour
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Error saving colors for profile {_name}. Check Log for details.");
+            Utilities.instance.ErrorWindow($"Error saving colors for profile {_colorProfile.Name}. Check Log for details.");
         }
     }
 
@@ -364,7 +371,7 @@ public class ColorController : MonoBehaviour
             CurrentColorProfile = new ColorProfile(GetDefaultColorProfile(), _profile);
         }
 
-        Debug.Log($"Loaded Colors: {CurrentColorProfile.name}\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
+        Debug.Log($"Loaded Colors: {CurrentColorProfile.Name}\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
 
         UpdateAppColors();
         SetSlidersToCurrentColor();
@@ -372,7 +379,7 @@ public class ColorController : MonoBehaviour
 
     void RevertColorProfile()
     {
-        LoadAndSetColorProfile(CurrentColorProfile.name);
+        LoadAndSetColorProfile(CurrentColorProfile.Name);
         UpdateAppColors();
     }
 
@@ -464,17 +471,16 @@ public class ColorController : MonoBehaviour
             return;
         }
 
-        ColorPreset preset = ColorPreset.ProfileToPreset(CurrentColorProfile);
-        preset.name = _name;
-        bool saved = FileHandler.SaveJson(preset, presetsBasePath, preset.name, fileExtensionPresets);
+        ColorPreset preset = ColorPreset.ProfileToPreset(CurrentColorProfile, _name);
+        bool saved = FileHandler.SaveJson(preset, presetsBasePath, preset.Name, fileExtensionPresets);
 
         if (saved)
         {
-            Utilities.instance.ConfirmationWindow($"Saved preset {preset.name}");
+            Utilities.instance.ConfirmationWindow($"Saved preset {preset.Name}");
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Error saving preset {preset.name}. Check the Log for details.");
+            Utilities.instance.ErrorWindow($"Error saving preset {preset.Name}. Check the Log for details.");
         }
 
         AddPresetSelectorAfterSave(preset);
@@ -484,7 +490,7 @@ public class ColorController : MonoBehaviour
     {
         AddPresetSelector(preset);
         userPresetSorter.SortChildren(userPresetSelectors);
-        currentPresetSelection = preset.name;
+        currentPresetSelection = preset.Name;
     }
 
     void DeletePreset()
@@ -507,6 +513,7 @@ public class ColorController : MonoBehaviour
 
     #endregion Saving and Loading Color Presets
 
+    #region Color Presets
     void InitializePresetUI()
     {
         PopulatePresetSelectors();
@@ -564,7 +571,7 @@ public class ColorController : MonoBehaviour
         ColorPresetSelector selectorToRemove = null;
         foreach(ColorPresetSelector c in userPresetSelectors)
         {
-            if(c.Preset.name == _name)
+            if(c.Preset.Name == _name)
             {
                 selectorToRemove = c;
                 break;
@@ -588,14 +595,14 @@ public class ColorController : MonoBehaviour
     {
         SetColorsFromPreset(_preset);
         SetSlidersToCurrentColor();
-        currentPresetSelection = _preset.name;
+        currentPresetSelection = _preset.Name;
     }
 
     ColorPresetSelector CreatePresetSelector(ColorPreset _preset)
     {
         GameObject presetSelector = Instantiate(colorPresetPrefab);
         presetSelector.SetActive(true); //just in case the prefab is disabled accidentally
-        presetSelector.name = $"{_preset.name} Color Preset Selector";
+        presetSelector.name = $"{_preset.Name} Color Preset Selector";
         ColorPresetSelector selector = presetSelector.GetComponent<ColorPresetSelector>();
         return selector;
     }
@@ -648,6 +655,13 @@ public class ColorController : MonoBehaviour
     {
         return CurrentColorProfile.GetColor(_type);
     }
+    #endregion Color Presets
+
+    #region Utility
+    public bool CurrentColorProfileIsDefault()
+    {
+        return ColorProfile.Equals(CurrentColorProfile, GetDefaultColorProfile());
+    }
 
 
     #region Singleton
@@ -664,5 +678,7 @@ public class ColorController : MonoBehaviour
         }
     }
     #endregion Singleton
+
+    #endregion Utility
 
 }

@@ -27,10 +27,10 @@ public class ColorPresetSelector : MonoBehaviour
         button.onClick.AddListener(() => { _buttonFunction.Invoke(); });
         SetPaletteColors(_preset);
 
-        title.text = _preset.name;
-        title.color = _preset.tertiary;
-        background.color = _preset.background;
-        buttonBorder.color = _preset.primary;
+        title.text = _preset.Name;
+        title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
+        background.color = _preset.GetColor(ColorProfile.ColorType.Background);
+        buttonBorder.color = _preset.GetColor(ColorProfile.ColorType.Primary);
 
         Preset = _preset;
     }
@@ -39,25 +39,10 @@ public class ColorPresetSelector : MonoBehaviour
     {
         foreach (PresetPaletteImage i in paletteImages)
         {
-            switch (i.colorType)
-            {
-                case ColorProfile.ColorType.Background:
-                    i.image.color = _preset.background;
-                    break;
-                case ColorProfile.ColorType.Primary:
-                    i.image.color = _preset.primary;
-                    break;
-                case ColorProfile.ColorType.Secondary:
-                    i.image.color = _preset.secondary;
-                    break;
-                case ColorProfile.ColorType.Tertiary:
-                    i.image.color = _preset.tertiary;
-                    break;
-                default:
-                    Debug.LogError($"ColorType {i.colorType} not implemented in ColorPresetSelector", this);
-                    break;
-            }
+            i.image.color = _preset.GetColor(i.colorType);
         }
+
+        title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
     }
 
     [Serializable]

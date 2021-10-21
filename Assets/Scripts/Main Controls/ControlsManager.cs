@@ -206,7 +206,9 @@ public class ControlsManager : MonoBehaviourExtended
     {
         MultiOptionAction faderAction = new MultiOptionAction("Fader", () => NewController(ControllerType.Fader));
         MultiOptionAction controller2DAction = new MultiOptionAction("2D Controller", () => NewController(ControllerType.Controller2D));
-        Utilities.instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction);
+        MultiOptionAction buttonAction = new MultiOptionAction("Button", () => throw new NotImplementedException());
+        MultiOptionAction controllerTemplateAction = new MultiOptionAction("From Template", () => throw new NotImplementedException());
+        Utilities.instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction, buttonAction, controllerTemplateAction);
     }
 
     void NewController(ControllerType _type)

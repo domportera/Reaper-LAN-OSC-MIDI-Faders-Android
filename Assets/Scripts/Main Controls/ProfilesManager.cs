@@ -153,13 +153,13 @@ public class ProfilesManager : MonoBehaviour
 
     void Save()
     {
-        SaveControllers(GetActiveProfile());
+        _ = SaveProfile(GetActiveProfile());
     }
 
     void SaveAs(string _saveName)
     {
         string profileName = _saveName;
-        bool canSwitchProfiles = SaveControllersAs(profileName);
+        bool canSwitchProfiles = SaveProfileAs(profileName);
 
         if(canSwitchProfiles)
         {
@@ -249,17 +249,27 @@ public class ProfilesManager : MonoBehaviour
         return DEFAULT_SAVE_NAME;
     }
 
-    public void SaveProfile(string _name, List<ControllerData> _controllers)
+    public bool SaveProfile(string _name, List<ControllerData> _controllers)
     {
         if (_name == DEFAULT_SAVE_NAME)
         {
             Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
-            return;
+            return false;
         }
 
         ProfileSaveData saveData = new ProfileSaveData(_controllers, _name);
-        FileHandler.SaveJson(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
-        Utilities.instance.ConfirmationWindow($"Saved {_name}");
+        bool success = FileHandler.SaveJson(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
+
+        if (success)
+        {
+            Utilities.instance.ConfirmationWindow($"Saved {_name}");
+        }
+        else
+        {
+            Utilities.instance.ErrorWindow($"Error saving profile {_name}. Check the Log for more details.");
+        }
+
+        return success;
     }
 
     void LoadDefaultProfile()
@@ -274,7 +284,7 @@ public class ProfilesManager : MonoBehaviour
         }
     }
 
-    public bool SaveControllersAs(string _name)
+    public bool SaveProfileAs(string _name)
     {
         if (_name == ProfilesManager.DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
         {
@@ -304,8 +314,17 @@ public class ProfilesManager : MonoBehaviour
             ProfilesManager.instance.AddToProfileButtons(profileName);
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
-            SaveControllers(_name);
-            return true;
+            bool saved = SaveProfile(_name);
+
+            if(saved)
+            {
+                if(!ColorController.instance.CurrentColorProfileIsDefault())
+                {
+                    ColorController.instance.SaveColorProfileByName(_name);
+                }
+            }
+
+            return saved;
         }
         else
         {
@@ -314,11 +333,11 @@ public class ProfilesManager : MonoBehaviour
         }
     }
 
-    public void SaveControllers(string _name)
+    public bool SaveProfile(string _name)
     {
         List<ControllerData> controllers = ControlsManager.instance.Controllers.OrderBy(control => control.GetName()).ToList();
         controllers.Sort((s1, s2) => s1.GetName().CompareTo(s2.GetName()));
-        SaveProfile(_name, controllers);
+        return SaveProfile(_name, controllers);
     }
 
     public ProfileSaveData LoadControlsFile(string _fileNameSansExtension)

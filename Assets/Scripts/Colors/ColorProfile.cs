@@ -3,11 +3,13 @@
 [System.Serializable]
 public class ColorProfile
 {
-	public string name;
-	public Color background;
-	public Color secondary;
-	public Color primary;
-	public Color tertiary;
+	[SerializeField] protected string name;
+	[SerializeField] protected Color background;
+	[SerializeField] protected Color secondary;
+	[SerializeField] protected Color primary;
+	[SerializeField] protected Color tertiary;
+
+	public string Name { get { return name; } }
 
 
 	public ColorProfile()
@@ -18,36 +20,21 @@ public class ColorProfile
 		tertiary = secondary;
 	}
 
-	//duplicate
+	/// <summary>
+	/// Create a duplicate color profile with a new name
+	/// </summary>
 	public ColorProfile(ColorProfile _template, string _name = null)
 	{
-		if (_name == null)
-		{
-			this.name = _template.name;
-		}
-		else
-        {
-			this.name = _name;
-        }
-
-		this.background = _template.background;
-		this.primary = _template.primary;
-		this.secondary = _template.secondary;
-		this.tertiary = _template.tertiary;
+		name = _name == null ? _template.name : _name;
+		background = _template.background;
+		primary = _template.primary;
+		secondary = _template.secondary;
+		tertiary = _template.tertiary;
 	}
 
-	public ColorProfile(string _name, ColorProfile _template)
+	public ColorProfile(string name, Color background, Color primary, Color secondary, Color tertiary)
 	{
-		this.background = _template.background;
-		this.primary = _template.primary;
-		this.secondary = _template.secondary;
-		this.tertiary = _template.tertiary;
-		this.name = _name;
-	}
-
-	public ColorProfile(string _name, Color background, Color primary, Color secondary, Color tertiary)
-	{
-		this.name = _name;
+		this.name = name;
 		this.background = background;
 		this.primary = primary;
 		this.secondary = secondary;
@@ -99,7 +86,6 @@ public class ColorProfile
 	{
 		ColorProfile colorProfile = new ColorProfile();
 		colorProfile.name = _name;
-
 		return colorProfile;
 	}
 
@@ -120,6 +106,22 @@ public class ColorProfile
 		return s;
 	}
 
+	public static bool Equals(ColorProfile _a, ColorProfile _b)
+	{
+		return
+		!(
+			(_a.GetColor(ColorType.Background) != _b.GetColor(ColorType.Background)) ||
+			(_a.GetColor(ColorType.Primary) != _b.GetColor(ColorType.Primary))		 ||
+			(_a.GetColor(ColorType.Secondary) != _b.GetColor(ColorType.Secondary))	 ||
+			(_a.GetColor(ColorType.Tertiary) != _b.GetColor(ColorType.Tertiary))
+		);
+    }
+
+	protected void SetName(string _name)
+    {
+		name = _name;
+    }
+
 	public enum ColorType { Background, Primary, Secondary, Tertiary }
 
 }
@@ -128,13 +130,16 @@ public class ColorProfile
 [System.Serializable]
 public class ColorPreset : ColorProfile 
 {
-	public static ColorPreset ProfileToPreset(ColorProfile _profile)
+	public static ColorPreset ProfileToPreset(ColorProfile _profile, string _name = null)
 	{
 		ColorPreset preset = new ColorPreset();
-		preset.background = _profile.background;
-		preset.primary = _profile.primary;
-		preset.secondary = _profile.secondary;
-		preset.tertiary = _profile.tertiary;
+		preset.background = _profile.GetColor(ColorType.Background);
+		preset.primary = _profile.GetColor(ColorType.Primary);
+		preset.secondary = _profile.GetColor(ColorType.Secondary);
+		preset.tertiary = _profile.GetColor(ColorType.Tertiary);
+
+		preset.SetName(_name == null ? _profile.Name : _name);
+
 		return preset;
 	}
 
