@@ -16,6 +16,7 @@ public enum ValueRange
     //"7-bit (-64-63)",
     //"14-bit(-16384-16383)",
     //"8-bit(-128-127)"
+    //custom range
 };
 
 public enum ReleaseBehaviorType

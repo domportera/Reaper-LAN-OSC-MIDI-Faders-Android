@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class Utilities : MonoBehaviour
+public class UtilityWindows : MonoBehaviour
 {
     [SerializeField] Text errorText = null;
     [SerializeField] GameObject errorWindow = null;
@@ -22,8 +22,9 @@ public class Utilities : MonoBehaviour
     [Space(20)]
     [SerializeField] GameObject verificationWindowPrefab = null;
     [SerializeField] GameObject multiOptionWindowPrefab = null;
+    [SerializeField] GameObject sliderWindowPrefab = null;
 
-    public static Utilities instance;
+    public static UtilityWindows instance;
 
 	private void Awake()
 	{
@@ -69,6 +70,13 @@ public class Utilities : MonoBehaviour
         GameObject window = InstantiateWindow(multiOptionWindowPrefab);
         MultiOptionWindow multiWindow = window.GetComponent<MultiOptionWindow>();
         multiWindow.SetActions(_text, _actions);
+    }
+
+    public void SliderWindow(string _text, float _defaultValue, float _min, float _max, UnityAction<float> _sliderAction, UnityAction _onClose = null)
+    {
+        GameObject window = InstantiateWindow(sliderWindowPrefab);
+        SliderWindow sliderWindow = window.GetComponent<SliderWindow>();
+        sliderWindow.SetActions(_text, _defaultValue, _min, _max, _sliderAction, _onClose);
     }
 
     GameObject InstantiateWindow(GameObject _prefab)

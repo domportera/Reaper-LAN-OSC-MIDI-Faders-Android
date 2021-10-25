@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using static ControlsManager;
 using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviourExtended
@@ -24,6 +23,7 @@ public class UIManager : MonoBehaviourExtended
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
     [SerializeField] Button optionsButtonSortingButton = null;
+    [SerializeField] Button widthButton = null;
 
     [SerializeField] Button setupButton;
     [SerializeField] Button closeSetupButton;
@@ -55,16 +55,13 @@ public class UIManager : MonoBehaviourExtended
     List<ControllerUIGroup> controllerUIs = new List<ControllerUIGroup>();
     List<LayoutGroupButtonCount> layoutCounts = new List<LayoutGroupButtonCount>();
 
-    const int DEFAULT_FADER_WIDTH = 200;
-    int faderWidth = DEFAULT_FADER_WIDTH;
-
-    const string FADER_WIDTH_PLAYER_PREF = "Fader Width";
     bool positionMode = false;
 
     public static UIManager instance;
 
     bool sortOptionsByName = false;
-
+    UnityEvent<float> widthEvent = new UnityEvent<float>();
+    public UnityEvent<float> WidthEvent { get { return widthEvent; } }
 
     // Start is called before the first frame update
     void Awake()
@@ -89,6 +86,7 @@ public class UIManager : MonoBehaviourExtended
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
         faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
+        widthButton.onClick.AddListener(WidthButtonPressed);
         optionsButtonSortingButton.onClick.AddListener(() => SwitchOptionsButtonSorting(!sortOptionsByName));
         SwitchOptionsButtonSorting(false);
         newControllerButton.onClick.AddListener(ControlsManager.instance.NewController);
@@ -193,7 +191,7 @@ public class UIManager : MonoBehaviourExtended
             b.button.onClick.AddListener(() =>
             {
                 UniClipboard.SetText(b.address);
-                Utilities.instance.ConfirmationWindow($"Copied {b.address} to clipboard!");
+                UtilityWindows.instance.ConfirmationWindow($"Copied {b.address} to clipboard!");
             });
         }
     }
@@ -290,6 +288,26 @@ public class UIManager : MonoBehaviourExtended
         return null;
     }
 
+    public void WidthButtonPressed()
+    {
+        optionsPanel.SetActive(false);
+        UtilityWindows.instance.SliderWindow("Fader Width", ControlsManager.instance.FaderWidth, FaderOptions.widthRange.min, FaderOptions.widthRange.max, SetFaderWidth, () => optionsPanel.SetActive(true));
+    }
+
+    void SetFaderWidth (float _width)
+    {
+        float width = _width;
+        WidthEvent.Invoke(width);
+        ControlsManager.instance.FaderWidth = width;
+        RefreshFaderLayoutGroup();
+    }
+
+    void RefreshFaderLayoutGroup()
+    {
+        faderLayoutGroup.enabled = false;
+        faderLayoutGroup.enabled = true;
+    }
+
     LayoutGroupButtonCount GetLayoutGroupFromObject(GameObject _button)
     {
         foreach(LayoutGroupButtonCount lay in layoutCounts)
@@ -366,11 +384,6 @@ public class UIManager : MonoBehaviourExtended
         faderPositionExitButton.gameObject.SetActive(positionMode);
     }
 
-    public LayoutGroup GetControllerLayoutGroup()
-    {
-        return faderLayoutGroup;
-    }
-
     class LayoutGroupButtonCount
     {
         public GameObject layoutGroup;
@@ -400,7 +413,8 @@ public class UIManager : MonoBehaviourExtended
 
             activationToggle = activateFaderOptionsButton.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
-            controlObjectTransform = _controlObject.GetComponent<RectTransform>();
+            activationToggle.SetIsOnWithoutNotify(_config.GetEnabled());
+            controlObjectTransform = _controlObject.GetComponentSafer<RectTransform>();
         }
 
         void DisplayFaderOptions()
@@ -411,6 +425,7 @@ public class UIManager : MonoBehaviourExtended
         public void ToggleControlVisibility(bool _b)
         {
             controlObject.SetActive(_b);
+            controllerConfig.SetEnabled(_b);
 
             if(!_b)
             {

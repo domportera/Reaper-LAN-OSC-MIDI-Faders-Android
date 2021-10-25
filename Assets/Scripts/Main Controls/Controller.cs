@@ -28,7 +28,7 @@ public class Controller : MonoBehaviour
         SendValuesWithDuplicates();
     }
 
-    public virtual void Initialize(ControlsManager.ControllerData _controller, int whichIndex = 0)
+    public virtual void Initialize(ControllerData _controller, int whichIndex = 0)
     {
         if (_controller == null)
         {

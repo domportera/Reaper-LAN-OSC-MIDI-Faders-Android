@@ -15,7 +15,7 @@ public class FaderControl : Controller, ISortingMember
     [SerializeField] Button sortLeftButton;
     [SerializeField] Button sortRightButton;
 
-    public override void Initialize(ControlsManager.ControllerData _controller, int whichIndex = 0)
+    public override void Initialize(ControllerData _controller, int whichIndex = 0)
     {
         Type controllerType = _controller.GetType();
         if(controllerType != ControlsManager.controllerClassesByControl[this.GetType()])

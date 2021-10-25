@@ -231,6 +231,18 @@ public static class FileHandler
     #endregion Loading
 }
 
+public class Range <T>
+{
+    public T min;
+    public T max;
+
+    public Range(T min, T max)
+    {
+        this.min = min;
+        this.max = max;
+    }
+}
+
 public abstract class MonoBehaviourExtended : MonoBehaviour
 {
     #region Logging
@@ -261,6 +273,50 @@ public abstract class MonoBehaviourExtended : MonoBehaviour
             }
         }
     }
+
+    protected void DoNextFrame(Action _action)
+    {
+        DoLater(_action, 1);
+    }
+
+    /// <summary>
+    /// Invoke an action after a specified number of frames
+    /// </summary>
+    /// <param name="_frameDelay">The number of frames to wait before performing action</param>
+    protected void DoLater(Action _action, int _frameDelay)
+    {
+        StartCoroutine(DoAfterFrameDelay(_action, _frameDelay));
+    }
+
+    /// <summary>
+    /// Invoke an action after a time delay
+    /// </summary>
+    /// <param name="_secondsDelay">The amount of time to delay the action in seconds</param>
+    protected void DoLater(Action _action, float _secondsDelay)
+    {
+        StartCoroutine(DoAfterDelay(_action, _secondsDelay));
+    }
+
+    IEnumerator DoAfterFrameDelay(Action _action, int _frames)
+    {
+        for(int i = 0; i < _frames; i++)
+        {
+            yield return null;
+        }
+
+        _action.Invoke();
+    }
+
+    IEnumerator DoAfterDelay(Action _action, float _delay)
+    {
+        for(float timer = 0f; timer < _delay; _delay += Time.deltaTime)
+        {
+            yield return null;
+        }
+
+        _action.Invoke();
+    }
+
     #endregion Logging
 
 

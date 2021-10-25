@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static ControlsManager;
 
 public class ProfilesManager : MonoBehaviour
 {
@@ -89,17 +88,17 @@ public class ProfilesManager : MonoBehaviour
     {
         if (GetActiveProfile() != DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.VerificationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
+            UtilityWindows.instance.VerificationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Can't delete default profile");
+            UtilityWindows.instance.ErrorWindow($"Can't delete default profile");
 		}
     }
 
     void SaveAsWindow()
     {
-        Utilities.instance.VerificationWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
+        UtilityWindows.instance.VerificationWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
     }
 
     public void PopulateProfileButtons(List<string> _profileNames, string _defaultProfile)
@@ -172,7 +171,7 @@ public class ProfilesManager : MonoBehaviour
         string activeProfile = GetActiveProfile();
         profileNames.SetDefaultProfile(activeProfile);
         SaveProfileNames();
-        Utilities.instance.ConfirmationWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
+        UtilityWindows.instance.ConfirmationWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
     }
 
     void DeleteProfile()
@@ -188,7 +187,7 @@ public class ProfilesManager : MonoBehaviour
     {
         if (_name == DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.ErrorWindow("Can't delete default profile");
+            UtilityWindows.instance.ErrorWindow("Can't delete default profile");
             return;
         }
         //remove profile from current list of profiles
@@ -199,9 +198,6 @@ public class ProfilesManager : MonoBehaviour
 
         //Save profiles
         SaveProfileNames();
-
-        //reload profiles
-        //LoadProfileNames();
 
         //repopulate dropdown
         PopulateProfileSelectionMenu();
@@ -249,24 +245,24 @@ public class ProfilesManager : MonoBehaviour
         return DEFAULT_SAVE_NAME;
     }
 
-    public bool SaveProfile(string _name, List<ControllerData> _controllers)
+    public bool SaveProfile(string _name, List<ControllerData> _controllers, float _faderWidth)
     {
         if (_name == DEFAULT_SAVE_NAME)
         {
-            Utilities.instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
+            UtilityWindows.instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
             return false;
         }
 
-        ProfileSaveData saveData = new ProfileSaveData(_controllers, _name);
+        ProfileSaveData saveData = new ProfileSaveData(_controllers, _name, _faderWidth);
         bool success = FileHandler.SaveJson(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
 
         if (success)
         {
-            Utilities.instance.ConfirmationWindow($"Saved {_name}");
+            UtilityWindows.instance.ConfirmationWindow($"Saved {_name}");
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Error saving profile {_name}. Check the Log for more details.");
+            UtilityWindows.instance.ErrorWindow($"Error saving profile {_name}. Check the Log for more details.");
         }
 
         return success;
@@ -288,7 +284,7 @@ public class ProfilesManager : MonoBehaviour
     {
         if (_name == ProfilesManager.DEFAULT_SAVE_NAME || profileNames.GetNames().Contains(_name))
         {
-            Utilities.instance.ErrorWindow("Profile with this name already exists, please use another.");
+            UtilityWindows.instance.ErrorWindow("Profile with this name already exists, please use another.");
             return false;
         }
 
@@ -297,11 +293,11 @@ public class ProfilesManager : MonoBehaviour
         {
             if (invalidChars.Count == 1)
             {
-                Utilities.instance.ErrorWindow($"Chosen profile name contains an invalid character.");
+                UtilityWindows.instance.ErrorWindow($"Chosen profile name contains an invalid character.");
             }
             else
             {
-                Utilities.instance.ErrorWindow($"Chosen profile name contains {invalidChars.Count} invalid characters.");
+                UtilityWindows.instance.ErrorWindow($"Chosen profile name contains {invalidChars.Count} invalid characters.");
             }
             return false;
         }
@@ -328,7 +324,7 @@ public class ProfilesManager : MonoBehaviour
         }
         else
         {
-            Utilities.instance.ErrorWindow("Please enter a name.");
+            UtilityWindows.instance.ErrorWindow("Please enter a name.");
             return false;
         }
     }
@@ -337,7 +333,8 @@ public class ProfilesManager : MonoBehaviour
     {
         List<ControllerData> controllers = ControlsManager.instance.Controllers.OrderBy(control => control.GetName()).ToList();
         controllers.Sort((s1, s2) => s1.GetName().CompareTo(s2.GetName()));
-        return SaveProfile(_name, controllers);
+        float faderWidth = ControlsManager.instance.FaderWidth;
+        return SaveProfile(_name, controllers, faderWidth);
     }
 
     public ProfileSaveData LoadControlsFile(string _fileNameSansExtension)
@@ -365,16 +362,35 @@ public class ProfilesManager : MonoBehaviour
         FileHandler.SaveJson<ProfilesMetadata>(profileNames, basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
     }
 
+    public static List<char> GetInvalidFileNameCharacters(string _name)
+    {
+        //check for invalid characters
+        char[] invalidFileChars = Path.GetInvalidFileNameChars();
+        List<char> invalidChars = new List<char>();
+        foreach (char c in invalidFileChars)
+        {
+            if (_name.Contains(c.ToString()))
+            {
+                invalidChars.Add(c);
+            }
+        }
+
+        return invalidChars;
+    }
+
     [Serializable]
     public class ProfileSaveData
     {
         [SerializeField] string name = string.Empty;
+        [SerializeField] float faderWidth = NULL_WIDTH;
+
+        public const float NULL_WIDTH = 0;
 
         //each type of control data has to be split into its own type-specific list for JsonUtility to agree with it
         [SerializeField] List<FaderData> faderData = new List<FaderData>();
         [SerializeField] List<Controller2DData> controller2DData = new List<Controller2DData>();
 
-        public ProfileSaveData(List<ControllerData> _controllerData, string _name)
+        public ProfileSaveData(List<ControllerData> _controllerData, string _name, float _faderWidth)
         {
             foreach (ControllerData data in _controllerData)
             {
@@ -393,6 +409,7 @@ public class ProfilesManager : MonoBehaviour
             }
 
             name = _name;
+            faderWidth = _faderWidth;
         }
 
         public List<ControllerData> GetControllers()
@@ -415,6 +432,11 @@ public class ProfilesManager : MonoBehaviour
         public string GetName()
         {
             return name;
+        }
+
+        public float GetFaderWidth()
+        {
+            return faderWidth;
         }
     }
 
@@ -458,16 +480,6 @@ public class ProfilesManager : MonoBehaviour
         public void SetDefaultProfile(string _name)
         {
             defaultProfileName = _name;
-        }
-    }
-
-    public class Profile
-    {
-        public string name;
-
-        public Profile(string _name)
-        {
-            name = _name;
         }
     }
 }

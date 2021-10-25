@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static ControlsManager;
-
 public class Controller2DOptions : ControllerOptions
 {
     [SerializeField] ControllerOptionsMenu horizontalOptions;

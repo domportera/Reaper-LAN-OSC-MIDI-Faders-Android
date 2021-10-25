@@ -77,6 +77,10 @@ public class ControlsManager : MonoBehaviourExtended
 
     public static ControlsManager instance;
 
+    float faderWidth = DEFAULT_FADER_WIDTH;
+    public float FaderWidth { get { return faderWidth; } set { faderWidth = value; } }
+    const float DEFAULT_FADER_WIDTH = 0.25f;
+
     void Awake()
     {
         if(instance == null)
@@ -98,26 +102,9 @@ public class ControlsManager : MonoBehaviourExtended
 
     #region Saving and Loading
 
-
-    public static List<char> GetInvalidFileNameCharacters(string _name)
-    {
-        //check for invalid characters
-        char[] invalidFileChars = Path.GetInvalidFileNameChars();
-        List<char> invalidChars = new List<char>();
-        foreach (char c in invalidFileChars)
-        {
-            if (_name.Contains(c.ToString()))
-            {
-                invalidChars.Add(c);
-            }
-        }
-
-        return invalidChars;
-    }
-
     public void LoadControllers(string _profile)
     {
-        Debug.Log($"Loading {_profile}");
+        LogDebug($"Loading {_profile}");
 
         if (_profile != ProfilesManager.DEFAULT_SAVE_NAME)
         {
@@ -127,8 +114,11 @@ public class ControlsManager : MonoBehaviourExtended
 
             if (loadedData != null || loadedData.GetControllers().Count > 0)
             {
-                List<ControllerData> temp = loadedData.GetControllers();
-                controllers = temp;
+                controllers = loadedData.GetControllers();
+
+                float loadedWidth = loadedData.GetFaderWidth();
+                SetFaderWidth(loadedWidth);
+                
                 SpawnControllers(controllers);
                 OnProfileLoaded.Invoke(_profile);
             }
@@ -136,21 +126,35 @@ public class ControlsManager : MonoBehaviourExtended
             {
                 //spawn defaults if no save data
                 SpawnDefaultControllers();
+                SetFaderWidth(DEFAULT_FADER_WIDTH);
                 OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
                 Debug.LogError($"Saved data for {_profile} was empty");
             }
         }
         else
         {
-            Debug.Log($"Profile was default");
-            OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
+            LogDebug($"Profile was default");
             SpawnDefaultControllers();
+            SetFaderWidth(DEFAULT_FADER_WIDTH);
+            OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
+        }
+    }
+
+    void SetFaderWidth(float _width)
+    {
+        if (_width != ProfilesManager.ProfileSaveData.NULL_WIDTH)
+        {
+            faderWidth = _width;
+        }
+        else
+        {
+            faderWidth = DEFAULT_FADER_WIDTH;
         }
     }
 
     void SpawnDefaultControllers()
     {
-        Debug.Log("Spawning Defaults");
+        LogDebug("Spawning Defaults");
         NukeControllers();
 
         for (int i = 0; i < defaultControllers.Count; i++)
@@ -208,7 +212,7 @@ public class ControlsManager : MonoBehaviourExtended
         MultiOptionAction controller2DAction = new MultiOptionAction("2D Controller", () => NewController(ControllerType.Controller2D));
         MultiOptionAction buttonAction = new MultiOptionAction("Button", () => throw new NotImplementedException());
         MultiOptionAction controllerTemplateAction = new MultiOptionAction("From Template", () => throw new NotImplementedException());
-        Utilities.instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction, buttonAction, controllerTemplateAction);
+        UtilityWindows.instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction, buttonAction, controllerTemplateAction);
     }
 
     void NewController(ControllerType _type)
@@ -239,12 +243,18 @@ public class ControlsManager : MonoBehaviourExtended
 
     public GameObject SpawnController (ControllerData _data)
     {
-        GameObject control = null;
+        GameObject control;
         GameObject prefab = GetControllerPrefabFromType(_data.GetType());
 
         //spawn this type
         control = SpawnControllerObject(_data, prefab);
         controllerObjects.Add(_data, control);
+
+        if(!_data.GetEnabled())
+        {
+            //do this after a frame to allow the controller to run its Start method
+            DoNextFrame(() => control.SetActive(false));
+        }
 
         UIManager.instance.SpawnControllerOptions(_data, control);
 
@@ -322,106 +332,6 @@ public class ControlsManager : MonoBehaviourExtended
     {
         public ControllerType controlType;
         public GameObject controlPrefab;
-    }
-
-    [Serializable]
-    public abstract class ControllerData
-    {
-        [SerializeField] protected string name;
-        [SerializeField] protected List<ControllerSettings> controllers = new List<ControllerSettings>();
-        [SerializeField] protected int position = NULL_POSITION;
-        [SerializeField] protected bool enabled = true;
-        [SerializeField] protected float width = 1f;
-
-        protected const int NULL_POSITION = -1;
-
-        public void SetPosition(int _index)
-        {
-            position = _index;
-        }
-
-        public int GetPosition()
-        {
-            return position;
-        }
-
-        public ControllerSettings GetController()
-        {
-            if(controllers.Count > 0)
-            {
-                return controllers[0];
-            }
-
-            return null;
-        }
-
-        public List<ControllerSettings> GetControllers()
-        {
-            return controllers;
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-
-        public void SetName(string _name)
-        {
-            name = _name;
-        }
-
-        public void SetEnabled(bool _enabled)
-        {
-            enabled = _enabled;
-        }
-
-        public void SetWidth(float value)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [Serializable]
-    public class FaderData : ControllerData
-    {
-        public FaderData(string name, ControllerSettings config)
-        {
-            controllers.Add(config);
-            this.name = name;
-        }
-
-        public FaderData(FaderData _data)
-        {
-            name = _data.name;
-            controllers = _data.controllers;
-            position = _data.GetPosition();
-        }
-    }
-
-    [Serializable]
-    public class Controller2DData : ControllerData
-    {
-        public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
-        {
-            controllers.Add(horizontalConfig);
-            controllers.Add(verticalConfig);
-            this.name = name;
-        }
-        public Controller2DData(Controller2DData _data)
-        {
-            name = _data.name;
-            controllers = _data.controllers;
-            position = _data.GetPosition();
-        }
-
-        public ControllerSettings GetHorizontalController()
-        {
-            return controllers[0];
-        }
-        public ControllerSettings GetVerticalController()
-        {
-            return controllers[1];
-        }
     }
 
     

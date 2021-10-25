@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static ColorProfile;
 
-public class ColorController : MonoBehaviour
+public class ColorController : MonoBehaviourExtended
 {
     #region Serialized Fields
     [Header("Main Color UI")]
@@ -36,7 +36,7 @@ public class ColorController : MonoBehaviour
         get { return currentColorProfile; }
         set {
             currentColorProfile = value;
-            Debug.Log($"Set Current Color Profile: {currentColorProfile.Name}");
+            LogDebug($"Set Current Color Profile: {currentColorProfile.Name}");
         }
     }
 
@@ -313,7 +313,7 @@ public class ColorController : MonoBehaviour
     {
         if (!_savingDefault && _colorProfile.Name == DEFAULT_COLOR_PROFILE)
         {
-            Utilities.instance.ErrorWindow($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
+            UtilityWindows.instance.ErrorWindow($"Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on this and any new profile you create, click \"Set as Default Color Scheme\"");
             return;
         }
 
@@ -323,16 +323,16 @@ public class ColorController : MonoBehaviour
         {
             if (_colorProfile.Name != DEFAULT_COLOR_PROFILE)
             {
-                Utilities.instance.ConfirmationWindow($"Saved color profile for {_colorProfile.Name}!");
+                UtilityWindows.instance.ConfirmationWindow($"Saved color profile for {_colorProfile.Name}!");
             }
             else
             {
-                Utilities.instance.ConfirmationWindow($"Set default colors!");
+                UtilityWindows.instance.ConfirmationWindow($"Set default colors!");
             }
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Error saving colors for profile {_colorProfile.Name}. Check Log for details.");
+            UtilityWindows.instance.ErrorWindow($"Error saving colors for profile {_colorProfile.Name}. Check Log for details.");
         }
     }
 
@@ -371,7 +371,7 @@ public class ColorController : MonoBehaviour
             CurrentColorProfile = new ColorProfile(GetDefaultColorProfile(), _profile);
         }
 
-        Debug.Log($"Loaded Colors: {CurrentColorProfile.Name}\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
+        LogDebug($"Loaded Colors: {CurrentColorProfile.Name}\n" + ColorProfile.DebugColorProfile(CurrentColorProfile));
 
         UpdateAppColors();
         SetSlidersToCurrentColor();
@@ -452,20 +452,20 @@ public class ColorController : MonoBehaviour
     {
         if (DoesPresetExist(_name))
         {
-            Utilities.instance.ErrorWindow("Preset with this name already exists, please use another.");
+            UtilityWindows.instance.ErrorWindow("Preset with this name already exists, please use another.");
             return;
         }
 
-        List<char> invalidChars = ControlsManager.GetInvalidFileNameCharacters(_name);
+        List<char> invalidChars = ProfilesManager.GetInvalidFileNameCharacters(_name);
         if (invalidChars.Count > 0)
         {
             if (invalidChars.Count == 1)
             {
-                Utilities.instance.ErrorWindow($"Chosen preset name contains an invalid character.");
+                UtilityWindows.instance.ErrorWindow($"Chosen preset name contains an invalid character.");
             }
             else
             {
-                Utilities.instance.ErrorWindow($"Chosen preset name contains {invalidChars.Count} invalid characters.");
+                UtilityWindows.instance.ErrorWindow($"Chosen preset name contains {invalidChars.Count} invalid characters.");
             }
 
             return;
@@ -476,11 +476,11 @@ public class ColorController : MonoBehaviour
 
         if (saved)
         {
-            Utilities.instance.ConfirmationWindow($"Saved preset {preset.Name}");
+            UtilityWindows.instance.ConfirmationWindow($"Saved preset {preset.Name}");
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Error saving preset {preset.Name}. Check the Log for details.");
+            UtilityWindows.instance.ErrorWindow($"Error saving preset {preset.Name}. Check the Log for details.");
         }
 
         AddPresetSelectorAfterSave(preset);
@@ -502,12 +502,12 @@ public class ColorController : MonoBehaviour
         if (deleted)
         {
             RemoveUserPresetSelector(presetName);
-            Utilities.instance.ConfirmationWindow($"{presetName} preset deleted!");
+            UtilityWindows.instance.ConfirmationWindow($"{presetName} preset deleted!");
         }
         else
         {
             Debug.LogError($"No preset found to delete with name {presetName}");
-            Utilities.instance.ErrorWindow($"Error deleting preset {presetName}. Check the Log for details.");
+            UtilityWindows.instance.ErrorWindow($"Error deleting preset {presetName}. Check the Log for details.");
         }
     }
 
@@ -611,15 +611,15 @@ public class ColorController : MonoBehaviour
     {
         if (string.IsNullOrEmpty(currentPresetSelection))
         {
-            Utilities.instance.ErrorWindow($"No preset selected!");
+            UtilityWindows.instance.ErrorWindow($"No preset selected!");
         }
         else if (PresetIsBuiltIn(currentPresetSelection))
         {
-            Utilities.instance.ErrorWindow($"Can't delete a built-in preset!");
+            UtilityWindows.instance.ErrorWindow($"Can't delete a built-in preset!");
         }
         else
         {
-            Utilities.instance.VerificationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
+            UtilityWindows.instance.VerificationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
         }
     }
 
@@ -638,7 +638,7 @@ public class ColorController : MonoBehaviour
 
     void CreateSaveWindow()
     {
-        Utilities.instance.VerificationWindow("Enter Name:", SavePreset, null, "Save");
+        UtilityWindows.instance.VerificationWindow("Enter Name:", SavePreset, null, "Save");
     }
 
     void SetColorsFromPreset(ColorPreset _preset)

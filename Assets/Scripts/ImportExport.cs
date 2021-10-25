@@ -46,7 +46,7 @@ public class ImportExport : MonoBehaviour
     void ConfirmImport()
     {
         RequestPermission();
-        Utilities.instance.VerificationWindow($"WARNING: This will wipe all of your current profiles and replace them with the backup archive selected.\nPlease double-check that you're selecting the correct file.\nIf you can't see the file in the file picker, you may need to restart your device. This is an Android bug.", FilePickerToImport, null, "Import anyway");
+        UtilityWindows.instance.VerificationWindow($"WARNING: This will wipe all of your current profiles and replace them with the backup archive selected.\nPlease double-check that you're selecting the correct file.\nIf you can't see the file in the file picker, you may need to restart your device. This is an Android bug.", FilePickerToImport, null, "Import anyway");
     }
 
     void FilePickerToImport()
@@ -69,7 +69,7 @@ public class ImportExport : MonoBehaviour
     void CreateZipFile(string _destinationPath, float _delay = 0f)
     {
         ZipFile.CreateFromDirectory(Application.persistentDataPath, _destinationPath, System.IO.Compression.CompressionLevel.Optimal, false);
-        Utilities.instance.ConfirmationWindow("Backup created! Check your Downloads folder.");
+        UtilityWindows.instance.ConfirmationWindow("Backup created! Check your Downloads folder.");
         Debug.Log($"Exported backup to {_destinationPath}");
     }
 
@@ -88,12 +88,12 @@ public class ImportExport : MonoBehaviour
         catch(System.Exception e)
         {
             Debug.LogError($"IMPORT ERROR: {e}");
-            Utilities.instance.ErrorWindow($"Error importing zip file! Check the log for more detailed technical information on the error.");
+            UtilityWindows.instance.ErrorWindow($"Error importing zip file! Check the log for more detailed technical information on the error.");
             return;
 		}
 
         //confirmation window then reload scene
-        Utilities.instance.ConfirmationWindow("Import complete!", ReloadScene);
+        UtilityWindows.instance.ConfirmationWindow("Import complete!", ReloadScene);
 	}
 
     void ExtractAndReplaceFiles(string _path)

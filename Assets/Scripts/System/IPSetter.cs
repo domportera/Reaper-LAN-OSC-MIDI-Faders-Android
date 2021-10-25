@@ -80,7 +80,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            Utilities.instance.ErrorWindow("Invalid IP Address");
+            UtilityWindows.instance.ErrorWindow("Invalid IP Address");
         }
     }
 
@@ -118,7 +118,7 @@ public class IPSetter : MonoBehaviour
         }
         else
         {
-            Utilities.instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
+            UtilityWindows.instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
         }
     }
 

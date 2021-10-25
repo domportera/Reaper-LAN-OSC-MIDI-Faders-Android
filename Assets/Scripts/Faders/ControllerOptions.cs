@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.UI;
-using static ControlsManager;
 
 public abstract class ControllerOptions : MonoBehaviour
 {
@@ -14,9 +13,9 @@ public abstract class ControllerOptions : MonoBehaviour
     [SerializeField] protected Button deleteButton = null;
 
     protected ControllerData controlData;
-    RectTransform controlObjectTransform;
+    protected RectTransform controlObjectTransform;
 
-    void Awake()
+    protected virtual void Awake()
     {
         nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         applyButton.onClick.AddListener(Apply);
@@ -24,7 +23,7 @@ public abstract class ControllerOptions : MonoBehaviour
         deleteButton.onClick.AddListener(Delete);
     }
 
-    protected void Start()
+    protected virtual void Start()
     {
         gameObject.SetActive(false);
     }
@@ -72,7 +71,7 @@ public abstract class ControllerOptions : MonoBehaviour
 
         if (!valid)
         {
-            Utilities.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
+            UtilityWindows.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
             return false;
         }
 
@@ -90,7 +89,7 @@ public abstract class ControllerOptions : MonoBehaviour
     {
         SetControllerMasterVariables();
         ControlsManager.instance.RespawnController(controlData);
-        Utilities.instance.ConfirmationWindow("Settings applied!");
+        UtilityWindows.instance.ConfirmationWindow("Settings applied!");
     }
 
     protected void Close()
@@ -98,15 +97,8 @@ public abstract class ControllerOptions : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    protected virtual void SetFaderWidth(float _width)
+    protected virtual void SetWidth(float _width)
     {
-        controlObjectTransform.sizeDelta = new Vector2(_width, controlObjectTransform.sizeDelta.y);
-        RefreshFaderLayoutGroup();
-    }
-
-    protected void RefreshFaderLayoutGroup()
-    {
-        UIManager.instance.GetControllerLayoutGroup().enabled = false;
-        UIManager.instance.GetControllerLayoutGroup().enabled = true;
+        controlObjectTransform.sizeDelta = new Vector2(controlObjectTransform.sizeDelta.y * _width, controlObjectTransform.sizeDelta.y);
     }
 }

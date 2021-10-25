@@ -39,7 +39,7 @@ public class Controller2D : MonoBehaviour, ISortingMember
 
     float originalWidth;
 
-    ControlsManager.Controller2DData controlData;
+    Controller2DData controlData;
 
     [SerializeField] float interactionPadding = 20f;
 
@@ -74,7 +74,7 @@ public class Controller2D : MonoBehaviour, ISortingMember
         MoveComponentsWithMIDI();
     }
 
-    public void Initialize(ControlsManager.Controller2DData _data)
+    public void Initialize(Controller2DData _data)
     {
         verticalController.Initialize(_data, 0);
         horizontalController.Initialize(_data, 1);
@@ -206,7 +206,7 @@ public class Controller2D : MonoBehaviour, ISortingMember
             case RectBounds.Bottom:
                 return -_rect.rect.height * _rect.pivot.y; ;
             default:
-                Debug.LogError($"Button bound {_side} not implemented", this);
+                Debug.LogError($"Rect bound {_side} not implemented", this);
                 return 0;
         }
     }
