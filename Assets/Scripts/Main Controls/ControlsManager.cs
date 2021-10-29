@@ -77,10 +77,6 @@ public class ControlsManager : MonoBehaviourExtended
 
     public static ControlsManager instance;
 
-    float faderWidth = DEFAULT_FADER_WIDTH;
-    public float FaderWidth { get { return faderWidth; } set { faderWidth = value; } }
-    const float DEFAULT_FADER_WIDTH = 0.25f;
-
     void Awake()
     {
         if(instance == null)
@@ -115,9 +111,6 @@ public class ControlsManager : MonoBehaviourExtended
             if (loadedData != null || loadedData.GetControllers().Count > 0)
             {
                 controllers = loadedData.GetControllers();
-
-                float loadedWidth = loadedData.GetFaderWidth();
-                SetFaderWidth(loadedWidth);
                 
                 SpawnControllers(controllers);
                 OnProfileLoaded.Invoke(_profile);
@@ -126,7 +119,6 @@ public class ControlsManager : MonoBehaviourExtended
             {
                 //spawn defaults if no save data
                 SpawnDefaultControllers();
-                SetFaderWidth(DEFAULT_FADER_WIDTH);
                 OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
                 Debug.LogError($"Saved data for {_profile} was empty");
             }
@@ -135,20 +127,7 @@ public class ControlsManager : MonoBehaviourExtended
         {
             LogDebug($"Profile was default");
             SpawnDefaultControllers();
-            SetFaderWidth(DEFAULT_FADER_WIDTH);
             OnProfileLoaded.Invoke(ProfilesManager.DEFAULT_SAVE_NAME);
-        }
-    }
-
-    void SetFaderWidth(float _width)
-    {
-        if (_width != ProfilesManager.ProfileSaveData.NULL_WIDTH)
-        {
-            faderWidth = _width;
-        }
-        else
-        {
-            faderWidth = DEFAULT_FADER_WIDTH;
         }
     }
 
@@ -203,7 +182,6 @@ public class ControlsManager : MonoBehaviourExtended
         {
             SpawnController(set);
         }
-
     }
 
     public void NewController()
@@ -228,17 +206,13 @@ public class ControlsManager : MonoBehaviourExtended
                 newControl = new Controller2DData(defaultController2D);
                 break;
             default:
-                newControl = null;
                 Debug.LogError($"Controller type {_type} not implemented in ControlsManager", this);
-                break;
+                return;
         }
 
         GameObject newController = SpawnController(newControl);
-
-        if (newController != null)
-        {
-            newControl.SetPosition(newController.transform.GetSiblingIndex());
-        }
+        newControl.SetPosition(newController.transform.GetSiblingIndex());
+        UIManager.instance.ShowControllerOptions(newControl);
     }
 
     public GameObject SpawnController (ControllerData _data)
@@ -325,6 +299,18 @@ public class ControlsManager : MonoBehaviourExtended
         Debug.LogError($"No ControllerType implemented in list for type {_type}", this);
         return null;
     }
+    public float GetFaderWidth()
+    {
+        foreach (ControllerData c in controllers)
+        {
+            if(c.GetType() == typeof(FaderData))
+            {
+                return c.GetWidth();
+            }
+        }
+
+        return ControllerData.widthRanges[typeof(FaderData)].defaultValue;
+    }
 
     //used to pair prefabs with their control type
     [Serializable]
@@ -334,5 +320,4 @@ public class ControlsManager : MonoBehaviourExtended
         public GameObject controlPrefab;
     }
 
-    
 }

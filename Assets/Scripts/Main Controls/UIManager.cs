@@ -23,7 +23,6 @@ public class UIManager : MonoBehaviourExtended
     [SerializeField] Button faderPositionExitButton = null;
     [SerializeField] HorizontalLayoutGroup faderLayoutGroup = null;
     [SerializeField] Button optionsButtonSortingButton = null;
-    [SerializeField] Button widthButton = null;
 
     [SerializeField] Button setupButton;
     [SerializeField] Button closeSetupButton;
@@ -60,8 +59,6 @@ public class UIManager : MonoBehaviourExtended
     public static UIManager instance;
 
     bool sortOptionsByName = false;
-    UnityEvent<float> widthEvent = new UnityEvent<float>();
-    public UnityEvent<float> WidthEvent { get { return widthEvent; } }
 
     // Start is called before the first frame update
     void Awake()
@@ -86,7 +83,6 @@ public class UIManager : MonoBehaviourExtended
 
         //if not loaded, use default //when faderwidth is loaded, it will need to change the size of faders. faders should be playerprefs
         faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
-        widthButton.onClick.AddListener(WidthButtonPressed);
         optionsButtonSortingButton.onClick.AddListener(() => SwitchOptionsButtonSorting(!sortOptionsByName));
         SwitchOptionsButtonSorting(false);
         newControllerButton.onClick.AddListener(ControlsManager.instance.NewController);
@@ -116,7 +112,7 @@ public class UIManager : MonoBehaviourExtended
         optionsPanel.SetActive(!optionsPanel.activeInHierarchy);
     }
 
-
+    #region Controller Options
     public void SpawnControllerOptions(ControllerData _config, GameObject _control)
     {
         //check if any other controller buttons exist for this, then destroy all its contents
@@ -176,6 +172,105 @@ public class UIManager : MonoBehaviourExtended
         return menuObj;
     }
 
+
+
+    void AddOptionsButtonToLayout(GameObject _button)
+    {
+        for (int i = 0; i < layoutCounts.Count; i++)
+        {
+            if (layoutCounts[i].count < sliderButtonLayoutCapacity)
+            {
+                _button.transform.SetParent(layoutCounts[i].layoutGroup.transform);
+                _button.transform.SetSiblingIndex(layoutCounts[i].count);
+                layoutCounts[i].count++;
+                return;
+            }
+        }
+
+        //all layouts full, create a new one
+
+        AddNewLayoutCount();
+        AddOptionsButtonToLayout(_button);
+    }
+
+    void DestroyEmptyLayouts()
+    {
+        for (int i = 0; i < layoutCounts.Count; i++)
+        {
+            if (layoutCounts[i].count == 0)
+            {
+                //destroy
+                Destroy(layoutCounts[i].layoutGroup);
+                layoutCounts.RemoveAt(i);
+                i--;
+            }
+        }
+    }
+
+    public void DestroyControllerGroup(ControllerData _config)
+    {
+        DestroyControllerGroup(GetButtonGroupByConfig(_config));
+    }
+    void DestroyControllerGroup(ControllerUIGroup _buttonGroup)
+    {
+        //destroy all params
+        _buttonGroup.SelfDestruct();
+
+        //remove from list
+        controllerUIs.Remove(_buttonGroup);
+
+        //check for empty layouts, and destroy it
+        DestroyEmptyLayouts();
+
+        SortOptionsButtons();
+    }
+
+    public void DestroyControllerObjects(ControllerData _config)
+    {
+        ControllerUIGroup buttonGroup = GetButtonGroupByConfig(_config);
+        DestroyControllerGroup(buttonGroup);
+    }
+
+    void RemoveFromLayout(ControllerUIGroup _buttonGroup)
+    {
+        LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.activateControllerOptionsButton.gameObject);
+
+        if (layout != null)
+        {
+            layout.count--;
+        }
+        else
+        {
+            Debug.LogError("Null layout! button didn't find its parent.");
+        }
+    }
+
+    void AddNewLayoutCount()
+    {
+        LayoutGroupButtonCount lay = new LayoutGroupButtonCount();
+        lay.layoutGroup = Instantiate(sliderOptionsButtonLayoutPrefab);
+        lay.layoutGroup.transform.SetParent(sliderButtonVerticalLayoutParent.transform);
+        layoutCounts.Add(lay);
+    }
+
+    public void ShowControllerOptions(ControllerData _data)
+    {
+        ControllerUIGroup uiGroup = GetButtonGroupByConfig(_data);
+        uiGroup.SetControllerOptionsActive(true);
+    }
+
+    ControllerUIGroup GetButtonGroupByConfig(ControllerData _data)
+    {
+        foreach (ControllerUIGroup cbg in controllerUIs)
+        {
+            if (cbg.controllerData == _data)
+            {
+                return cbg;
+            }
+        }
+        return null;
+    }
+    #endregion Controller Options
     void InitializeCreditsButtons()
     {
         foreach(CreditsButton b in creditsButtons)
@@ -196,113 +291,10 @@ public class UIManager : MonoBehaviourExtended
         }
     }
 
-    void AddOptionsButtonToLayout(GameObject _button)
-    {
-        for(int i = 0; i < layoutCounts.Count; i++)
-        {
-            if(layoutCounts[i].count < sliderButtonLayoutCapacity)
-            {
-                _button.transform.SetParent(layoutCounts[i].layoutGroup.transform);
-                _button.transform.SetSiblingIndex(layoutCounts[i].count);
-                layoutCounts[i].count++;
-                return;
-            }
-        }
-
-        //all layouts full, create a new one
-
-        AddNewLayoutCount();
-        AddOptionsButtonToLayout(_button);
-    }
-
-    public void DestroyControllerGroup(ControllerData _config)
-    {
-        DestroyControllerGroup(GetButtonGroupByConfig(_config));
-    }
-
-    void DestroyControllerGroup(ControllerUIGroup _buttonGroup)
-    {
-        //destroy all params
-        _buttonGroup.SelfDestruct();
-
-        //remove from list
-        controllerUIs.Remove(_buttonGroup);
-
-        //check for empty layouts, and destroy it
-        DestroyEmptyLayouts();
-
-        SortOptionsButtons();
-    }
-
-    void DestroyEmptyLayouts()
-    {
-        for(int i = 0; i < layoutCounts.Count; i++)
-        {
-            if(layoutCounts[i].count == 0)
-            {
-                //destroy
-                Destroy(layoutCounts[i].layoutGroup);
-                layoutCounts.RemoveAt(i);
-                i--;
-            }
-        }
-    }
-
-    public void DestroyControllerObjects(ControllerData _config)
-    {
-        ControllerUIGroup buttonGroup = GetButtonGroupByConfig(_config);
-        DestroyControllerGroup(buttonGroup);
-    }
-
-    void RemoveFromLayout(ControllerUIGroup _buttonGroup)
-    {
-        LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.activateFaderOptionsButton.gameObject);
-
-        if (layout != null)
-        {
-            layout.count--;
-        }
-        else
-        {
-            Debug.LogError("Null layout! button didn't find its parent.");
-        }
-    }
-
-    void AddNewLayoutCount()
-    {
-        LayoutGroupButtonCount lay = new LayoutGroupButtonCount();
-        lay.layoutGroup = Instantiate(sliderOptionsButtonLayoutPrefab);
-        lay.layoutGroup.transform.SetParent(sliderButtonVerticalLayoutParent.transform);
-        layoutCounts.Add(lay);
-    }
-
-    ControllerUIGroup GetButtonGroupByConfig(ControllerData _config)
-    {
-        foreach (ControllerUIGroup cbg in controllerUIs)
-        {
-            if (cbg.controllerConfig == _config)
-            {
-                return cbg;
-            }
-        }
-        return null;
-    }
-
-    public void WidthButtonPressed()
-    {
-        optionsPanel.SetActive(false);
-        UtilityWindows.instance.SliderWindow("Fader Width", ControlsManager.instance.FaderWidth, FaderOptions.widthRange.min, FaderOptions.widthRange.max, SetFaderWidth, () => optionsPanel.SetActive(true));
-    }
-
-    void SetFaderWidth (float _width)
-    {
-        float width = _width;
-        WidthEvent.Invoke(width);
-        ControlsManager.instance.FaderWidth = width;
-        RefreshFaderLayoutGroup();
-    }
-
-    void RefreshFaderLayoutGroup()
+    /// <summary>
+    /// This is used to let the controllers use their own width - for some reason this is necessary for the width to update
+    /// </summary>
+    public void RefreshFaderLayoutGroup()
     {
         faderLayoutGroup.enabled = false;
         faderLayoutGroup.enabled = true;
@@ -337,7 +329,7 @@ public class UIManager : MonoBehaviourExtended
         List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
         for (int i = 0; i < controllerUIs.Count; i++)
         {
-            if (controllerUIs[i].controllerConfig.GetName() == ControlsManager.GetDefaultControllerName(controllerUIs[i].controllerConfig))
+            if (controllerUIs[i].controllerData.GetName() == ControlsManager.GetDefaultControllerName(controllerUIs[i].controllerData))
             {
                 unnamedControls.Add(controllerUIs[i]);
                 controllerUIs.Remove(controllerUIs[i]);
@@ -348,11 +340,11 @@ public class UIManager : MonoBehaviourExtended
         //sort buttons
         if (sortOptionsByName)
         {
-            controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetName().CompareTo(s2.controllerConfig.GetName()));
+            controllerUIs.Sort((s1, s2) => s1.controllerData.GetName().CompareTo(s2.controllerData.GetName()));
         }
         else
         {
-            controllerUIs.Sort((s1, s2) => s1.controllerConfig.GetPosition().CompareTo(s2.controllerConfig.GetPosition()));
+            controllerUIs.Sort((s1, s2) => s1.controllerData.GetPosition().CompareTo(s2.controllerData.GetPosition()));
         }
 
         //add unnamed ones to the end
@@ -364,7 +356,7 @@ public class UIManager : MonoBehaviourExtended
         //place buttons
         foreach (ControllerUIGroup c in controllerUIs)
         {
-            AddOptionsButtonToLayout(c.activateFaderOptionsButton.gameObject);
+            AddOptionsButtonToLayout(c.activateControllerOptionsButton.gameObject);
         }
     }
 
@@ -393,39 +385,40 @@ public class UIManager : MonoBehaviourExtended
     class ControllerUIGroup
     {
         //should be public get private set
-        public Button activateFaderOptionsButton { get; private set; }
+        public Button activateControllerOptionsButton { get; private set; }
         Toggle activationToggle;
         GameObject controlObject;
         RectTransform controlObjectTransform;
-        public ControllerData controllerConfig { get; private set; }
-        public GameObject optionsMenu { get; private set; }
+        public ControllerData controllerData { get; private set; }
+        GameObject optionsMenu;
 
         public ControllerUIGroup(ControllerData _config, GameObject _optionsActivateButtonPrefab, GameObject _controlObject, GameObject _optionsMenu)
         {
-            controllerConfig = _config;
+            controllerData = _config;
             optionsMenu = _optionsMenu;
             controlObject = _controlObject;
 
-            activateFaderOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
-            activateFaderOptionsButton.gameObject.name = _config.GetName() + " Options";
-            activateFaderOptionsButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
-            activateFaderOptionsButton.onClick.AddListener(DisplayFaderOptions);
+            activateControllerOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
+            activateControllerOptionsButton.gameObject.name = _config.GetName() + " Options";
+            activateControllerOptionsButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
+            activateControllerOptionsButton.onClick.AddListener(() => { SetControllerOptionsActive(true); });
+            SetControllerOptionsActive(false);
 
-            activationToggle = activateFaderOptionsButton.GetComponentInChildren<Toggle>();
+            activationToggle = activateControllerOptionsButton.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             activationToggle.SetIsOnWithoutNotify(_config.GetEnabled());
             controlObjectTransform = _controlObject.GetComponentSafer<RectTransform>();
         }
 
-        void DisplayFaderOptions()
+        public void SetControllerOptionsActive(bool _active)
         {
-            optionsMenu.SetActive(true);
+            optionsMenu.SetActive(_active);
         }
 
         public void ToggleControlVisibility(bool _b)
         {
             controlObject.SetActive(_b);
-            controllerConfig.SetEnabled(_b);
+            controllerData.SetEnabled(_b);
 
             if(!_b)
             {
@@ -435,12 +428,12 @@ public class UIManager : MonoBehaviourExtended
 
         public void SetPosition()
         {
-            controllerConfig.SetPosition(controlObjectTransform.GetSiblingIndex());
+            controllerData.SetPosition(controlObjectTransform.GetSiblingIndex());
         }
 
         public void SetPostionMode(bool _b)
         {
-            switch(controllerConfig)
+            switch(controllerData)
             {
                 case FaderData faderData:
                     FaderControl faderControl = controlObject.GetComponent<FaderControl>();
@@ -451,7 +444,7 @@ public class UIManager : MonoBehaviourExtended
                     control2D.SetSortButtonVisibility(_b);
                     break;
                 default:
-                    Debug.LogError($"{controllerConfig.GetType()} not implemented");
+                    Debug.LogError($"{controllerData.GetType()} not implemented");
                     break;
             }
         }
@@ -459,7 +452,7 @@ public class UIManager : MonoBehaviourExtended
         public void SelfDestruct()
         {
             Destroy(optionsMenu);
-            Destroy(activateFaderOptionsButton.gameObject);
+            Destroy(activateControllerOptionsButton.gameObject);
             Destroy(controlObject);
         }
     }

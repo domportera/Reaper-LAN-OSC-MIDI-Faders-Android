@@ -13,19 +13,23 @@ public class ProfilesManager : MonoBehaviour
     [SerializeField] GameObject profileWindow;
     [SerializeField] Button closeProfileWindowButton;
 
+    [Header("Title Text")]
+    [SerializeField] Text titleText;
+    [SerializeField] bool boldTitleText = true;
+
     [Header("Profiles")]
-    [SerializeField] Button saveButton = null;
-    [SerializeField] Button setDefaultButton = null;
+    [SerializeField] Button saveButton;
+    [SerializeField] Button setDefaultButton;
 
     [Header("Delete Profiles")]
-    [SerializeField] Button deleteButton = null;
+    [SerializeField] Button deleteButton;
 
     [Header("Save Profiles As")]
-    [SerializeField] Button saveAsButton = null;
+    [SerializeField] Button saveAsButton;
 
     [Header("Dynamic UI Elements")]
-    [SerializeField] GameObject profileLoadButtonPrefab = null;
-    [SerializeField] Transform profileButtonParent = null;
+    [SerializeField] GameObject profileLoadButtonPrefab;
+    [SerializeField] Transform profileButtonParent;
 
     Dictionary<string, ProfileLoadButton> profileButtons = new Dictionary<string, ProfileLoadButton>();
 
@@ -44,7 +48,7 @@ public class ProfilesManager : MonoBehaviour
     const string PROFILE_LIST_EXTENSION = ".profiles";
 
     private void Awake()
-	{
+    {
         if (instance == null)
         {
             instance = this;
@@ -55,6 +59,14 @@ public class ProfilesManager : MonoBehaviour
             Debug.LogError($"This is the first one", instance);
         }
 
+        basePath = Path.Combine(Application.persistentDataPath, "Controllers");
+
+        InitializeUIElements();
+        LoadProfileNames();
+    }
+
+    private void InitializeUIElements()
+    {
         //profiles
         saveButton.onClick.AddListener(Save);
 
@@ -71,11 +83,7 @@ public class ProfilesManager : MonoBehaviour
         toggleProfileWindowButton.onClick.AddListener(ToggleProfileWindow);
         closeProfileWindowButton.onClick.AddListener(ToggleProfileWindow);
 
-
-        basePath = Path.Combine(Application.persistentDataPath, "Controllers");
-
-        //load profile file names
-        LoadProfileNames();
+        titleText.supportRichText = boldTitleText;
     }
 
     // Start is called before the first frame update
@@ -148,6 +156,8 @@ public class ProfilesManager : MonoBehaviour
         {
             pair.Value.ToggleHighlight(pair.Key == _name);
 		}
+
+        titleText.text = $"<b>{_name}</b>";
     }
 
     void Save()
@@ -245,7 +255,7 @@ public class ProfilesManager : MonoBehaviour
         return DEFAULT_SAVE_NAME;
     }
 
-    public bool SaveProfile(string _name, List<ControllerData> _controllers, float _faderWidth)
+    public bool SaveProfile(string _name, List<ControllerData> _controllers)
     {
         if (_name == DEFAULT_SAVE_NAME)
         {
@@ -253,7 +263,7 @@ public class ProfilesManager : MonoBehaviour
             return false;
         }
 
-        ProfileSaveData saveData = new ProfileSaveData(_controllers, _name, _faderWidth);
+        ProfileSaveData saveData = new ProfileSaveData(_controllers, _name);
         bool success = FileHandler.SaveJson(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
 
         if (success)
@@ -333,8 +343,7 @@ public class ProfilesManager : MonoBehaviour
     {
         List<ControllerData> controllers = ControlsManager.instance.Controllers.OrderBy(control => control.GetName()).ToList();
         controllers.Sort((s1, s2) => s1.GetName().CompareTo(s2.GetName()));
-        float faderWidth = ControlsManager.instance.FaderWidth;
-        return SaveProfile(_name, controllers, faderWidth);
+        return SaveProfile(_name, controllers);
     }
 
     public ProfileSaveData LoadControlsFile(string _fileNameSansExtension)
@@ -358,7 +367,6 @@ public class ProfilesManager : MonoBehaviour
 
     void SaveProfileNames()
     {
-        string json = JsonUtility.ToJson(profileNames, true);
         FileHandler.SaveJson<ProfilesMetadata>(profileNames, basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
     }
 
@@ -382,15 +390,12 @@ public class ProfilesManager : MonoBehaviour
     public class ProfileSaveData
     {
         [SerializeField] string name = string.Empty;
-        [SerializeField] float faderWidth = NULL_WIDTH;
-
-        public const float NULL_WIDTH = 0;
 
         //each type of control data has to be split into its own type-specific list for JsonUtility to agree with it
         [SerializeField] List<FaderData> faderData = new List<FaderData>();
         [SerializeField] List<Controller2DData> controller2DData = new List<Controller2DData>();
 
-        public ProfileSaveData(List<ControllerData> _controllerData, string _name, float _faderWidth)
+        public ProfileSaveData(List<ControllerData> _controllerData, string _name)
         {
             foreach (ControllerData data in _controllerData)
             {
@@ -409,7 +414,6 @@ public class ProfilesManager : MonoBehaviour
             }
 
             name = _name;
-            faderWidth = _faderWidth;
         }
 
         public List<ControllerData> GetControllers()
@@ -432,11 +436,6 @@ public class ProfilesManager : MonoBehaviour
         public string GetName()
         {
             return name;
-        }
-
-        public float GetFaderWidth()
-        {
-            return faderWidth;
         }
     }
 

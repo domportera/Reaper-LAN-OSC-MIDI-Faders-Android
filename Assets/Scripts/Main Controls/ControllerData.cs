@@ -10,8 +10,16 @@ public abstract class ControllerData
     [SerializeField] protected List<ControllerSettings> controllers = new List<ControllerSettings>();
     [SerializeField] protected int position = NULL_POSITION;
     [SerializeField] protected bool enabled = true;
+    [SerializeField] protected float width = NULL_WIDTH;
 
     protected const int NULL_POSITION = -1;
+    protected const int NULL_WIDTH = -1;
+
+    public static readonly Dictionary<Type, Range<float>> widthRanges = new Dictionary<Type, Range<float>>()
+    {
+        {typeof(Controller2DData), new Range<float>(0.4f, 2f, 1f) },
+        {typeof(FaderData), new Range<float>(0.125f, 1f, 0.25f) }
+    };
 
     public void SetPosition(int _index)
     {
@@ -53,14 +61,29 @@ public abstract class ControllerData
         return enabled;
     }
 
+    public void SetWidth(float _width)
+    {
+        width = _width;
+    }
+
+    public float GetWidth()
+    {
+        if(width == NULL_WIDTH)
+        {
+            return widthRanges[GetType()].defaultValue;
+        }
+
+        return width;
+    }
+
+    public Range<float> GetWidthRange()
+    {
+        return widthRanges[GetType()];
+    }
+
     public void SetEnabled(bool _enabled)
     {
         enabled = _enabled;
-    }
-
-    public void SetWidth(float value)
-    {
-        throw new NotImplementedException();
     }
 }
 
@@ -84,8 +107,6 @@ public class FaderData : ControllerData
 [Serializable]
 public class Controller2DData : ControllerData
 {
-    [SerializeField] protected float width = 1f;
-
     public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
     {
         controllers.Add(horizontalConfig);

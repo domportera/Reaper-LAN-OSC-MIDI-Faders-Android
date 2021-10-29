@@ -149,9 +149,16 @@ public class ColorController : MonoBehaviourExtended
         public Text label;
     }
 
-    void TogglePanel()
+    void ChooseColorWindow()
     {
-        panel.SetActive(!panel.activeSelf);
+        MultiOptionAction customOption = new MultiOptionAction("Color Editing", () => { ToggleColorControlWindow(true); });
+        MultiOptionAction presetOption = new MultiOptionAction("Preset Selection", () => { TogglePresetWindow(true); });
+        UtilityWindows.instance.MultiOptionWindow("How would you like to select your colors?", customOption, presetOption);
+    }
+
+    void ToggleColorControlWindow(bool _active)
+    {
+        panel.SetActive(_active);
     }
 
     void SliderChange(float _val)
@@ -247,15 +254,15 @@ public class ColorController : MonoBehaviourExtended
         hueSlider.onValueChanged.AddListener(SliderChange);
         saturationSlider.onValueChanged.AddListener(SliderChange);
         valueSlider.onValueChanged.AddListener(SliderChange);
-        openButton.onClick.AddListener(TogglePanel);
-        closeButton.onClick.AddListener(TogglePanel);
+
+        openButton.onClick.AddListener(ChooseColorWindow);
+        closeButton.onClick.AddListener(() => { ToggleColorControlWindow(false); });
 
         setAsDefaultButton.onClick.AddListener(SaveDefaultProfile);
         revertButton.onClick.AddListener(RevertColorProfile);
         saveButton.onClick.AddListener(SaveProfile);
 
         HighlightSelectedColorType(currentColorType);
-
     }
     #endregion Color Profile UI
 

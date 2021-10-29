@@ -235,11 +235,13 @@ public class Range <T>
 {
     public T min;
     public T max;
+    public readonly T defaultValue;
 
-    public Range(T min, T max)
+    public Range(T min, T max, T defaultValue = default(T))
     {
         this.min = min;
         this.max = max;
+        this.defaultValue = defaultValue;
     }
 }
 
