@@ -14891,7 +14891,19 @@ MonoBehaviour:
   - colorType: 3
     selectionButton: {fileID: 1655800422}
     label: {fileID: 1376733245}
+  previewCurrentColorsAsBuiltIn: 1
+  inspectorPresetDisplay:
+    name: Red
+    background: {r: 0, g: 0, b: 0, a: 0}
+    primary: {r: 0, g: 0, b: 0, a: 0}
+    secondary: {r: 0, g: 0, b: 0, a: 0}
+    tertiary: {r: 0, g: 0, b: 0, a: 0}
   builtInPresets:
+  - name: 
+    background: {r: 0.20392157, g: 0, b: 0, a: 1}
+    primary: {r: 0.69411767, g: 0.27492502, b: 0.27492502, a: 1}
+    secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
+    tertiary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
   - name: Sky Blue
     background: {r: 0.6088581, g: 0.8078013, b: 0.9764706, a: 1}
     primary: {r: 0.21548633, g: 0.3110586, b: 0.4862745, a: 1}

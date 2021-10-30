@@ -31,6 +31,7 @@ public class ColorController : MonoBehaviourExtended
     string fileExtensionProfiles = ".color";
     string profilesBasePath;
     ColorProfile currentColorProfile;
+
     ColorProfile CurrentColorProfile
     {
         get { return currentColorProfile; }
@@ -67,14 +68,20 @@ public class ColorController : MonoBehaviourExtended
     [SerializeField] ColorButton[] colorTypeButtons;
 
     [Header("Built-in Themes")]
+    [Tooltip("This is just used to display the current colors (whatever they are) in the inspector for creating built-in colors")]
+    [SerializeField] bool previewCurrentColorsAsBuiltIn = false;
+    [SerializeField] ColorPresetBuiltIn inspectorPresetDisplay = new ColorPresetBuiltIn();
+
+    [Space(10)]
+    [Tooltip("The first preset will be the default")]
     [SerializeField] ColorPresetBuiltIn[] builtInPresets;
 
-    List<ColorPresetSelector> builtInPresetSelectors = new List<ColorPresetSelector>();
+    List<ColorPresetSelector> defaultBuiltInPreset = new List<ColorPresetSelector>();
     List<ColorPresetSelector> userPresetSelectors = new List<ColorPresetSelector>();
+    const uint defaultBuiltInIndex = 0;
 
     string currentPresetSelection = "";
     #endregion Preset Variables
-
 
     #region Unity Methods
 
@@ -126,6 +133,12 @@ public class ColorController : MonoBehaviourExtended
         {
             c.SetColors(CurrentColorProfile);
         }
+
+
+        if (previewCurrentColorsAsBuiltIn)
+        {
+            UpdateInspectorPresetPreview();
+        }
     }
 
     void UpdateAppColors(ColorSetter _setter)
@@ -136,6 +149,14 @@ public class ColorController : MonoBehaviourExtended
     void UpdateColorProfile(ColorType _type, Color _color)
     {
         CurrentColorProfile.SetColor(_type, _color);
+    }
+
+    void UpdateInspectorPresetPreview()
+    {
+        inspectorPresetDisplay.background = CurrentColorProfile.GetColor(ColorType.Background);
+        inspectorPresetDisplay.primary = CurrentColorProfile.GetColor(ColorType.Primary);
+        inspectorPresetDisplay.secondary = CurrentColorProfile.GetColor(ColorType.Secondary);
+        inspectorPresetDisplay.tertiary = CurrentColorProfile.GetColor(ColorType.Tertiary);
     }
     #endregion Color Application
 
@@ -354,7 +375,7 @@ public class ColorController : MonoBehaviourExtended
         }
         else
         {
-            return ColorProfile.NewDefaultColorProfile(DEFAULT_COLOR_PROFILE);
+            return ColorPresetBuiltIn.BuiltInPresetToProfile(builtInPresets[defaultBuiltInIndex]);
         }
     }
 
@@ -565,7 +586,7 @@ public class ColorController : MonoBehaviourExtended
 
         if(_isBuiltIn)
         {
-            builtInPresetSelectors.Add(selector);
+            defaultBuiltInPreset.Add(selector);
         }
         else
         {

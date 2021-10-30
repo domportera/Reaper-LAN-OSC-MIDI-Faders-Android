@@ -163,4 +163,9 @@ public struct ColorPresetBuiltIn
 	public Color primary;
 	public Color secondary;
 	public Color tertiary;
+
+	public static ColorProfile BuiltInPresetToProfile(ColorPresetBuiltIn _preset)
+    {
+		return new ColorProfile(_preset.name, _preset.background, _preset.primary, _preset.secondary, _preset.tertiary);
+    }
 }
