@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using UnityEngine;
@@ -36,6 +37,26 @@ public static class ExtensionMethods
 
     #region Vector Operations
 
+
+    #region Divide Self
+    public static void DivideSelf(ref this Vector2 _numerator, Vector2 _denominator)
+    {
+        _numerator = _numerator / _denominator;
+    }
+
+    public static void DivideSelf(ref this Vector3 _numerator, Vector3 _denominator)
+    {
+        _numerator = _numerator.Divide(_denominator);
+    }
+
+    public static void DivideSelf(ref this Vector4 _numerator, Vector4 _denominator)
+    {
+        _numerator = _numerator.Divide(_denominator);
+    }
+    #endregion Divide Self
+
+    #region Division
+
     public static Vector3 Divide(this Vector3 _numerator, Vector3 _denominator)
     {
         return new Vector3(_numerator.x / _denominator.x, _numerator.y / _denominator.y, _numerator.z / _denominator.z);
@@ -45,7 +66,20 @@ public static class ExtensionMethods
     {
         return new Vector4(_numerator.x / _denominator.x, _numerator.y / _denominator.y, _numerator.z / _denominator.z, _numerator.w / _denominator.w);
     }
-    #endregion
+    #endregion Division
+
+    #region Vector to Color Conversion
+    public static Color ToColor(this Vector4 _vector)
+    {
+        return (Color)_vector;
+    }
+    public static Color ToColor(this Vector3 _vector, float _alpha = 1f)
+    {
+        return new Color(_vector.x, _vector.y, _vector.z, _alpha);
+    }
+    #endregion Vector to Color Conversion
+
+    #endregion Vector Operataions
 
     #region Mapping
     public static Vector2 Map(this Vector2 x, Vector2 in_min, Vector2 in_max, Vector2 out_min, Vector2 out_max)
@@ -89,7 +123,103 @@ public static class ExtensionMethods
     {
         return (int)((x - in_min) * (out_max - out_min) / (float)(in_max - in_min) + out_min);
     }
+
+    public static void MapSelf(ref this double x, double in_min, double in_max, double out_min, double out_max)
+    {
+        x = x.Map(in_min, in_max, out_min, out_max);
+    }
+
+    public static void MapSelf(ref this float x, float in_min, float in_max, float out_min, float out_max)
+    {
+        x = x.Map(in_min, in_max, out_min, out_max);
+    }
+
+    public static void MapSelf(ref this int x, int in_min, int in_max, int out_min, int out_max)
+    {
+        x = x.Map(in_min, in_max, out_min, out_max);
+    }
     #endregion Mapping
+
+    #region Averages
+
+    public static float Average(this float x, float floatToAverageWith)
+    {
+        return (x + floatToAverageWith) / 2f;
+    }
+    public static Vector2 Average(this Vector2 x, Vector2 vectorToAverageWith)
+    {
+        return (x + vectorToAverageWith) / 2f;
+    }
+    public static Vector3 Average(this Vector3 x, Vector3 vectorToAverageWith)
+    {
+        return (x + vectorToAverageWith) / 2f;
+    }
+    public static Vector4 Average(this Vector4 x, Vector4 vectorToAverageWith)
+    {
+        return (x + vectorToAverageWith) / 2f;
+    }
+
+    public static float Average(this float[] floatsToAverage)
+    {
+        float sum = 0f;
+
+        foreach(float f in floatsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / floatsToAverage.Length;
+    }
+
+    public static float Average(this int[] intsToAverage)
+    {
+        float sum = 0f;
+
+        foreach (int f in intsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / intsToAverage.Length;
+    }
+
+    public static Vector2 Average(this Vector2[] vecsToAverage)
+    {
+        Vector2 sum = Vector2.zero;
+
+        foreach (Vector2 f in vecsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / vecsToAverage.Length;
+    }
+
+    public static Vector3 Average(this Vector3[] vecsToAverage)
+    {
+        Vector3 sum = Vector3.zero;
+
+        foreach (Vector3 f in vecsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / vecsToAverage.Length;
+    }
+
+    public static Vector4 Average(this Vector4[] vecsToAverage)
+    {
+        Vector4 sum = Vector4.zero;
+
+        foreach (Vector4 f in vecsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / vecsToAverage.Length;
+    }
+
+    #endregion Averages
 
     #region Enums
     public static string GetDescription(this Enum value)
@@ -276,6 +406,10 @@ public abstract class MonoBehaviourExtended : MonoBehaviour
         }
     }
 
+    #endregion Logging
+
+    #region Do Things Later
+
     protected void DoNextFrame(Action _action)
     {
         DoLater(_action, 1);
@@ -311,15 +445,219 @@ public abstract class MonoBehaviourExtended : MonoBehaviour
 
     IEnumerator DoAfterDelay(Action _action, float _delay)
     {
-        for(float timer = 0f; timer < _delay; _delay += Time.deltaTime)
+        for(float timer = 0f; timer < _delay; timer += Time.deltaTime)
         {
             yield return null;
         }
 
         _action.Invoke();
     }
+    #endregion Do Things Later
 
-    #endregion Logging
+}
+
+public static class Operations
+{
+    #region Averages
+    public static float Average(params float[] numsToAverage)
+    {
+        float sum = 0f;
+        foreach (float f in numsToAverage)
+        {
+            sum += f;
+        }
+
+        return sum / numsToAverage.Length;
+    }
+    public static float Average(params int[] numsToAverage)
+    {
+        float sum = 0f;
+        foreach (float f in numsToAverage)
+        {
+            sum += f;
+        }
+        return sum / numsToAverage.Length;
+    }
+
+    public static Vector2 Average(params Vector2[] vecsToAverage)
+    {
+        return vecsToAverage.Average();
+    }
+
+    public static Vector3 Average(params Vector3[] vecsToAverage)
+    {
+        return vecsToAverage.Average();
+    }
+    public static Vector4 Average(params Vector4[] vecsToAverage)
+    {
+        return vecsToAverage.Average();
+    }
+    #endregion Averages
+}
+
+public class Vector2Ext
+{
+    public float x;
+    public float y;
+
+    #region Constructors
+    public Vector2Ext() { }
+    public Vector2Ext(float x, float y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+    public Vector2Ext(Vector2 _vec2)
+    {
+        x = _vec2.x;
+        y = _vec2.y;
+    }
+    public Vector2Ext(Vector3 _vec3)
+    {
+        x = _vec3.x;
+        y = _vec3.y;
+    }
+    public Vector2Ext(Vector4 _vec4)
+    {
+        x = _vec4.x;
+        y = _vec4.y;
+    }
+    public Vector2Ext(Vector2Ext _vec2)
+    {
+        x = _vec2.x;
+        y = _vec2.y;
+    }
+    public Vector2Ext(Vector3Ext _vec3)
+    {
+        x = _vec3.x;
+        y = _vec3.y;
+    }
+    public Vector2Ext(Vector4Ext _vec4)
+    {
+        x = _vec4.x;
+        y = _vec4.y;
+    }
+    #endregion Constructors
+
+    public Vector2 ToVector2()
+    {
+        return new Vector2(x, y);
+    }
+    public Vector2Ext yx { get { return new Vector2Ext(x, y); } }
+}
 
 
+public class Vector3Ext : Vector2Ext
+{
+    public float z;
+
+    #region Constructors
+    public Vector3Ext() { }
+    public Vector3Ext(float x, float y, float z)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    public Vector3Ext(Vector3 _vec3)
+    {
+        this.x = _vec3.x;
+        this.y = _vec3.y;
+        this.z = _vec3.z;
+    }
+    public Vector3Ext(Vector2 _vec2)
+    {
+        this.x = _vec2.x;
+        this.y = _vec2.y;
+    }
+    public Vector3Ext(Vector4 _vec4)
+    {
+        this.x = _vec4.x;
+        this.y = _vec4.y;
+        this.z = _vec4.z;
+    }
+    public Vector3Ext(Vector3Ext _vec3)
+    {
+        this.x = _vec3.x;
+        this.y = _vec3.y;
+        this.z = _vec3.z;
+    }
+    public Vector3Ext(Vector2Ext _vec2)
+    {
+        this.x = _vec2.x;
+        this.y = _vec2.y;
+    }
+    public Vector3Ext(Vector4Ext _vec4)
+    {
+        this.x = _vec4.x;
+        this.y = _vec4.y;
+        this.z = _vec4.z;
+    }
+    #endregion Constructors
+
+    public Vector3 ToVector3()
+    {
+        return new Vector3(x, y, z);
+    }
+
+    public Vector3Ext xxx { get { return new Vector3Ext(x, x, x); } }
+}
+
+public class Vector4Ext : Vector3Ext
+{
+    public float w;
+
+    #region Constructors
+    public Vector4Ext() { }
+    public Vector4Ext(float x, float y, float z, float w)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+    public Vector4Ext(Vector4 _vec4)
+    {
+        this.x = _vec4.x;
+        this.y = _vec4.y;
+        this.z = _vec4.z;
+        this.w = _vec4.w;
+    }
+    public Vector4Ext(Vector3 _vec3)
+    {
+        this.x = _vec3.x;
+        this.y = _vec3.y;
+        this.z = _vec3.z;
+    }
+    public Vector4Ext(Vector2 _vec2)
+    {
+        this.x = _vec2.x;
+        this.y = _vec2.y;
+    }
+    public Vector4Ext(Vector4Ext _vec4)
+    {
+        this.x = _vec4.x;
+        this.y = _vec4.y;
+        this.z = _vec4.z;
+        this.w = _vec4.w;
+    }
+    public Vector4Ext(Vector3Ext _vec3)
+    {
+        this.x = _vec3.x;
+        this.y = _vec3.y;
+        this.z = _vec3.z;
+    }
+    public Vector4Ext(Vector2Ext _vec2)
+    {
+        this.x = _vec2.x;
+        this.y = _vec2.y;
+    }
+
+    #endregion Constructors
+
+    public Vector4 ToVector4()
+    {
+        return new Vector4(x, y, z, w);
+    }
+    public Vector3Ext xxxx { get { return new Vector4Ext(x, x, x, x); } }
 }

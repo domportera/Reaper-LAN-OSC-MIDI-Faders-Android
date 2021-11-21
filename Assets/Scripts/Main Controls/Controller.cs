@@ -16,6 +16,10 @@ public class Controller : MonoBehaviour
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
 
+    public const float MIN = 0;
+    public const float MAX = 1;
+    const float MID = MAX + MIN / 2f;
+
     protected virtual void Start()
     {
         IPSetter.instance.TryConnect(oscSender);
@@ -62,7 +66,7 @@ public class Controller : MonoBehaviour
         targetModValue = Mathf.Lerp(controllerSettings.Min, controllerSettings.Max, Mathf.Clamp01(_val));
     }
 
-    protected int MapValueToCurve(float _value, bool _inverse)
+    protected float MapValueToCurve(float _value, bool _inverse)
     {
         if (controllerSettings.Curve != CurveType.Linear)
         {
@@ -86,7 +90,6 @@ public class Controller : MonoBehaviour
         {
             return (int)_value;
         }
-
     }
 
     void TweenModValue()

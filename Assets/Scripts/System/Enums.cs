@@ -10,8 +10,9 @@ public enum InputMethod { Touch }
 public enum ValueRange
 {
     [Description("7-bit (0-127)")]      SevenBit,
-    [Description("14-bit (0-16383)")]   FourteenBit
-        
+    [Description("14-bit (0-16383)")] FourteenBit,
+    [Description("Custom Range")] Custom
+
     //"8-bit (0-255)",
     //"7-bit (-64-63)",
     //"14-bit(-16384-16383)",
@@ -105,4 +106,3 @@ public static class EnumUtility
         return names.ToArray();
     }
 }
-
