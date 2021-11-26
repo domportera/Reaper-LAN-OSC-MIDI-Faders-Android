@@ -6,19 +6,23 @@ using OscJack;
 [System.Serializable]
 public class OSCControllerSettings
 {
+    #region Saved Values
     [SerializeField] MIDIChannel channel;
     [SerializeField] ValueRange range;
     [SerializeField] int ccNumber;
     [SerializeField] OSCAddressType addressType;
+    [SerializeField] float min;
+    [SerializeField] float max;
+    [SerializeField] string customAddress;
+    #endregion
 
-    [SerializeField] string address;
+    public const float MIN_UNMAPPED = 0f;
+    public const float MAX_UNMAPPED = 1f;
 
-    [SerializeField] int min;
-    [SerializeField] int max;
-
+    #region Built-in addresses
     const string REAPER_MIDI_BASE_ADDRESS = "/vkb_midi/";
-    const string MIDI_CHANNEL_STRING = "#C#"; //string of characters to insert the midi channel
-    const string CC_CHANNEL_STRING = "#CC#"; //string of characters to insert the CC channel
+    const string MIDI_CHANNEL_STRING = "#C#$"; //string of characters to insert the midi channel
+    const string CC_CHANNEL_STRING = "#CC#$"; //string of characters to insert the CC channel
 
     readonly Dictionary<OSCAddressType, string> addressesBuiltIn = new Dictionary<OSCAddressType, string>()
     {
@@ -27,87 +31,45 @@ public class OSCControllerSettings
         { OSCAddressType.MidiPitch, REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "pitch" }
     };
 
-    public OSCControllerSettings(MIDIChannel channel, ValueRange range, OSCAddressType addressType, int ccNumber, string address)
+    readonly Dictionary<OSCAddressType, OSCAddressMode> addressModes = new Dictionary<OSCAddressType, OSCAddressMode>()
+    {
+        { OSCAddressType.MidiCC, OSCAddressMode.MIDI },
+        { OSCAddressType.MidiAftertouch,  OSCAddressMode.MIDI },
+        { OSCAddressType.MidiPitch, OSCAddressMode.MIDI }
+    };
+    #endregion
+
+    public OSCControllerSettings(OSCAddressType addressType, MIDIChannel channel, ValueRange range, int ccNumber)
     {
         this.channel = channel;
         this.range = range;
         this.ccNumber = ccNumber;
-        this.address = address;
         this.addressType = addressType;
     }
 
-    public string GetAddress()
-    {
-        return address;
-    }
-
-    void SetOSCAddressType(OSCAddressType _addressType)
+    public void SetOSCAddressType(OSCAddressType _addressType)
     {
         addressType = _addressType;
-        if(addressesBuiltIn.ContainsKey(_addressType))
-        {
-            address = addressesBuiltIn[_addressType];
-        }
-        else
-        {
-            address = ""; //set to nothing - this is a custom address
-        }
     }
 
-    void SetCCNumber(int _cc)
+    public void SetCCNumber(int _cc)
     {
-        if (addressType != OSCAddressType.MidiCC)
-        {
-            Debug.LogError($"Can't set CC value if OSC address type is not CC");
-            return;
-        }
-
-        address = address.Replace(CC_CHANNEL_STRING, _cc.ToString());
+        ccNumber = Mathf.Clamp(_cc, 0, 127);
     }
 
-    void SetMIDIChannel(MIDIChannel _channel)
+    public void SetMIDIChannel(MIDIChannel _channel)
     {
-        if()
+        channel = _channel;
     }
 
-    bool AddressTypeIsMIDI(OSCAddressType _addressType)
+    public void SetCustomAddress(string _address)
     {
-        return addressType == OSCAddressType.MidiCC || addressType == OSCAddressType.MidiAftertouch || _addressType == OSCAddressType.MidiPitch;
+        customAddress = _address;
     }
 
-    void SetMIDIAddress(OSCAddressType _type, MIDIChannel _channel, int _ccNumber)
+    public void SetRange(ValueRange _range, float _minCustom = 0, float _maxCustom = 0)
     {
-        //add channel if not set to all channels
-        address = "/vkb_midi/" + (_channel == MIDIChannel.All ? "" : (int)_channel + "/");
-
-        //Add additional channel information for each midi address type
-        switch (_type)
-        {
-            case OSCAddressType.MidiCC:
-                if (_ccNumber < 0 || _ccNumber > 127)
-                {
-                    _ccNumber = 127;
-                }
-                address += "cc/" + _ccNumber;
-                break;
-            case OSCAddressType.MidiAftertouch:
-                address += "channelPressure";
-                break;
-            case OSCAddressType.MidiPitch:
-                address += "pitch";
-                break;
-            default:
-                Debug.LogError("MIDI Address type not implemented!");
-                break;
-        }
-
-        ccNumber = _ccNumber;
-    }
-
-
-    void SetRange(ValueRange _range)
-    {
-        switch (_range)
+        switch(_range)
         {
             case ValueRange.SevenBit:
                 min = 0;
@@ -117,11 +79,76 @@ public class OSCControllerSettings
                 min = 0;
                 max = 16383;
                 break;
+            case ValueRange.Float:
+                min = 0f;
+                max = 1f;
+                break;
+            case ValueRange.EightBit:
+                min = 0;
+                max = 255;
+                break;
+            case ValueRange.CustomInt:
+                min = _minCustom;
+                break;
+            case ValueRange.CustomFloat:
+                max = _maxCustom;
+                break;
             default:
                 min = 0;
                 max = 127;
                 Debug.LogError("Value range not implemented! Defaulting to 7-bit 0-127");
                 break;
         }
+    }
+
+    public string GetAddress()
+    {
+        if(addressType == OSCAddressType.Custom)
+        {
+            return customAddress;
+        }
+
+        return CreateBuiltInAddress(addressType);
+    }
+
+    public int GetValueInt(float _value)
+    {
+        return Mathf.RoundToInt(GetValueFloat(_value));
+    }
+
+    public float GetValueFloat(float _value)
+    {
+        return _value.Map(MIN_UNMAPPED, MAX_UNMAPPED, min, max);
+    }
+
+    bool AddressTypeIsMIDI(OSCAddressType _addressType)
+    {
+        return addressModes[_addressType] == OSCAddressMode.MIDI;
+    }
+
+    string CreateBuiltInAddress(OSCAddressType _type)
+    {
+        string address = string.Empty;
+
+        if(addressesBuiltIn.ContainsKey(_type))
+        {
+            address = addressesBuiltIn[_type];
+        }
+        else
+        {
+            Debug.LogError($"OSC Address type {_type} not implemented!");
+        }
+
+        if(AddressTypeIsMIDI(_type) && !string.IsNullOrWhiteSpace(address))
+        {
+            address.Replace(MIDI_CHANNEL_STRING, ((int)channel).ToString());
+
+            if(_type == OSCAddressType.MidiCC)
+            {
+                address.Replace(CC_CHANNEL_STRING, ccNumber.ToString());
+            }
+        }
+
+        return address;
     }
 }

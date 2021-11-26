@@ -9,9 +9,12 @@ public enum InputMethod { Touch }
 
 public enum ValueRange
 {
-    [Description("7-bit (0-127)")]      SevenBit,
-    [Description("14-bit (0-16383)")] FourteenBit,
-    [Description("Custom Range")] Custom
+    [Description("7-bit (0-127)")]          SevenBit,
+    [Description("14-bit (0-16383)")]       FourteenBit,
+    [Description("Floating Point (0-1)")]   Float,
+    [Description("8-bit (0-255)")]          EightBit,
+    [Description("Custom Integer Range")]   CustomInt,
+    [Description("Custom Float Range")]     CustomFloat
 
     //"8-bit (0-255)",
     //"7-bit (-64-63)",
@@ -36,8 +39,14 @@ public enum OSCAddressType
 {
     [Description("CC (MIDI)")] MidiCC,
     [Description("Pitch (MIDI)")] MidiPitch,
-    [Description("Aftertouch (MIDI)")] MidiAftertouch
+    [Description("Aftertouch (MIDI)")] MidiAftertouch,
+    [Description("Custom")] Custom
 };
+
+public enum OSCAddressMode
+{
+    MIDI
+}
 
 public enum MIDIChannel
 {
