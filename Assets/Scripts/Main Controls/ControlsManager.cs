@@ -20,15 +20,31 @@ public class ControlsManager : MonoBehaviourExtended
     Dictionary<ControllerData, GameObject> controllerObjects = new Dictionary<ControllerData, GameObject>();
 
     #region Default Controller Values
-    public static readonly List<ControllerData> defaultControllers = new List<ControllerData>
+    static readonly List<ControllerData> defaultControllers = new List<ControllerData>
     {
-        new FaderData("Pitch",          new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.PitchWheel,    OSCAddressType.MidiPitch,           ValueRange.FourteenBit, DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear)),
-        new FaderData("Mod",            new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear, 1)),
-        new FaderData("Foot Pedal",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear, 4)),
-        new FaderData("Expression",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear, 11)),
-        new FaderData("Breath Control", new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear, 2)),
-        new FaderData("Aftertouch",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiAftertouch,      ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear)),
-        new FaderData("Volume",         new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        OSCAddressType.MidiCC,              ValueRange.SevenBit,    DefaultValueType.Mid,   MIDIChannel.All,    CurveType.Linear, 7))
+        new FaderData("Pitch",          new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.PitchWheel,    defaultOSCSettings[BuiltInOSCPreset.Pitch],         DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Mod",            new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.Mod],           DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Foot Pedal",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.FootPedal],     DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Expression",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.Expression],    DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Breath Control", new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.BreathControl], DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Aftertouch",     new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.Aftertouch],    DefaultValueType.Mid, CurveType.Linear)),
+        new FaderData("Volume",         new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        defaultOSCSettings[BuiltInOSCPreset.Volume],        DefaultValueType.Mid, CurveType.Linear))
+    };
+
+    static readonly Dictionary<BuiltInOSCPreset, OSCControllerSettings> defaultOSCSettings = new Dictionary<BuiltInOSCPreset, OSCControllerSettings>()
+    {
+        {BuiltInOSCPreset.Pitch,            OSCControllerSettings.defaultOSCTemplates[OSCAddressType.MidiPitch] },
+        {BuiltInOSCPreset.Mod,              OSCControllerSettings.defaultOSCTemplates[OSCAddressType.MidiCC] },
+        {BuiltInOSCPreset.Aftertouch,       OSCControllerSettings.defaultOSCTemplates[OSCAddressType.MidiAftertouch] },
+        {BuiltInOSCPreset.FootPedal,        new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       4) },
+        {BuiltInOSCPreset.Expression,       new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       11) },
+        {BuiltInOSCPreset.BreathControl,    new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       2) },
+        {BuiltInOSCPreset.Volume,           new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       7) },
+    };
+
+    enum BuiltInOSCPreset
+    {
+        Pitch, Mod, FootPedal, Expression, BreathControl, Aftertouch, Volume
     };
 
     const string NEW_FADER_NAME = "New Fader";
@@ -47,11 +63,11 @@ public class ControlsManager : MonoBehaviourExtended
     }
 
     readonly FaderData defaultFader = new FaderData(NEW_FADER_NAME,
-        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear));
+        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, defaultOSCSettings[BuiltInOSCPreset.Mod],         DefaultValueType.Min, CurveType.Linear));
 
     readonly Controller2DData defaultController2D = new Controller2DData(NEW_CONTROLLER_2D_NAME,
-        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 1),
-        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, OSCAddressType.MidiCC, ValueRange.SevenBit, DefaultValueType.Min, MIDIChannel.All, CurveType.Linear, 11));
+        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, defaultOSCSettings[BuiltInOSCPreset.Mod],         DefaultValueType.Min, CurveType.Linear),
+        new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, defaultOSCSettings[BuiltInOSCPreset.Expression],  DefaultValueType.Min, CurveType.Linear));
     #endregion Default Controller Values
 
     public class ProfileEvent : UnityEvent<string> { }

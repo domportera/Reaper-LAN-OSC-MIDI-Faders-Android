@@ -110,12 +110,8 @@ public class Controller2D : MonoBehaviour, ISortingMember
 
     void MoveComponentsWithMIDI()
     {
-        float xPercent = Mathf.InverseLerp(horizontalController.controllerSettings.Min,
-            horizontalController.controllerSettings.Max,
-            horizontalController.modValue);
-        float yPercent = Mathf.InverseLerp(verticalController.controllerSettings.Min,
-            verticalController.controllerSettings.Max,
-            verticalController.modValue);
+        float xPercent = Mathf.InverseLerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, horizontalController.modValue);
+        float yPercent = Mathf.InverseLerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, verticalController.modValue);
 
         float xMin = GetRectLocalBounds(RectBounds.Left, buttonRect) + interactionPadding;
         float xMax = GetRectLocalBounds(RectBounds.Right, buttonRect) - interactionPadding;

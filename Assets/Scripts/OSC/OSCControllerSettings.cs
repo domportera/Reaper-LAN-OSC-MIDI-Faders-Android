@@ -3,6 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using OscJack;
 
+/// <summary>
+/// Used for saving and loading OSC Controller settings templates
+/// </summary>
+[System.Serializable]
+public class OSCControllerSettingsTemplate
+{
+    public string name;
+    public OSCControllerSettings oscSettings;
+
+    public OSCControllerSettingsTemplate(string name, OSCControllerSettings oscSettings)
+    {
+        this.name = name;
+        this.oscSettings = oscSettings;
+    }
+}
+
+/// <summary>
+/// Holds all the data needed to send osc messages with easily built addresses and value ranges
+/// </summary>
 [System.Serializable]
 public class OSCControllerSettings
 {
@@ -14,7 +33,15 @@ public class OSCControllerSettings
     [SerializeField] float min;
     [SerializeField] float max;
     [SerializeField] string customAddress;
-    #endregion
+    #endregion Saved Values
+
+    #region Properties
+    public MIDIChannel Channel { get { return channel; } }
+    public ValueRange Range { get { return range; } }
+    public OSCAddressType AddressType { get { return addressType; } }
+    public string CustomAddress { get { return customAddress; } }
+    public int CCNumber { get { return ccNumber; } }
+    #endregion Properties
 
     public const float MIN_UNMAPPED = 0f;
     public const float MAX_UNMAPPED = 1f;
@@ -31,12 +58,22 @@ public class OSCControllerSettings
         { OSCAddressType.MidiPitch, REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "pitch" }
     };
 
-    readonly Dictionary<OSCAddressType, OSCAddressMode> addressModes = new Dictionary<OSCAddressType, OSCAddressMode>()
+    public static readonly Dictionary<OSCAddressType, OSCAddressMode> addressModes = new Dictionary<OSCAddressType, OSCAddressMode>()
     {
         { OSCAddressType.MidiCC, OSCAddressMode.MIDI },
         { OSCAddressType.MidiAftertouch,  OSCAddressMode.MIDI },
-        { OSCAddressType.MidiPitch, OSCAddressMode.MIDI }
+        { OSCAddressType.MidiPitch, OSCAddressMode.MIDI },
+        { OSCAddressType.Custom, OSCAddressMode.Custom }
     };
+
+    public static readonly Dictionary<OSCAddressType, OSCControllerSettings> defaultOSCTemplates = new Dictionary<OSCAddressType, OSCControllerSettings>()
+    {
+        { OSCAddressType.MidiPitch,         new OSCControllerSettings(OSCAddressType.MidiPitch,         MIDIChannel.All, ValueRange.FourteenBit,    0) },
+        { OSCAddressType.MidiAftertouch,    new OSCControllerSettings(OSCAddressType.MidiAftertouch,    MIDIChannel.All, ValueRange.SevenBit,       0) },
+        { OSCAddressType.MidiCC,            new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       1) }
+
+    };
+
     #endregion
 
     public OSCControllerSettings(OSCAddressType addressType, MIDIChannel channel, ValueRange range, int ccNumber)
@@ -45,6 +82,15 @@ public class OSCControllerSettings
         this.range = range;
         this.ccNumber = ccNumber;
         this.addressType = addressType;
+    }
+
+    public OSCControllerSettings(OSCControllerSettings _template)
+    {
+        this.channel = _template.Channel;
+        this.addressType = _template.AddressType;
+        this.ccNumber = _template.CCNumber;
+        this.range = _template.Range;
+        this.customAddress = _template.CustomAddress;
     }
 
     public void SetOSCAddressType(OSCAddressType _addressType)

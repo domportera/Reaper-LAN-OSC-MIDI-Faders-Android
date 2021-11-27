@@ -16,10 +16,6 @@ public class Controller : MonoBehaviour
     const int FRAMES_TO_SEND_DUPLICATES = 10;
     int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
 
-    public const float MIN = 0;
-    public const float MAX = 1;
-    const float MID = MAX + MIN / 2f;
-
     protected virtual void Start()
     {
         IPSetter.instance.TryConnect(oscSender);
@@ -44,7 +40,7 @@ public class Controller : MonoBehaviour
         oscSender.SetAddress(controllerSettings.GetAddress());
 
         //load default values
-        int defaultValue = controllerSettings.DefaultValue;
+        float defaultValue = controllerSettings.DefaultValue;
         modValue = defaultValue;
         pModValue = defaultValue;
         targetModValue = defaultValue;
@@ -63,15 +59,15 @@ public class Controller : MonoBehaviour
 
     public void SetValueAsPercentage (float _val)
     {
-        targetModValue = Mathf.Lerp(controllerSettings.Min, controllerSettings.Max, Mathf.Clamp01(_val));
+        targetModValue = Mathf.Lerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, Mathf.Clamp01(_val));
     }
 
     protected float MapValueToCurve(float _value, bool _inverse)
     {
         if (controllerSettings.Curve != CurveType.Linear)
         {
-            int range = controllerSettings.GetRange();
-            float tempVal = _value - controllerSettings.Min;
+            float range = OSCControllerSettings.MAX_UNMAPPED - OSCControllerSettings.MIN_UNMAPPED;
+            float tempVal = _value - OSCControllerSettings.MIN_UNMAPPED;
             float ratio = tempVal / range;
             float mappedRatio;
 
@@ -84,11 +80,11 @@ public class Controller : MonoBehaviour
                 mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
             }
 
-            return (int)(mappedRatio * range + controllerSettings.Min);
+            return mappedRatio * range + OSCControllerSettings.MIN_UNMAPPED;
         }
         else
         {
-            return (int)_value;
+            return _value;
         }
     }
 
@@ -108,7 +104,7 @@ public class Controller : MonoBehaviour
         }
         else
         {
-            float difference = (controllerSettings.Max - controllerSettings.Min) * Time.deltaTime / controllerSettings.SmoothTime;
+            float difference = (OSCControllerSettings.MAX_UNMAPPED - OSCControllerSettings.MIN_UNMAPPED) * Time.deltaTime / controllerSettings.SmoothTime;
 
             //set to idle if close enough to zero
             if (Mathf.Abs(modValue - targetModValue) < difference)

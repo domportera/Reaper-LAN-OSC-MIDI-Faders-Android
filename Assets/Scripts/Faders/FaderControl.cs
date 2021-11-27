@@ -40,8 +40,8 @@ public class FaderControl : Controller, ISortingMember
 
     void InitializeFaderInteraction()
     {
-        slider.maxValue = controllerSettings.Max;
-        slider.minValue = controllerSettings.Min;
+        slider.maxValue = OSCControllerSettings.MAX_UNMAPPED;
+        slider.minValue = OSCControllerSettings.MIN_UNMAPPED;
         slider.onValueChanged.AddListener(SetValue);
 
         EventTrigger.Entry startEntry = new EventTrigger.Entry();

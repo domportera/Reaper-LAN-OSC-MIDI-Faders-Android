@@ -45,7 +45,7 @@ public enum OSCAddressType
 
 public enum OSCAddressMode
 {
-    MIDI
+    MIDI, Custom
 }
 
 public enum MIDIChannel

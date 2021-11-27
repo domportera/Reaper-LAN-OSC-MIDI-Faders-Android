@@ -9,37 +9,33 @@ public class ControllerSettings
     [SerializeField] ReleaseBehaviorType releaseBehavior;
     [SerializeField] InputMethod inputType;
     [SerializeField] DefaultValueType defaultType;
-    [SerializeField] float mid;
     [SerializeField] float defaultValue;
     [SerializeField] float smoothTime;
     [SerializeField] CurveType curveType;
-    [SerializeField] OSCControllerSettings oscMessage;
+    [SerializeField] OSCControllerSettings oscSettings;
 
 
     public ReleaseBehaviorType ReleaseBehavior { get { return releaseBehavior; } }
     public InputMethod InputType { get { return inputType; } }
     public DefaultValueType DefaultType { get { return defaultType; } }
-    public float Mid { get { return mid; } }
     public float DefaultValue { get { return defaultValue; } }
     public float SmoothTime { get { return smoothTime; } }
     public CurveType Curve { get { return curveType; } }
-    public OSCControllerSettings OscMessage { get { return oscMessage; } }
+    public OSCControllerSettings OscSettings { get { return oscSettings; } }
 
     public ControllerSettings(ControllerSettings _c)
     {
-        SetVariables(_c.inputType, _c.releaseBehavior, _c.oscMessage, _c.defaultType, _c.curveType, _c.smoothTime);
+        SetVariables(_c.inputType, _c.releaseBehavior, _c.oscSettings, _c.defaultType, _c.curveType, _c.smoothTime);
     }
 
-    public ControllerSettings(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscMessage, DefaultValueType _defaultValueType, CurveType _curveType,  float _smoothTime = 0.1f)
+    public ControllerSettings(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscSettings, DefaultValueType _defaultValueType, CurveType _curveType,  float _smoothTime = 0.1f)
     {
-        SetVariables(_inputType, _controlType, _oscMessage, _defaultValueType, _curveType, _smoothTime);
+        SetVariables(_inputType, _controlType, _oscSettings, _defaultValueType, _curveType, _smoothTime);
     }
 
-    public void SetVariables(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscMessage,  DefaultValueType _defaultValueType, CurveType _curveType, float _smoothTime)
+    public void SetVariables(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscSettings,  DefaultValueType _defaultValueType, CurveType _curveType, float _smoothTime)
     {
-        oscMessage = _oscMessage;
-
-        mid = Operations.Average(Controller.MAX, Controller.MIN);
+        oscSettings = _oscSettings;
 
         //sets default value to value type
         SetDefault(_defaultValueType);
@@ -48,6 +44,12 @@ public class ControllerSettings
         defaultType = _defaultValueType;
         smoothTime = _smoothTime;
         curveType = _curveType;
+        inputType = _inputType;
+    }
+
+    public string GetAddress()
+    {
+        return OscSettings.GetAddress();
     }
 
 
@@ -56,16 +58,16 @@ public class ControllerSettings
         switch (_defaultValueType)
         {
             case DefaultValueType.Min:
-                defaultValue = Controller.MIN;
+                defaultValue = OSCControllerSettings.MIN_UNMAPPED;
                 break;
             case DefaultValueType.Mid:
-                defaultValue = mid;
+                defaultValue = Operations.Average(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED);
                 break;
             case DefaultValueType.Max:
-                defaultValue = Controller.MAX;
+                defaultValue = OSCControllerSettings.MAX_UNMAPPED;
                 break;
             default:
-                defaultValue = Controller.MIN;
+                defaultValue = OSCControllerSettings.MIN_UNMAPPED;
                 Debug.LogError("Default value type not implemented! Defaulting to min.");
                 break;
         }
