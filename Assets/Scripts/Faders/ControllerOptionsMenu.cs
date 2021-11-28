@@ -16,8 +16,9 @@ public class ControllerOptionsMenu : OptionsMenu
     [SerializeField] Dropdown defaultValueDropdown = null;
     [SerializeField] Dropdown curveTypeDropdown = null;
     [SerializeField] Button resetValuesButton = null;
+    [SerializeField] Button openOSCOptionsButton = null;
 
-    [SerializeField] GameObject oscSelectionMenuPreset;
+    [SerializeField] GameObject oscSelectionMenuPrefab;
     OSCSelectionMenu oscSelectionMenu;
 
     private void InitializeUI()
@@ -30,13 +31,22 @@ public class ControllerOptionsMenu : OptionsMenu
     {
         controllerConfig = _data;
         InitializeUI();
-
-        oscSelectionMenu = Instantiate(oscSelectionMenuPreset, transform).GetComponentSafer<OSCSelectionMenu>();
-        oscSelectionMenu.Initialize(_data);
-
+        InitializeOSCSelectionMenu(_data);
         SetFieldsToControllerValues();
     }
 
+    private void InitializeOSCSelectionMenu(ControllerSettings _data)
+    {
+        openOSCOptionsButton.onClick.AddListener(OpenOSCSelectionMenu);
+        oscSelectionMenu = Instantiate(oscSelectionMenuPrefab, transform).GetComponentSafer<OSCSelectionMenu>();
+        oscSelectionMenu.Initialize(_data);
+        oscSelectionMenu.gameObject.SetActive(false);
+    }
+
+    void OpenOSCSelectionMenu()
+    {
+        oscSelectionMenu.gameObject.SetActive(true);
+    }
 
     void SetFieldsToControllerValues()
     {

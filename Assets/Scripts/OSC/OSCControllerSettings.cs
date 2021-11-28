@@ -48,8 +48,8 @@ public class OSCControllerSettings
 
     #region Built-in addresses
     const string REAPER_MIDI_BASE_ADDRESS = "/vkb_midi/";
-    const string MIDI_CHANNEL_STRING = "#C#$"; //string of characters to insert the midi channel
-    const string CC_CHANNEL_STRING = "#CC#$"; //string of characters to insert the CC channel
+    public const string MIDI_CHANNEL_STRING = "MIDI_CHANNEL"; //string of characters to insert the midi channel
+    public const string CC_CHANNEL_STRING = "CC_NUMBER"; //string of characters to insert the CC channel
 
     static readonly Dictionary<OSCAddressType, string> addressesBuiltIn = new Dictionary<OSCAddressType, string>()
     {

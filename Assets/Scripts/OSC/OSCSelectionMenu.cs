@@ -23,6 +23,7 @@ public class OSCSelectionMenu : OptionsMenu
     [SerializeField] Dropdown addressTypeDropdown = null;
     [SerializeField] Dropdown valueRangeDropdown = null;
     [SerializeField] InputField ccChannelField = null;
+    [SerializeField] InputField customAddressField = null;
     #endregion Built-in OSC Message Option Fields
 
     ControllerSettings controllerSettings;
@@ -39,7 +40,9 @@ public class OSCSelectionMenu : OptionsMenu
         controllerSettings = _controllerSettings;
         OscSettings = _controllerSettings.OscSettings;
         originalSettings = new OSCControllerSettings(_controllerSettings.OscSettings);
+        SetFieldsToControllerValues(_controllerSettings.OscSettings);
 
+        PopulateDropdowns();
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
 
@@ -114,24 +117,28 @@ public class OSCSelectionMenu : OptionsMenu
                 ToggleUIObject(valueRangeDropdown, true);
                 ccChannelField.SetTextWithoutNotify("1");
                 ToggleUIObject(ccChannelField, true);
+                ToggleUIObject(customAddressField, false);
                 break;
             case OSCAddressType.MidiPitch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
                 ToggleUIObject(valueRangeDropdown, false);
                 ccChannelField.SetTextWithoutNotify("");
                 ToggleUIObject(ccChannelField, false);
+                ToggleUIObject(customAddressField, false);
                 break;
             case OSCAddressType.MidiAftertouch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
                 ToggleUIObject(valueRangeDropdown, false);
                 ccChannelField.SetTextWithoutNotify("");
                 ToggleUIObject(ccChannelField, false);
+                ToggleUIObject(customAddressField, false);
                 break;
             case OSCAddressType.Custom:
-                ToggleUIObject(valueRangeDropdown, false);
+                ToggleUIObject(valueRangeDropdown, true);
                 ToggleUIObject(ccChannelField, false);
                 ToggleUIObject(midiChannelDropdown, false);
                 ToggleUIObject(addressTypeDropdown, true);
+                ToggleUIObject(customAddressField, true);
                 break;
             default:
                 Debug.LogError($"OSC Address Type {_type} not implemented for menu change", this);
@@ -211,6 +218,13 @@ public class OSCSelectionMenu : OptionsMenu
         addressTypeDropdown.SetValueWithoutNotify(_settings.AddressType.GetInt());
         valueRangeDropdown.SetValueWithoutNotify(_settings.Range.GetInt());
         ccChannelField.SetTextWithoutNotify(_settings.CCNumber.ToString());
+
+        ToggleUIObject(midiChannelDropdown, false);
+        ToggleUIObject(midiChannelDropdown, true);
+        ToggleUIObject(addressTypeDropdown, false);
+        ToggleUIObject(addressTypeDropdown, true);
+        ToggleUIObject(valueRangeDropdown, false);
+        ToggleUIObject(valueRangeDropdown, true);
 
     }
 
