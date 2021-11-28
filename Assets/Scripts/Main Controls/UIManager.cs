@@ -286,7 +286,7 @@ public class UIManager : MonoBehaviourExtended
             b.button.onClick.AddListener(() =>
             {
                 UniClipboard.SetText(b.address);
-                UtilityWindows.instance.ConfirmationWindow($"Copied {b.address} to clipboard!");
+                UtilityWindows.instance.QuickNoticeWindow($"Copied {b.address} to clipboard!");
             });
         }
     }

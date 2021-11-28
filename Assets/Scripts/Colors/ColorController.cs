@@ -351,11 +351,11 @@ public class ColorController : MonoBehaviourExtended
         {
             if (_colorProfile.Name != DEFAULT_COLOR_PROFILE)
             {
-                UtilityWindows.instance.ConfirmationWindow($"Saved color profile for {_colorProfile.Name}!");
+                UtilityWindows.instance.QuickNoticeWindow($"Saved color profile for {_colorProfile.Name}!");
             }
             else
             {
-                UtilityWindows.instance.ConfirmationWindow($"Set default colors!");
+                UtilityWindows.instance.QuickNoticeWindow($"Set default colors!");
             }
         }
         else
@@ -484,7 +484,7 @@ public class ColorController : MonoBehaviourExtended
             return;
         }
 
-        List<char> invalidChars = ProfilesManager.GetInvalidFileNameCharacters(_name);
+        List<char> invalidChars = FileHandler.GetInvalidFileNameCharacters(_name);
         if (invalidChars.Count > 0)
         {
             if (invalidChars.Count == 1)
@@ -504,7 +504,7 @@ public class ColorController : MonoBehaviourExtended
 
         if (saved)
         {
-            UtilityWindows.instance.ConfirmationWindow($"Saved preset {preset.Name}");
+            UtilityWindows.instance.QuickNoticeWindow($"Saved preset {preset.Name}");
         }
         else
         {
@@ -530,7 +530,7 @@ public class ColorController : MonoBehaviourExtended
         if (deleted)
         {
             RemoveUserPresetSelector(presetName);
-            UtilityWindows.instance.ConfirmationWindow($"{presetName} preset deleted!");
+            UtilityWindows.instance.QuickNoticeWindow($"{presetName} preset deleted!");
         }
         else
         {
@@ -647,7 +647,7 @@ public class ColorController : MonoBehaviourExtended
         }
         else
         {
-            UtilityWindows.instance.VerificationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
+            UtilityWindows.instance.ConfirmationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
         }
     }
 
@@ -666,7 +666,7 @@ public class ColorController : MonoBehaviourExtended
 
     void CreateSaveWindow()
     {
-        UtilityWindows.instance.VerificationWindow("Enter Name:", SavePreset, null, "Save");
+        UtilityWindows.instance.TextInputWindow("Enter Name:", SavePreset, null, "Save");
     }
 
     void SetColorsFromPreset(ColorPreset _preset)

@@ -96,7 +96,7 @@ public class ProfilesManager : MonoBehaviour
     {
         if (GetActiveProfile() != DEFAULT_SAVE_NAME)
         {
-            UtilityWindows.instance.VerificationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
+            UtilityWindows.instance.ConfirmationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
         }
         else
         {
@@ -106,7 +106,7 @@ public class ProfilesManager : MonoBehaviour
 
     void SaveAsWindow()
     {
-        UtilityWindows.instance.VerificationWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
+        UtilityWindows.instance.TextInputWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
     }
 
     public void PopulateProfileButtons(List<string> _profileNames, string _defaultProfile)
@@ -181,7 +181,7 @@ public class ProfilesManager : MonoBehaviour
         string activeProfile = GetActiveProfile();
         profileNames.SetDefaultProfile(activeProfile);
         SaveProfileNames();
-        UtilityWindows.instance.ConfirmationWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
+        UtilityWindows.instance.QuickNoticeWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
     }
 
     void DeleteProfile()
@@ -268,7 +268,7 @@ public class ProfilesManager : MonoBehaviour
 
         if (success)
         {
-            UtilityWindows.instance.ConfirmationWindow($"Saved {_name}");
+            UtilityWindows.instance.QuickNoticeWindow($"Saved {_name}");
         }
         else
         {
@@ -298,7 +298,7 @@ public class ProfilesManager : MonoBehaviour
             return false;
         }
 
-        List<char> invalidChars = GetInvalidFileNameCharacters(_name);
+        List<char> invalidChars = FileHandler.GetInvalidFileNameCharacters(_name);
         if (invalidChars.Count > 0)
         {
             if (invalidChars.Count == 1)
@@ -368,22 +368,6 @@ public class ProfilesManager : MonoBehaviour
     void SaveProfileNames()
     {
         FileHandler.SaveJson<ProfilesMetadata>(profileNames, basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
-    }
-
-    public static List<char> GetInvalidFileNameCharacters(string _name)
-    {
-        //check for invalid characters
-        char[] invalidFileChars = Path.GetInvalidFileNameChars();
-        List<char> invalidChars = new List<char>();
-        foreach (char c in invalidFileChars)
-        {
-            if (_name.Contains(c.ToString()))
-            {
-                invalidChars.Add(c);
-            }
-        }
-
-        return invalidChars;
     }
 
     [Serializable]

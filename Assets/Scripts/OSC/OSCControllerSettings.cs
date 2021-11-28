@@ -93,6 +93,12 @@ public class OSCControllerSettings
         this.customAddress = _template.CustomAddress;
     }
 
+    public bool Compare(OSCControllerSettings _settings)
+    {
+        bool identical = _settings.CCNumber == CCNumber && _settings.AddressType == AddressType && _settings.Channel == Channel && _settings.CustomAddress == CustomAddress && _settings.Range == Range && _settings.min == min && _settings.max == max;
+        return identical;
+    }
+
     public void SetOSCAddressType(OSCAddressType _addressType)
     {
         addressType = _addressType;

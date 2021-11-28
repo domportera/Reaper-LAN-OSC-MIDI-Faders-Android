@@ -596,7 +596,7 @@ GameObject:
   - component: {fileID: 2784571829508924933}
   - component: {fileID: 2784571829508924932}
   m_Layer: 0
-  m_Name: Verification Window
+  m_Name: Confirmation Window
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

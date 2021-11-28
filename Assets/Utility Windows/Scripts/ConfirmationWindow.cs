@@ -2,7 +2,7 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class VerifyWindow : MonoBehaviour
+public class ConfirmationWindow : MonoBehaviour
 {
     [SerializeField] GameObject root;
     [SerializeField] Button confirmButton;

@@ -359,6 +359,49 @@ public static class FileHandler
     }
 
     #endregion Loading
+
+    #region File Name Validity
+    public static bool ContainsInvalidFileNameCharacters(string _name)
+    {
+        char[] invalidFileChars = Path.GetInvalidFileNameChars();
+        foreach(char c in invalidFileChars)
+        {
+            if(_name.Contains(c.ToString()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool ContainsInvalidFileNameCharacters(string _name, out List<char> _invalidCharacters)
+    {
+        _invalidCharacters = GetInvalidFileNameCharacters(_name);
+        if(_invalidCharacters.Count > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static List<char> GetInvalidFileNameCharacters(string _name)
+    {
+        char[] invalidFileChars = Path.GetInvalidFileNameChars();
+        List<char> invalidChars = new List<char>();
+
+        foreach(char c in invalidFileChars)
+        {
+            if(_name.Contains(c.ToString()))
+            {
+                invalidChars.Add(c);
+            }
+        }
+
+        return invalidChars;
+    }
+    #endregion File Name Validity
 }
 
 public class Range <T>

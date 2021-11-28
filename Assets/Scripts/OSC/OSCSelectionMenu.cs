@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using static UnityEngine.UI.Dropdown;
 
@@ -23,6 +24,7 @@ public class OSCSelectionMenu : OptionsMenu
 
     ControllerSettings controllerSettings;
     public OSCControllerSettings OscSettings { get; private set; }
+    private OSCControllerSettings originalSettings;
 
     const string SUBFOLDER = "OSCSettings";
     const string FILE_EXTENSION = "OSCTemplate";
@@ -31,9 +33,13 @@ public class OSCSelectionMenu : OptionsMenu
     {
         controllerSettings = _controllerSettings;
         OscSettings = _controllerSettings.OscSettings;
+        originalSettings = new OSCControllerSettings(_controllerSettings.OscSettings);
 
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
+
+        InitializeBuiltInMessagePresets();
+        InitializeUserTemplates();
     }
 
 
@@ -53,21 +59,36 @@ public class OSCSelectionMenu : OptionsMenu
     {
         foreach(KeyValuePair<OSCAddressType, OSCControllerSettings> set in OSCControllerSettings.defaultOSCTemplates)
         {
-            CreateOSCCommandButton(set.Value, dawCommandsParent);
+            OSCControllerSettingsTemplate template = new OSCControllerSettingsTemplate(set.Key.GetDescription(), set.Value);
+            CreateOSCCommandButton(template, dawCommandsParent);
         }
     }
 
-    void CreateOSCCommandButton(OSCControllerSettings _settings, Transform _parent)
+    void CreateOSCCommandButton(OSCControllerSettingsTemplate _template, Transform _parent)
     {
         OSCCommandButton button = Instantiate(oscSettingsButtonPrefab, _parent, false).GetComponentSafer<OSCCommandButton>();
-        button.Initialize(() => OSCSelectionButtonPressed(_settings), _settings.AddressType.GetDescription(), _settings.GetAddress());
+        button.Initialize(() => OSCSelectionButtonPressed(_template), _template.name, _template.oscSettings.GetAddress());
     }
 
-    void OSCSelectionButtonPressed(OSCControllerSettings _settings)
+    void OSCSelectionButtonPressed(OSCControllerSettingsTemplate _template)
     {
-        OscSettings = _settings;
-        SetFieldsToControllerValues();
-        AddressTypeMenuChange(_settings.AddressType);
+        OscSettings = _template.oscSettings;
+
+        UnityAction confirm = () =>
+        {
+            SetFieldsToControllerValues();
+            AddressTypeMenuChange(_template.oscSettings.AddressType);
+            originalSettings = new OSCControllerSettings(_template.oscSettings);
+        };
+
+        if(!_template.oscSettings.Compare(originalSettings))
+        {
+            UtilityWindows.instance.ConfirmationWindow($"Override current settings to apply {_template.name} template?", confirm);
+        }
+        else
+        {
+            confirm.Invoke();
+        }
     }
 
     void AddressTypeMenuChange(OSCAddressType _type)
@@ -105,7 +126,55 @@ public class OSCSelectionMenu : OptionsMenu
         }
     }
 
-    void SaveTemplate(string _name, OSCControllerSettings _settings)
+    void InitializeUserTemplates()
+    {
+        List<OSCControllerSettingsTemplate> templates = new List<OSCControllerSettingsTemplate>();
+        templates = LoadUserTemplates();
+
+        foreach(OSCControllerSettingsTemplate t in templates)
+        {
+            CreateOSCCommandButton(t, userCommandsParent);
+        }
+    }
+
+    List<OSCControllerSettingsTemplate> LoadUserTemplates()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SUBFOLDER);
+        DirectoryInfo info = new DirectoryInfo(path);
+        List<OSCControllerSettingsTemplate> templates = new List<OSCControllerSettingsTemplate>();
+
+        foreach(FileInfo f in info.GetFiles())
+        {
+            OSCControllerSettingsTemplate template = FileHandler.LoadJson<OSCControllerSettingsTemplate>(f.DirectoryName, f.Name, f.Extension);
+            templates.Add(template);
+        }
+
+        return templates;
+    }
+
+    void SaveAsButton()
+    {
+        UtilityWindows.instance.TextInputWindow("Enter a name for your OSC template:", SaveAsConfirmed, null, "Save", "Cancel");
+    }
+
+    void SaveAsConfirmed(string _input)
+    {
+        List<char> invalidCharacters = new List<char>();
+        bool valid = FileHandler.ContainsInvalidFileNameCharacters(_input, out invalidCharacters);
+
+        if(valid)
+        {
+            OSCControllerSettingsTemplate template = SaveTemplate(_input, OscSettings);
+            CreateOSCCommandButton(template, userCommandsParent);
+        }
+        else
+        {
+            string invalidCharString = new string(invalidCharacters.ToArray());
+            UtilityWindows.instance.ErrorWindow($"Template name contains invalid characters: {invalidCharString}\nPlease use a name suited for a file name.", SaveAsButton);
+        }
+    }
+
+    OSCControllerSettingsTemplate SaveTemplate(string _name, OSCControllerSettings _settings)
     {
         OSCControllerSettingsTemplate template = new OSCControllerSettingsTemplate(_name, _settings);
         string path = Path.Combine(Application.persistentDataPath, SUBFOLDER);
@@ -113,12 +182,14 @@ public class OSCSelectionMenu : OptionsMenu
 
         if(success)
         {
-            UtilityWindows.instance.ConfirmationWindow($"Saved OSC Template {_name} successfully!");
+            UtilityWindows.instance.QuickNoticeWindow($"Saved OSC Template {_name} successfully!");
         }
         else
         {
             UtilityWindows.instance.ErrorWindow($"Error saving OSC Template {_name}.\nYou can check the log for more details.");
         }
+
+        return template;
     }
 
     void AddressTypeMenuChange(int _val)

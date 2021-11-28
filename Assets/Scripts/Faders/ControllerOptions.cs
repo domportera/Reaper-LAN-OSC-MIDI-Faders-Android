@@ -61,7 +61,7 @@ public abstract class ControllerOptions : MonoBehaviourExtended
     {
         SetControllerDataMasterVariables();
         ControlsManager.instance.RespawnController(controlData);
-        UtilityWindows.instance.ConfirmationWindow("Settings applied!");
+        UtilityWindows.instance.QuickNoticeWindow("Settings applied!");
     }
 
     void Delete()
