@@ -38,13 +38,14 @@ public class OSCSelectionMenu : OptionsMenu
     public void Initialize(ControllerSettings _controllerSettings)
     {
         controllerSettings = _controllerSettings;
-        OscSettings = _controllerSettings.OscSettings;
+        OscSettings = new OSCControllerSettings(_controllerSettings.OscSettings); //create copies so any edits aren't automatically applied
         originalSettings = new OSCControllerSettings(_controllerSettings.OscSettings);
         SetFieldsToControllerValues(_controllerSettings.OscSettings);
 
         PopulateDropdowns();
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
+        customAddressField.onEndEdit.AddListener(VerifyCustomAddressField);
 
         saveAsButton.onClick.AddListener(SaveAsButton);
         backButton.onClick.AddListener(BackButton);
@@ -53,6 +54,33 @@ public class OSCSelectionMenu : OptionsMenu
         InitializeUserTemplates();
     }
 
+    void VerifyCustomAddressField(string _input)
+    {
+        string warning = "Address cannot contain the following strings:";
+        bool containsError = false;
+        string[] bannedStrings = new string[] { OSCControllerSettings.CC_CHANNEL_STRING , OSCControllerSettings.MIDI_CHANNEL_STRING };
+
+        foreach(string s in bannedStrings)
+        {
+            if(_input.Contains(s))
+            {
+                if(containsError)
+                    warning += ',';
+
+                warning += " " + s;
+                containsError = true;
+            }
+        }
+
+        if(containsError)
+        {
+            UtilityWindows.instance.ErrorWindow(warning);
+        }
+        else
+        {
+            OscSettings.SetCustomAddress(_input);
+        }
+    }
 
     public void CheckForCCControl(int _value)
     {
