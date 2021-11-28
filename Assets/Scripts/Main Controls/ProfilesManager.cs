@@ -264,7 +264,7 @@ public class ProfilesManager : MonoBehaviour
         }
 
         ProfileSaveData saveData = new ProfileSaveData(_controllers, _name);
-        bool success = FileHandler.SaveJson(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
+        bool success = FileHandler.SaveJsonObject(saveData, basePath, saveData.GetName(), CONTROLS_EXTENSION);
 
         if (success)
         {
@@ -348,12 +348,12 @@ public class ProfilesManager : MonoBehaviour
 
     public ProfileSaveData LoadControlsFile(string _fileNameSansExtension)
     {
-        return FileHandler.LoadJson<ProfileSaveData>(basePath, _fileNameSansExtension, CONTROLS_EXTENSION);
+        return FileHandler.LoadJsonObject<ProfileSaveData>(basePath, _fileNameSansExtension, CONTROLS_EXTENSION);
     }
 
     void LoadProfileNames()
     {
-        ProfilesMetadata loaded = FileHandler.LoadJson<ProfilesMetadata>(basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
+        ProfilesMetadata loaded = FileHandler.LoadJsonObject<ProfilesMetadata>(basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
 
         if (loaded != null)
         {
@@ -367,7 +367,7 @@ public class ProfilesManager : MonoBehaviour
 
     void SaveProfileNames()
     {
-        FileHandler.SaveJson<ProfilesMetadata>(profileNames, basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
+        FileHandler.SaveJsonObject<ProfilesMetadata>(profileNames, basePath, PROFILE_NAME_SAVE_NAME, PROFILE_LIST_EXTENSION);
     }
 
     [Serializable]

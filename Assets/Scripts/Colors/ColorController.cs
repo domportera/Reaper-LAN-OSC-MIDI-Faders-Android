@@ -131,9 +131,15 @@ public class ColorController : MonoBehaviourExtended
     {
         foreach (ColorSetter c in colorSetters)
         {
-            c.SetColors(CurrentColorProfile);
+            try
+            {
+                c.SetColors(CurrentColorProfile);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error setting colors of {c.gameObject.name}\n{e}", c.gameObject);
+            }
         }
-
 
         if (previewCurrentColorsAsBuiltIn)
         {
@@ -345,7 +351,7 @@ public class ColorController : MonoBehaviourExtended
             return;
         }
 
-        bool saved = FileHandler.SaveJson(_colorProfile, profilesBasePath, _colorProfile.Name, fileExtensionProfiles);
+        bool saved = FileHandler.SaveJsonObject(_colorProfile, profilesBasePath, _colorProfile.Name, fileExtensionProfiles);
 
         if (saved)
         {
@@ -366,7 +372,7 @@ public class ColorController : MonoBehaviourExtended
 
     ColorProfile GetDefaultColorProfile()
     {
-        ColorProfile defaultProfile = FileHandler.LoadJson<ColorProfile>(profilesBasePath, DEFAULT_COLOR_PROFILE, fileExtensionProfiles);
+        ColorProfile defaultProfile = FileHandler.LoadJsonObject<ColorProfile>(profilesBasePath, DEFAULT_COLOR_PROFILE, fileExtensionProfiles);
 
         if (defaultProfile != null)
         {
@@ -386,7 +392,7 @@ public class ColorController : MonoBehaviourExtended
             _profile = DEFAULT_COLOR_PROFILE;
         }
 
-        ColorProfile colorProfile = FileHandler.LoadJson<ColorProfile>(profilesBasePath, _profile, fileExtensionProfiles);
+        ColorProfile colorProfile = FileHandler.LoadJsonObject<ColorProfile>(profilesBasePath, _profile, fileExtensionProfiles);
 
         if (colorProfile != null)
         {
@@ -463,7 +469,7 @@ public class ColorController : MonoBehaviourExtended
 
     ColorPreset LoadPreset(string _name)
     {
-        ColorPreset preset = FileHandler.LoadJson<ColorPreset>(presetsBasePath, _name, fileExtensionPresets);
+        ColorPreset preset = FileHandler.LoadJsonObject<ColorPreset>(presetsBasePath, _name, fileExtensionPresets);
 
         if (preset != null)
         {
@@ -500,7 +506,7 @@ public class ColorController : MonoBehaviourExtended
         }
 
         ColorPreset preset = ColorPreset.ProfileToPreset(CurrentColorProfile, _name);
-        bool saved = FileHandler.SaveJson(preset, presetsBasePath, preset.Name, fileExtensionPresets);
+        bool saved = FileHandler.SaveJsonObject(preset, presetsBasePath, preset.Name, fileExtensionPresets);
 
         if (saved)
         {

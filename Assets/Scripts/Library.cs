@@ -258,7 +258,7 @@ public static class FileHandler
     /// Saves json file of class object to specified directory and file. Will overwrite an existing file. Uses Unity's JsonUtility.
     /// </summary>
     /// <returns>Returns true if successful</returns>
-    public static bool SaveJson<T>(T _save, string _directory, string _fileName, string _fileExtension = ".json", bool _prettyPrint = true)
+    public static bool SaveJsonObject<T>(T _save, string _directory, string _fileName, string _fileExtension = ".json", bool _prettyPrint = true)
     {
         string json = JsonUtility.ToJson(_save, _prettyPrint);
         return SaveTextFile(json, _directory, _fileName, _fileExtension);
@@ -269,14 +269,30 @@ public static class FileHandler
     /// </summary>
     /// <param name="_log">Log to console on successful write</param>
     /// <returns>Returns true if successful</returns>
-    private static bool SaveTextFile(string _text, string _directory, string _fileName, string _fileExtension, bool _log = false)
+    public static bool SaveTextFile(string _text, string _directory, string _fileName, string _fileExtension, bool _log = false)
     {
         if (!Directory.Exists(_directory))
         {
             Directory.CreateDirectory(_directory);
         }
 
-        string fullFileName = _fileName + _fileExtension;
+        if(!_fileExtension.StartsWith('.'))
+        {
+            if(_log)
+            {
+                Debug.LogWarning($"Adding '.' to start of file extension {_fileExtension}");
+            }
+
+            _fileExtension = '.' + _fileExtension;
+        }
+
+        if(_fileExtension.Contains(' '))
+        {
+            Debug.LogError($"File extension should not contain whitespace. Removing before saving.");
+            _fileExtension.Replace(" ", "");
+        }
+
+        string fullFileName = _fileName.Trim() + _fileExtension;
         string path = Path.Combine(_directory, fullFileName);
 
         try
@@ -297,28 +313,67 @@ public static class FileHandler
     #endregion Saving
 
     #region Loading
-    public static T LoadJson<T>(string _directory, string _fileName, string _fileExtension)
+
+    public static List<T> LoadAllJsonObjects<T> (string _directory, string _fileExtension)
+    {
+        DirectoryInfo info = new DirectoryInfo(_directory);
+        List<T> objects = new List<T>();
+
+        if(!info.Exists)
+        {
+            return objects;
+        }
+
+        foreach(FileInfo f in info.GetFiles())
+        {
+            if(f.Extension == _fileExtension)
+            {
+                objects.Add(LoadJsonObject<T>(_directory, f.Name));
+            }
+        }
+
+        return objects;
+    }
+
+    public static T LoadJsonObject<T>(string _directory, string _fileName, string _fileExtension)
     {
         string json = LoadTextFile(_directory, _fileName, _fileExtension);
+        return ObjectFromJson<T>(json);
+    }
 
-        if (string.IsNullOrWhiteSpace(json))
+    static T LoadJsonObject<T>(string _directory, string _fullFileName)
+    {
+        string json = LoadTextFile(_directory, _fullFileName);
+        return ObjectFromJson<T>(json);
+    }
+
+    static T ObjectFromJson<T>(string _json)
+    {
+        if(string.IsNullOrWhiteSpace(_json))
         {
+            Debug.LogWarning($"Attempting to create a json object from empty json text");
             return default(T);
         }
 
-        return JsonUtility.FromJson<T>(json);
+        return JsonUtility.FromJson<T>(_json);
     }
 
     public static string LoadTextFile(string _directory, string _fileName, string _fileExtension)
     {
-        if (!Directory.Exists(_directory))
+        string fullFileName = _fileName + _fileExtension;
+        return LoadTextFile(_directory, fullFileName);
+    }
+
+    static string LoadTextFile(string _directory, string _fullFileName)
+    {
+        if(!Directory.Exists(_directory))
         {
             Debug.LogWarning($"Directory not found at {_directory}");
             return string.Empty;
         }
 
-        string path = Path.Combine(_directory, _fileName + _fileExtension);
-        if (!File.Exists(path))
+        string path = Path.Combine(_directory, _fullFileName);
+        if(!File.Exists(path))
         {
             Debug.LogWarning($"File not found at {path}");
             return string.Empty;
@@ -372,6 +427,11 @@ public static class FileHandler
             }
         }
 
+        if(_name.Contains('/') || _name.Contains('\\'))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -386,16 +446,27 @@ public static class FileHandler
         return false;
     }
 
-    public static List<char> GetInvalidFileNameCharacters(string _name)
+    public static List<char> GetInvalidFileNameCharacters(string _name, char[] _additionalInvalidChars = null)
     {
         char[] invalidFileChars = Path.GetInvalidFileNameChars();
         List<char> invalidChars = new List<char>();
 
         foreach(char c in invalidFileChars)
         {
-            if(_name.Contains(c.ToString()))
+            if(_name.Contains(c))
             {
                 invalidChars.Add(c);
+            }
+        }
+
+        if(_additionalInvalidChars != null)
+        {
+            foreach(char c in _additionalInvalidChars)
+            {
+                if(_name.Contains(c))
+                {
+                    invalidChars.Add(c);
+                }
             }
         }
 
@@ -420,6 +491,11 @@ public class Range <T>
 
 public abstract class MonoBehaviourExtended : MonoBehaviour
 {
+    public T GetComponentSafer<T>()
+    {
+        return gameObject.GetComponentSafer<T>();
+    }
+
     #region Logging
     protected enum DebugMode { Off, Debug, Verbose };
     [SerializeField] DebugMode debugMode = DebugMode.Off;

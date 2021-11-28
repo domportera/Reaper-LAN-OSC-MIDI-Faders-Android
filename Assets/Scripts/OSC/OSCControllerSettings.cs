@@ -51,7 +51,7 @@ public class OSCControllerSettings
     const string MIDI_CHANNEL_STRING = "#C#$"; //string of characters to insert the midi channel
     const string CC_CHANNEL_STRING = "#CC#$"; //string of characters to insert the CC channel
 
-    readonly Dictionary<OSCAddressType, string> addressesBuiltIn = new Dictionary<OSCAddressType, string>()
+    static readonly Dictionary<OSCAddressType, string> addressesBuiltIn = new Dictionary<OSCAddressType, string>()
     {
         { OSCAddressType.MidiCC, REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "cc/" + CC_CHANNEL_STRING },
         { OSCAddressType.MidiAftertouch,  REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "channelPressure" },
@@ -188,7 +188,7 @@ public class OSCControllerSettings
         }
         else
         {
-            Debug.LogError($"OSC Address type {_type} not implemented!");
+            Debug.LogError($"OSC Address type {_type} not added to addresses built in!");
         }
 
         if(AddressTypeIsMIDI(_type) && !string.IsNullOrWhiteSpace(address))

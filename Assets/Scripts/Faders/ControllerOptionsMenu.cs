@@ -31,7 +31,7 @@ public class ControllerOptionsMenu : OptionsMenu
         controllerConfig = _data;
         InitializeUI();
 
-        oscSelectionMenu = Instantiate(oscSelectionMenuPreset).GetComponentSafer<OSCSelectionMenu>();
+        oscSelectionMenu = Instantiate(oscSelectionMenuPreset, transform).GetComponentSafer<OSCSelectionMenu>();
         oscSelectionMenu.Initialize(_data);
 
         SetFieldsToControllerValues();

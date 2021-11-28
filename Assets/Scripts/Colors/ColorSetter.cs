@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ColorSetter : MonoBehaviour
+public class ColorSetter : MonoBehaviourExtended
 {
     [SerializeField]
     ColorProfile.ColorType colorType;
@@ -45,10 +45,10 @@ public class ColorSetter : MonoBehaviour
 
 	void GetColoredComponents()
     {
-		text = GetComponent<Text>();
+		text = GetComponentSafer<Text>();
 		if (text == null)
 		{
-			image = GetComponent<Image>();
+			image = GetComponentSafer<Image>();
 			if (image == null)
 			{
 				Debug.LogWarning($"{name} has no component to color", this);

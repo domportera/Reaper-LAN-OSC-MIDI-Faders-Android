@@ -13,6 +13,9 @@ public class OSCSelectionMenu : OptionsMenu
     [SerializeField] RectTransform dawCommandsParent;
     [SerializeField] RectTransform userCommandsParent;
     [SerializeField] GameObject oscSettingsButtonPrefab;
+    [SerializeField] Button saveAsButton;
+    [SerializeField] Button deleteTemplateButton;
+    [SerializeField] Button backButton;
     #endregion UI elements
 
     #region Built-in OSC Message Option Fields
@@ -27,7 +30,9 @@ public class OSCSelectionMenu : OptionsMenu
     private OSCControllerSettings originalSettings;
 
     const string SUBFOLDER = "OSCSettings";
-    const string FILE_EXTENSION = "OSCTemplate";
+    const string FILE_EXTENSION = ".OSCTemplate";
+
+    List<OSCCommandButton> userTemplateButtons = new List<OSCCommandButton>();
 
     public void Initialize(ControllerSettings _controllerSettings)
     {
@@ -37,6 +42,9 @@ public class OSCSelectionMenu : OptionsMenu
 
         addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
         addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
+
+        saveAsButton.onClick.AddListener(SaveAsButton);
+        backButton.onClick.AddListener(BackButton);
 
         InitializeBuiltInMessagePresets();
         InitializeUserTemplates();
@@ -53,6 +61,11 @@ public class OSCSelectionMenu : OptionsMenu
         {
             ccChannelField.gameObject.SetActive(false);
         }
+    }
+
+    void BackButton()
+    {
+        gameObject.SetActive(false);
     }
 
     void InitializeBuiltInMessagePresets()
@@ -76,7 +89,7 @@ public class OSCSelectionMenu : OptionsMenu
 
         UnityAction confirm = () =>
         {
-            SetFieldsToControllerValues();
+            SetFieldsToControllerValues(_template.oscSettings);
             AddressTypeMenuChange(_template.oscSettings.AddressType);
             originalSettings = new OSCControllerSettings(_template.oscSettings);
         };
@@ -128,8 +141,7 @@ public class OSCSelectionMenu : OptionsMenu
 
     void InitializeUserTemplates()
     {
-        List<OSCControllerSettingsTemplate> templates = new List<OSCControllerSettingsTemplate>();
-        templates = LoadUserTemplates();
+        List<OSCControllerSettingsTemplate> templates = LoadUserTemplates();
 
         foreach(OSCControllerSettingsTemplate t in templates)
         {
@@ -139,16 +151,9 @@ public class OSCSelectionMenu : OptionsMenu
 
     List<OSCControllerSettingsTemplate> LoadUserTemplates()
     {
+        List<OSCControllerSettingsTemplate> templates;
         string path = Path.Combine(Application.persistentDataPath, SUBFOLDER);
-        DirectoryInfo info = new DirectoryInfo(path);
-        List<OSCControllerSettingsTemplate> templates = new List<OSCControllerSettingsTemplate>();
-
-        foreach(FileInfo f in info.GetFiles())
-        {
-            OSCControllerSettingsTemplate template = FileHandler.LoadJson<OSCControllerSettingsTemplate>(f.DirectoryName, f.Name, f.Extension);
-            templates.Add(template);
-        }
-
+        templates = FileHandler.LoadAllJsonObjects<OSCControllerSettingsTemplate>(path, FILE_EXTENSION);
         return templates;
     }
 
@@ -160,9 +165,9 @@ public class OSCSelectionMenu : OptionsMenu
     void SaveAsConfirmed(string _input)
     {
         List<char> invalidCharacters = new List<char>();
-        bool valid = FileHandler.ContainsInvalidFileNameCharacters(_input, out invalidCharacters);
+        bool invalid = FileHandler.ContainsInvalidFileNameCharacters(_input, out invalidCharacters);
 
-        if(valid)
+        if(!invalid)
         {
             OSCControllerSettingsTemplate template = SaveTemplate(_input, OscSettings);
             CreateOSCCommandButton(template, userCommandsParent);
@@ -171,6 +176,7 @@ public class OSCSelectionMenu : OptionsMenu
         {
             string invalidCharString = new string(invalidCharacters.ToArray());
             UtilityWindows.instance.ErrorWindow($"Template name contains invalid characters: {invalidCharString}\nPlease use a name suited for a file name.", SaveAsButton);
+            Debug.LogError($"Invalid file name: {_input}. Offending characters: {invalidCharString}");
         }
     }
 
@@ -178,7 +184,7 @@ public class OSCSelectionMenu : OptionsMenu
     {
         OSCControllerSettingsTemplate template = new OSCControllerSettingsTemplate(_name, _settings);
         string path = Path.Combine(Application.persistentDataPath, SUBFOLDER);
-        bool success = FileHandler.SaveJson(template, path, _name, FILE_EXTENSION);
+        bool success = FileHandler.SaveJsonObject(template, path, _name, FILE_EXTENSION);
 
         if(success)
         {
@@ -197,14 +203,14 @@ public class OSCSelectionMenu : OptionsMenu
         AddressTypeMenuChange((OSCAddressType)_val);
     }
 
-    void SetFieldsToControllerValues()
+    void SetFieldsToControllerValues(OSCControllerSettings _settings)
     {
-        AddressTypeMenuChange((int)OscSettings.AddressType);
+        AddressTypeMenuChange((int)_settings.AddressType);
 
-        midiChannelDropdown.SetValueWithoutNotify(OscSettings.Channel.GetInt());
-        addressTypeDropdown.SetValueWithoutNotify(OscSettings.AddressType.GetInt());
-        valueRangeDropdown.SetValueWithoutNotify(OscSettings.Range.GetInt());
-        ccChannelField.SetTextWithoutNotify(OscSettings.CCNumber.ToString());
+        midiChannelDropdown.SetValueWithoutNotify(_settings.Channel.GetInt());
+        addressTypeDropdown.SetValueWithoutNotify(_settings.AddressType.GetInt());
+        valueRangeDropdown.SetValueWithoutNotify(_settings.Range.GetInt());
+        ccChannelField.SetTextWithoutNotify(_settings.CCNumber.ToString());
 
     }
 

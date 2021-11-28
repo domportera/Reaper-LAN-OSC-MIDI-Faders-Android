@@ -33,7 +33,7 @@ public class UtilityWindows : MonoBehaviour
 
     public void QuickNoticeWindow(string _text, UnityAction _onComplete = null)
     {
-        GameObject window = InstantiateWindow(errorWindowPrefab);
+        GameObject window = InstantiateWindow(quickNoticeWindowPrefab);
         QuickNoticeWindow confirm = window.GetComponent<QuickNoticeWindow>();
         confirm.Initialize(_text, confirmationDisplayTime, _onComplete);
     }
