@@ -385,7 +385,7 @@ public class UIManager : MonoBehaviourExtended
     class ControllerUIGroup
     {
         //should be public get private set
-        public Button activateControllerOptionsButton { get; private set; }
+        public ButtonExtended activateControllerOptionsButton { get; private set; }
         Toggle activationToggle;
         GameObject controlObject;
         RectTransform controlObjectTransform;
@@ -398,16 +398,28 @@ public class UIManager : MonoBehaviourExtended
             optionsMenu = _optionsMenu;
             controlObject = _controlObject;
 
-            activateControllerOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<Button>();
+            activateControllerOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<ButtonExtended>();
             activateControllerOptionsButton.gameObject.name = _config.GetName() + " Options";
             activateControllerOptionsButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
             activateControllerOptionsButton.onClick.AddListener(() => { SetControllerOptionsActive(true); });
+            activateControllerOptionsButton.OnPointerHeld.AddListener(Delete);
             SetControllerOptionsActive(false);
 
             activationToggle = activateControllerOptionsButton.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             activationToggle.SetIsOnWithoutNotify(_config.GetEnabled());
             controlObjectTransform = _controlObject.GetComponentSafer<RectTransform>();
+        }
+
+        void Delete()
+        {
+            UnityAction deleteAction = () =>
+            {
+                ControlsManager.instance.DestroyController(controllerData);
+                UIManager.instance.DestroyControllerObjects(controllerData);
+            };
+
+            UtilityWindows.instance.ConfirmationWindow($"Delete controller\n\"{controllerData.GetName()}\"?", deleteAction, null, "Delete", "Cancel");
         }
 
         public void SetControllerOptionsActive(bool _active)

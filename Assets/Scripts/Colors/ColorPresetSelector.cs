@@ -6,11 +6,12 @@ using UnityEngine.UI;
 
 public class ColorPresetSelector : MonoBehaviour
 {
-    [SerializeField] Button button;
+    [SerializeField] ButtonExtended button;
     [SerializeField] Text title;
     [SerializeField] Image background;
     [SerializeField] Image buttonBorder;
     [SerializeField] PresetPaletteImage[] paletteImages = new PresetPaletteImage[0];
+    public bool isBuiltIn { get; private set; }
 
     ColorPreset colorPreset;
     public ColorPreset Preset
@@ -22,10 +23,12 @@ public class ColorPresetSelector : MonoBehaviour
         }
     }
 
-    public void Initialize(ColorPreset _preset, Action _buttonFunction)
+    public void Initialize(ColorPreset _preset, Action _buttonFunction, Action _buttonHeldFunction, bool _isBuiltIn)
     {
-        button.onClick.AddListener(() => { _buttonFunction.Invoke(); });
+        button.onClick.AddListener(() => _buttonFunction.Invoke());
+        button.OnPointerHeld.AddListener(() => _buttonHeldFunction.Invoke());
         SetPaletteColors(_preset);
+        isBuiltIn = _isBuiltIn;
 
         title.text = _preset.Name;
         title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);

@@ -60,7 +60,6 @@ public class ColorController : MonoBehaviourExtended
     [SerializeField] Button enablePresetWindowButton;
     [SerializeField] Button closePresetWindowButton;
     [SerializeField] GameObject presetWindow;
-    [SerializeField] Button deletePresetButton;
     [SerializeField] Button savePresetButton;
     [SerializeField] ColorPresetSelectorSorter userPresetSorter;
 
@@ -80,7 +79,6 @@ public class ColorController : MonoBehaviourExtended
     List<ColorPresetSelector> userPresetSelectors = new List<ColorPresetSelector>();
     const uint defaultBuiltInIndex = 0;
 
-    string currentPresetSelection = "";
     #endregion Preset Variables
 
     #region Unity Methods
@@ -524,18 +522,17 @@ public class ColorController : MonoBehaviourExtended
     {
         AddPresetSelector(preset);
         userPresetSorter.SortChildren(userPresetSelectors);
-        currentPresetSelection = preset.Name;
     }
 
-    void DeletePreset()
+    void DeletePreset(ColorPresetSelector _selector)
     {
-        string presetName = currentPresetSelection;
+        string presetName = _selector.Preset.Name;
 
         bool deleted = FileHandler.DeleteFile(presetsBasePath, presetName, fileExtensionPresets);
 
         if (deleted)
         {
-            RemoveUserPresetSelector(presetName);
+            RemoveUserPresetSelector(_selector);
             UtilityWindows.instance.QuickNoticeWindow($"{presetName} preset deleted!");
         }
         else
@@ -554,7 +551,6 @@ public class ColorController : MonoBehaviourExtended
         enablePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(true); });
         closePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(false); });
         savePresetButton.onClick.AddListener(CreateSaveWindow);
-        deletePresetButton.onClick.AddListener(CreateDeleteWindow);
     }
 
     void TogglePresetWindow(bool _on)
@@ -588,7 +584,7 @@ public class ColorController : MonoBehaviourExtended
         Transform parent = _isBuiltIn ? builtInPresetParent : userPresetParent;
         selector.transform.SetParent(parent, false);
 
-        selector.Initialize(_preset, () => { PresetSelection(_preset); });
+        selector.Initialize(_preset, () => PresetSelection(_preset), () => CreateDeleteWindow(selector), _isBuiltIn);
 
         if(_isBuiltIn)
         {
@@ -600,36 +596,16 @@ public class ColorController : MonoBehaviourExtended
         }
     }
 
-    void RemoveUserPresetSelector(string _name)
+    void RemoveUserPresetSelector(ColorPresetSelector _selectorToRemove)
     {
-        ColorPresetSelector selectorToRemove = null;
-        foreach(ColorPresetSelector c in userPresetSelectors)
-        {
-            if(c.Preset.Name == _name)
-            {
-                selectorToRemove = c;
-                break;
-            }
-        }
-
-        if(selectorToRemove != null)
-        {
-            userPresetSelectors.Remove(selectorToRemove);
-            Destroy(selectorToRemove.gameObject);
-        }
-        else
-        {
-            Debug.LogError($"No preset selector found for {_name}");
-        }
-
-        currentPresetSelection = "";
+        userPresetSelectors.Remove(_selectorToRemove);
+        Destroy(_selectorToRemove.gameObject);
     }
 
     void PresetSelection(ColorPreset _preset)
     {
         SetColorsFromPreset(_preset);
         SetSlidersToCurrentColor();
-        currentPresetSelection = _preset.Name;
     }
 
     ColorPresetSelector CreatePresetSelector(ColorPreset _preset)
@@ -641,35 +617,13 @@ public class ColorController : MonoBehaviourExtended
         return selector;
     }
 
-    void CreateDeleteWindow()
+    void CreateDeleteWindow(ColorPresetSelector _selector)
     {
-        if (string.IsNullOrEmpty(currentPresetSelection))
+        if (!_selector.isBuiltIn)
         {
-            UtilityWindows.instance.ErrorWindow($"No preset selected!");
-        }
-        else if (PresetIsBuiltIn(currentPresetSelection))
-        {
-            UtilityWindows.instance.ErrorWindow($"Can't delete a built-in preset!");
-        }
-        else
-        {
-            UtilityWindows.instance.ConfirmationWindow($"Are you sure you want to delete {currentPresetSelection} color preset?", DeletePreset, null, "Delete");
+            UtilityWindows.instance.ConfirmationWindow($"Are you sure you want to delete \"{_selector.Preset.Name}\" color preset?", () => DeletePreset(_selector), null, "Delete");
         }
     }
-
-    bool PresetIsBuiltIn(string _preset)
-    {
-        foreach(ColorPresetBuiltIn c in builtInPresets)
-        {
-            if(c.name == _preset)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     void CreateSaveWindow()
     {
         UtilityWindows.instance.TextInputWindow("Enter Name:", SavePreset, null, "Save");

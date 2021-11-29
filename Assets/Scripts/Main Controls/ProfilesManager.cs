@@ -21,9 +21,6 @@ public class ProfilesManager : MonoBehaviour
     [SerializeField] Button saveButton;
     [SerializeField] Button setDefaultButton;
 
-    [Header("Delete Profiles")]
-    [SerializeField] Button deleteButton;
-
     [Header("Save Profiles As")]
     [SerializeField] Button saveAsButton;
 
@@ -31,7 +28,7 @@ public class ProfilesManager : MonoBehaviour
     [SerializeField] GameObject profileLoadButtonPrefab;
     [SerializeField] Transform profileButtonParent;
 
-    Dictionary<string, ProfileLoadButton> profileButtons = new Dictionary<string, ProfileLoadButton>();
+    Dictionary <string, ProfileLoader> profileButtons = new Dictionary<string, ProfileLoader>();
 
     [SerializeField] bool debug = false;
 
@@ -70,9 +67,6 @@ public class ProfilesManager : MonoBehaviour
         //profiles
         saveButton.onClick.AddListener(Save);
 
-        //delete profiles
-        deleteButton.onClick.AddListener(DeleteConfirmation);
-
         //save profiles as
         saveAsButton.onClick.AddListener(SaveAsWindow);
 
@@ -92,11 +86,23 @@ public class ProfilesManager : MonoBehaviour
         PopulateProfileSelectionMenu();
     }
 
-    void DeleteConfirmation()
+    void DeleteConfirmation(ProfileLoader _profile)
     {
-        if (GetActiveProfile() != DEFAULT_SAVE_NAME)
+        if (_profile.GetName() != DEFAULT_SAVE_NAME)
         {
-            UtilityWindows.instance.ConfirmationWindow($"Are you sure you want to delete this?", DeleteProfile, null, "Delete", "Cancel");
+
+            string activeProfile = GetActiveProfile();
+            string confirmationWindowText;
+
+            if(activeProfile == _profile.GetName())
+            {
+                confirmationWindowText = $"Are you sure you want to delete your current profile? This will automatically load the default profile after deletion.";
+            }
+            else
+            {
+                confirmationWindowText = $"Are you sure you want to delete profile {_profile.GetName()}?";
+            }
+            UtilityWindows.instance.ConfirmationWindow(confirmationWindowText, () => DeleteProfile(_profile), null, "Delete", "Cancel");
         }
         else
         {
@@ -109,17 +115,16 @@ public class ProfilesManager : MonoBehaviour
         UtilityWindows.instance.TextInputWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
     }
 
-    public void PopulateProfileButtons(List<string> _profileNames, string _defaultProfile)
+    public void PopulateProfileButtons(List<string> _profileNames, string _setActiveProfile)
     {
-        ClearAllProfileButtons();
         AddToProfileButtons(DEFAULT_SAVE_NAME);
 
         foreach (string pname in _profileNames)
         {
             AddToProfileButtons(pname);
         }
-
-        SetActiveProfile(_defaultProfile);
+        SortProfileButtons();
+        SetActiveProfile(profileButtons[_setActiveProfile]);
     }
 
     void PopulateProfileSelectionMenu()
@@ -130,34 +135,48 @@ public class ProfilesManager : MonoBehaviour
     public void AddToProfileButtons(string _name)
     {
         GameObject obj = Instantiate(profileLoadButtonPrefab, profileButtonParent);
-        ProfileLoadButton buttonScript = obj.GetComponent<ProfileLoadButton>();
+        ProfileLoader buttonScript = obj.GetComponent<ProfileLoader>();
         buttonScript.SetText(_name);
-        buttonScript.SetButtonAction(() => SetActiveProfile(_name));
+        buttonScript.SetButtonActions(() => SetActiveProfile(profileButtons[_name]), () => DeleteConfirmation(buttonScript));
         buttonScript.ToggleHighlight(false);
         profileButtons.Add(_name, buttonScript);
 
         PrintDebug($"Adding profile button {_name}");
     }
 
-    void SetActiveProfile(string _name)
+    void SortProfileButtons()
     {
-        ControlsManager.instance.SetActiveProfile(_name);
+        RefreshParenting(profileButtons[DEFAULT_SAVE_NAME].transform, profileButtonParent);
 
-        //make all profiles inactive
-        foreach (KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
-		{
-            pair.Value.isActiveProfile = false;
-		}
-
-        profileButtons[_name].isActiveProfile = true;
-
-        //set highlight color
-        foreach(KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
+        profileButtons = profileButtons.OrderBy(e => e.Key).ToDictionary(x => x.Key, x => x.Value);
+        
+        foreach(KeyValuePair<string, ProfileLoader> p in profileButtons)
         {
-            pair.Value.ToggleHighlight(pair.Key == _name);
+            if(p.Key != DEFAULT_SAVE_NAME)
+            {
+                RefreshParenting(p.Value.transform, profileButtonParent);
+            }
+        }
+    }
+
+    void RefreshParenting(Transform _obj, Transform _newParent)
+    {
+        _obj.SetParent(null);
+        _obj.SetParent(_newParent);
+    }
+
+    void SetActiveProfile(ProfileLoader _button)
+    {
+        ControlsManager.instance.SetActiveProfile(_button);
+
+        //set highlight color and active status
+        foreach(KeyValuePair<string, ProfileLoader> p in profileButtons)
+        {
+            p.Value.isActiveProfile = p.Value == _button;
+            p.Value.ToggleHighlight(p.Value == _button);
 		}
 
-        titleText.text = $"<b>{_name}</b>";
+        titleText.text = $"<b>{_button.GetName()}</b>";
     }
 
     void Save()
@@ -172,7 +191,7 @@ public class ProfilesManager : MonoBehaviour
 
         if(canSwitchProfiles)
         {
-            SetActiveProfile(_saveName);
+            SetActiveProfile(profileButtons[_saveName]);
         }
     }
 
@@ -184,53 +203,46 @@ public class ProfilesManager : MonoBehaviour
         UtilityWindows.instance.QuickNoticeWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
     }
 
-    void DeleteProfile()
+    void DeleteProfile(ProfileLoader _profile)
     {
-        string activeProfile = GetActiveProfile();
-        profileButtons[activeProfile].Annihilate();
-        DeleteProfileByName(activeProfile);
+        profileButtons[_profile.GetName()].Annihilate();
+        DeleteProfileWithButton(_profile);
 
-        PrintDebug($"Removing profile button {activeProfile}");
+        PrintDebug($"Removing profile button {_profile}");
     }
 
-    public void DeleteProfileByName(string _name)
+    public void DeleteProfileWithButton(ProfileLoader _button)
     {
-        if (_name == DEFAULT_SAVE_NAME)
+        if (_button.GetName() == DEFAULT_SAVE_NAME)
         {
             UtilityWindows.instance.ErrorWindow("Can't delete default profile");
             return;
         }
+
         //remove profile from current list of profiles
-        profileNames.RemoveProfile(_name);
+        profileNames.RemoveProfile(_button.GetName());
 
         //delete file
-        FileHandler.DeleteFile(basePath, _name, CONTROLS_EXTENSION);
+        FileHandler.DeleteFile(basePath, _button.GetName(), CONTROLS_EXTENSION);
 
         //Save profiles
         SaveProfileNames();
 
-        //repopulate dropdown
-        PopulateProfileSelectionMenu();
+        //destroy deleted button
+        profileButtons.Remove(_button.GetName());
+        _button.Annihilate();
 
-        //load controller profile
-        LoadDefaultProfile();
+        //load profile if deleting the currently active one
+        if(_button.isActiveProfile)
+        {
+            SetActiveProfile(profileButtons[DEFAULT_SAVE_NAME]);
+            LoadDefaultProfile();
+        }
     }
 
     void ToggleProfileWindow()
     {
         profileWindow.SetActive(!profileWindow.activeSelf);
-	}
-
-    void ClearAllProfileButtons()
-    {
-        foreach(KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
-        {
-            pair.Value.Annihilate();
-		}
-
-        profileButtons.Clear();
-
-        PrintDebug($"Clearing Profile Buttons");
 	}
 
     void PrintDebug(string _text)
@@ -243,7 +255,7 @@ public class ProfilesManager : MonoBehaviour
 
     string GetActiveProfile()
     {
-        foreach(KeyValuePair<string, ProfileLoadButton> pair in profileButtons)
+        foreach(KeyValuePair<string, ProfileLoader> pair in profileButtons)
         {
             if(pair.Value.isActiveProfile)
             {
@@ -317,7 +329,8 @@ public class ProfilesManager : MonoBehaviour
             string profileName = _name;
             profileNames.AddProfile(profileName);
             SaveProfileNames();
-            ProfilesManager.instance.AddToProfileButtons(profileName);
+            AddToProfileButtons(profileName);
+            SortProfileButtons();
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
             bool saved = SaveProfile(_name);

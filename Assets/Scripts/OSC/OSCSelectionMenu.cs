@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -33,7 +34,6 @@ public class OSCSelectionMenu : OptionsMenu
     const string SUBFOLDER = "OSCSettings";
     const string FILE_EXTENSION = ".OSCTemplate";
 
-    List<OSCCommandButton> userTemplateButtons = new List<OSCCommandButton>();
 
     public void Initialize(ControllerSettings _controllerSettings)
     {
@@ -108,10 +108,45 @@ public class OSCSelectionMenu : OptionsMenu
         }
     }
 
-    void CreateOSCCommandButton(OSCControllerSettingsTemplate _template, Transform _parent)
+    OSCCommandButton CreateOSCCommandButton(OSCControllerSettingsTemplate _template, Transform _parent)
     {
         OSCCommandButton button = Instantiate(oscSettingsButtonPrefab, _parent, false).GetComponentSafer<OSCCommandButton>();
-        button.Initialize(() => OSCSelectionButtonPressed(_template), _template.name, _template.oscSettings.GetAddress());
+        Action longPressAction = _parent == userCommandsParent ? () => DeleteTemplatePrompt(_template, button) : null;
+        button.Initialize(() => OSCSelectionButtonPressed(_template), longPressAction, _template.name, _template.oscSettings.GetAddress());
+        return button;
+    }
+
+    void DeleteTemplatePrompt(OSCControllerSettingsTemplate _template, OSCCommandButton _button)
+    {
+        UtilityWindows.instance.ConfirmationWindow($"Delete template \"{_template.name}\"?", () => DeleteTemplate(_template, _button), null, "Delete", "Cancel");
+    }
+
+    void DeleteTemplate(OSCControllerSettingsTemplate _template, OSCCommandButton _button)
+    {
+        //delete file
+        string path = Path.Combine(Application.persistentDataPath, SUBFOLDER, _template.name) + FILE_EXTENSION;
+        if(File.Exists(path))
+        {
+            File.Delete(path);
+            _button.DestroySelf();
+        }
+        else
+        {
+            Debug.LogError($"Tried to delete OSC template {_template.name} at {path} but could not find it");
+        }
+    }
+
+    void SortUserButtons()
+    {
+        OSCCommandButton[] userButtons = userCommandsParent.GetComponentsInChildren<OSCCommandButton>();
+        userButtons = userButtons.OrderBy(button => button.name).ToArray();
+
+        foreach(OSCCommandButton b in userButtons)
+        {
+            b.transform.SetParent(null);
+            b.transform.SetParent(userCommandsParent);
+            Debug.Log($"Sorting {b.name}");
+        }
     }
 
     void OSCSelectionButtonPressed(OSCControllerSettingsTemplate _template)
@@ -127,7 +162,7 @@ public class OSCSelectionMenu : OptionsMenu
 
         if(!_template.oscSettings.Compare(originalSettings))
         {
-            UtilityWindows.instance.ConfirmationWindow($"Override current settings to apply {_template.name} template?", confirm);
+            UtilityWindows.instance.ConfirmationWindow($"Override current settings to apply \"{_template.name}\" template?", confirm);
         }
         else
         {
@@ -205,7 +240,8 @@ public class OSCSelectionMenu : OptionsMenu
         if(!invalid)
         {
             OSCControllerSettingsTemplate template = SaveTemplate(_input, OscSettings);
-            CreateOSCCommandButton(template, userCommandsParent);
+            OSCCommandButton button = CreateOSCCommandButton(template, userCommandsParent);
+            DoNextFrame(SortUserButtons);
         }
         else
         {

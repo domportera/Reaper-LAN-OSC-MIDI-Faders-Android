@@ -106,10 +106,10 @@ public class ControlsManager : MonoBehaviourExtended
         }
     }
 
-    public void SetActiveProfile(string _name)
+    public void SetActiveProfile(ProfileLoader _profile)
     {
         NukeControllers();
-        LoadControllers(_name);
+        LoadControllers(_profile.GetName());
     }
 
     #region Saving and Loading

@@ -93,6 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   colorType: 2
 --- !u!1 &884763563595300324
 GameObject:
@@ -104,7 +105,7 @@ GameObject:
   m_Component:
   - component: {fileID: 884763563595300325}
   - component: {fileID: 884763563595300321}
-  - component: {fileID: 884763563595300334}
+  - component: {fileID: 1612921303766871149}
   - component: {fileID: 884763563595300320}
   - component: {fileID: 884763563595300322}
   - component: {fileID: 884763563595300323}
@@ -146,7 +147,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 884763563595300324}
   m_CullTransparentMesh: 1
---- !u!114 &884763563595300334
+--- !u!114 &1612921303766871149
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -155,7 +156,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 884763563595300324}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: dc5eb5c25a0cabb41a002f26d08a6690, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -188,6 +189,9 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 884763563595300320}
   m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointerHeld:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &884763563595300320
@@ -232,6 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   colorType: 1
 --- !u!114 &884763563595300323
 MonoBehaviour:
@@ -271,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad061163d1c4cb4bb86a36cc4296c66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 884763563595300334}
+  button: {fileID: 1612921303766871149}
   title: {fileID: 884763563608293090}
   messagePreview: {fileID: 884763561478813662}
 --- !u!1 &884763563608293095
@@ -367,4 +372,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMode: 0
   colorType: 2

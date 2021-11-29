@@ -9,7 +9,6 @@ public abstract class ControllerOptions : MonoBehaviourExtended
     [SerializeField] protected InputField nameField;
     [SerializeField] protected Button applyButton;
     [SerializeField] protected Button closeButton;
-    [SerializeField] protected Button deleteButton;
     [SerializeField] protected Slider widthSlider;
 
     protected ControllerData controlData;
@@ -23,7 +22,6 @@ public abstract class ControllerOptions : MonoBehaviourExtended
         nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         applyButton.onClick.AddListener(Apply);
         closeButton.onClick.AddListener(Close);
-        deleteButton.onClick.AddListener(Delete);
         AwakeExtended();
     }
 
@@ -62,13 +60,6 @@ public abstract class ControllerOptions : MonoBehaviourExtended
         SetControllerDataMasterVariables();
         ControlsManager.instance.RespawnController(controlData);
         UtilityWindows.instance.QuickNoticeWindow("Settings applied!");
-    }
-
-    void Delete()
-    {
-        //delete from ControlsManager and destroy objects
-        ControlsManager.instance.DestroyController(controlData);
-        UIManager.instance.DestroyControllerObjects(controlData);
     }
     
     void Close()
