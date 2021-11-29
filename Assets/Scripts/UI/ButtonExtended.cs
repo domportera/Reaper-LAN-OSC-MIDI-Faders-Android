@@ -5,13 +5,14 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ButtonExtended : Button
+public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
 {
     const float DEFAULT_HOLD_STATE = float.MaxValue;
     float pressTime = DEFAULT_HOLD_STATE;
 
     float holdTime = 0.8f;
-    bool ignorePointerUp = false;
+    bool ignoreClick = false;
+    bool isDragging = false;
 
     //hiding the original event so we can allow the button color to change states as normal, even if we ignore calling the onClick stuff in OnPointerUp
     public new ButtonClickedEvent onClick = new ButtonClickedEvent(); 
@@ -49,6 +50,17 @@ public class ButtonExtended : Button
         
     }
 
+    public void OnBeginDrag(PointerEventData _data)
+    {
+        pressTime = DEFAULT_HOLD_STATE;
+        isDragging = true;
+    }
+
+    public void OnEndDrag(PointerEventData _data)
+    {
+        isDragging = false;
+    }
+
     public override void OnPointerExit(PointerEventData eventData)
     {
         base.OnPointerExit(eventData);
@@ -59,13 +71,22 @@ public class ButtonExtended : Button
     {
         base.OnPointerDown(eventData);
         pressTime = Time.time;
-        ignorePointerUp = false;
+        ignoreClick = false;
     }
 
     public override void OnPointerUp(PointerEventData eventData)
     {
         base.OnPointerUp(eventData);
-        if(OnPointerHeld.subscriptionCount == 0 || !ignorePointerUp)
+    }
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+        if(isDragging)
+        {
+            return;
+        }
+
+        if(OnPointerHeld.subscriptionCount == 0 || !ignoreClick)
         {
             onClick.Invoke();
         }
@@ -87,7 +108,7 @@ public class ButtonExtended : Button
 
         if(Time.time - pressTime > holdTime)
         {
-            ignorePointerUp = true;
+            ignoreClick = true;
             OnPointerHeld.Invoke();
             pressTime = DEFAULT_HOLD_STATE;
         }

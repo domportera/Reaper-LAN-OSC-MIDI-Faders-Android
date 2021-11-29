@@ -15,7 +15,6 @@ public class OSCSelectionMenu : OptionsMenu
     [SerializeField] RectTransform userCommandsParent;
     [SerializeField] GameObject oscSettingsButtonPrefab;
     [SerializeField] Button saveAsButton;
-    [SerializeField] Button deleteTemplateButton;
     [SerializeField] Button backButton;
     #endregion UI elements
 
