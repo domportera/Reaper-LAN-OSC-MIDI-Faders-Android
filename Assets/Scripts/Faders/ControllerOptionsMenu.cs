@@ -18,8 +18,9 @@ public class ControllerOptionsMenu : OptionsMenu
     [SerializeField] Button resetValuesButton = null;
     [SerializeField] Button openOSCOptionsButton = null;
 
-    [SerializeField] GameObject oscSelectionMenuPrefab;
     OSCSelectionMenu oscSelectionMenu;
+
+    bool shouldResetOSCMenu = false;
 
     private void InitializeUI()
     {
@@ -27,24 +28,33 @@ public class ControllerOptionsMenu : OptionsMenu
         resetValuesButton.onClick.AddListener(ResetValues);
     }
 
-    public void Initialize(ControllerSettings _data)
+    public void Initialize(ControllerSettings _data, ControllerOptionsPanel _optionsPanel, OSCSelectionMenu _oscMenu)
     {
         controllerConfig = _data;
+        oscSelectionMenu = _oscMenu;
+        _optionsPanel.OnWake.AddListener(() => shouldResetOSCMenu = true);
         InitializeUI();
-        InitializeOSCSelectionMenu(_data);
+        InitializeOSCSelectionMenu(_data.OscSettings);
         SetFieldsToControllerValues();
     }
 
-    private void InitializeOSCSelectionMenu(ControllerSettings _data)
+    private void InitializeOSCSelectionMenu(OSCControllerSettings _settings)
     {
-        openOSCOptionsButton.onClick.AddListener(OpenOSCSelectionMenu);
-        oscSelectionMenu = Instantiate(oscSelectionMenuPrefab, transform).GetComponentSafer<OSCSelectionMenu>();
-        oscSelectionMenu.Initialize(_data);
-        oscSelectionMenu.gameObject.SetActive(false);
+        openOSCOptionsButton.onClick.AddListener(() => OpenOSCSelectionMenu(_settings));
     }
 
-    void OpenOSCSelectionMenu()
+    void OpenOSCSelectionMenu(OSCControllerSettings _settings)
     {
+        if(shouldResetOSCMenu)
+        {
+            oscSelectionMenu.Initialize(_settings, this);
+            shouldResetOSCMenu = false;
+        }
+        else if(oscSelectionMenu.LastToEdit != this)
+        {
+            oscSelectionMenu.Initialize(_settings, this);
+        }
+
         oscSelectionMenu.gameObject.SetActive(true);
     }
 
@@ -66,7 +76,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
         float smoothTime = smoothnessField.value;
 
-        OSCControllerSettings oscSettings = oscSelectionMenu.OscSettings;
+        OSCControllerSettings oscSettings = new OSCControllerSettings(oscSelectionMenu.OscSettings);
 
         controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
     }
@@ -89,6 +99,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
     public void ResetValues()
     {
+        oscSelectionMenu.Initialize(controllerConfig.OscSettings, this);
         SetFieldsToControllerValues();
     }
 }

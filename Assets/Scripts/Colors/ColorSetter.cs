@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ColorSetter : MonoBehaviourExtended
+public class ColorSetter : MonoBehaviour
 {
     [SerializeField]
     ColorProfile.ColorType colorType;
@@ -12,6 +12,7 @@ public class ColorSetter : MonoBehaviourExtended
 	Text text;
 
 	bool canColor = true;
+	bool HasComponent { get { return image != null || text != null; } }
 	bool isImage = false;
 
 	private void Awake()
@@ -31,7 +32,7 @@ public class ColorSetter : MonoBehaviourExtended
 
 	public void SetColors(ColorProfile _colors)
 	{
-		if (!canColor) return;
+		if (!canColor || !HasComponent) return;
 
 		if (!isImage)
 		{
@@ -45,10 +46,10 @@ public class ColorSetter : MonoBehaviourExtended
 
 	void GetColoredComponents()
     {
-		text = GetComponentSafer<Text>();
+		text = GetComponent<Text>();
 		if (text == null)
 		{
-			image = GetComponentSafer<Image>();
+			image = GetComponent<Image>();
 			if (image == null)
 			{
 				Debug.LogWarning($"{name} has no component to color", this);

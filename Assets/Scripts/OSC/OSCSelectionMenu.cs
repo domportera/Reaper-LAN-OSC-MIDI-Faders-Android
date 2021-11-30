@@ -29,30 +29,30 @@ public class OSCSelectionMenu : OptionsMenu
     [SerializeField] InputField maxField = null;
     #endregion Built-in OSC Message Option Fields
 
-    ControllerSettings controllerSettings;
     public OSCControllerSettings OscSettings { get; private set; }
     private OSCControllerSettings originalSettings;
+
+    public ControllerOptionsMenu LastToEdit { get; private set; }
 
     const string SUBFOLDER = "OSCSettings";
     const string FILE_EXTENSION = ".OSCTemplate";
 
-
-    public void Initialize(ControllerSettings _controllerSettings)
+    private void Awake()
     {
-        controllerSettings = _controllerSettings;
-        OscSettings = new OSCControllerSettings(_controllerSettings.OscSettings); //create copies so any edits aren't automatically applied
-        originalSettings = new OSCControllerSettings(_controllerSettings.OscSettings);
-        SetFieldsToControllerValues(_controllerSettings.OscSettings);
-
-        PopulateDropdowns();
-
-        saveAsButton.onClick.AddListener(SaveAsButton);
-        backButton.onClick.AddListener(BackButton);
-
         InitializeOSCEditingUIElements();
-
         InitializeBuiltInMessagePresets();
         InitializeUserTemplates();
+        PopulateDropdowns();
+        saveAsButton.onClick.AddListener(SaveAsButton);
+        backButton.onClick.AddListener(BackButton);
+    }
+
+    public void Initialize(OSCControllerSettings _oscSettings, ControllerOptionsMenu _optionsMenu)
+    {
+        OscSettings = new OSCControllerSettings(_oscSettings); //create copies so any edits aren't automatically applied
+        LastToEdit = _optionsMenu;
+        originalSettings = new OSCControllerSettings(_oscSettings);
+        SetFieldsToControllerValues(OscSettings);
     }
 
     private void InitializeOSCEditingUIElements()
@@ -338,6 +338,10 @@ public class OSCSelectionMenu : OptionsMenu
 
     void ChangeCCNumber(string _input)
     {
+        if(string.IsNullOrWhiteSpace(_input))
+        {
+            return;
+        }
         int ccNum = int.Parse(_input);
         ccNum = Mathf.Clamp(ccNum, OSCControllerSettings.MIN_CC, OSCControllerSettings.MAX_CC);
         ccChannelField.SetTextWithoutNotify(ccNum.ToString());

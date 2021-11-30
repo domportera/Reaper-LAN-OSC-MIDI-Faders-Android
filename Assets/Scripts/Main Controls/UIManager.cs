@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviourExtended
     [SerializeField] Button optionsButton = null;
     [SerializeField] Button closeOptionsButton = null;
     [SerializeField] Button newControllerButton = null;
+    [SerializeField] OSCSelectionMenu oscMenu;
 
     [Space(10)]
     [SerializeField] Button faderPositionEnableButton = null;
@@ -158,7 +159,7 @@ public class UIManager : MonoBehaviourExtended
     {
         GameObject menuObj = Instantiate(faderOptionsPrefab, optionsPanel.transform, false);
         FaderOptions faderOptions = menuObj.GetComponent<FaderOptions>();
-        faderOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>());
+        faderOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>(), oscMenu);
         faderOptions.gameObject.name = _config.GetName() + " Options Panel";
         return menuObj;
     }
@@ -167,7 +168,7 @@ public class UIManager : MonoBehaviourExtended
     {
         GameObject menuObj = Instantiate(controller2DOptionsPrefab, optionsPanel.transform, false);
         Controller2DOptions controllerOptions = menuObj.GetComponent<Controller2DOptions>();
-        controllerOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>());
+        controllerOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>(), oscMenu);
         controllerOptions.gameObject.name = _config.GetName() + " Options Panel";
         return menuObj;
     }

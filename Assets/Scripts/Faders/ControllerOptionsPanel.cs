@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
-public abstract class ControllerOptions : MonoBehaviourExtended
+public abstract class ControllerOptionsPanel : MonoBehaviourExtended
 {
     [SerializeField] protected InputField nameField;
     [SerializeField] protected Button applyButton;
@@ -17,12 +18,25 @@ public abstract class ControllerOptions : MonoBehaviourExtended
     private const int SLIDER_STEPS = 6;
     private int sliderStepsCorrected { get { return SLIDER_STEPS - 1; } }
 
+    public UnityEvent OnWake = new UnityEvent();
+    public UnityEvent OnSleep = new UnityEvent();
+
     protected void Awake()
     {
         nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         applyButton.onClick.AddListener(Apply);
         closeButton.onClick.AddListener(Close);
         AwakeExtended();
+    }
+
+    protected void OnEnable()
+    {
+        OnWake.Invoke();
+    }
+
+    protected void OnDisable()
+    {
+        OnSleep.Invoke();
     }
 
     /// <summary>
