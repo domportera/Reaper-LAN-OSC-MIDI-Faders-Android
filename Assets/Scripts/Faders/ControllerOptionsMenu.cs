@@ -19,6 +19,7 @@ public class ControllerOptionsMenu : OptionsMenu
     [SerializeField] Button openOSCOptionsButton = null;
 
     OSCSelectionMenu oscSelectionMenu;
+    OSCControllerSettings oscSettingsPendingApplication;
 
     bool shouldResetOSCMenu = false;
 
@@ -33,6 +34,7 @@ public class ControllerOptionsMenu : OptionsMenu
         controllerConfig = _data;
         oscSelectionMenu = _oscMenu;
         _optionsPanel.OnWake.AddListener(() => shouldResetOSCMenu = true);
+        _optionsPanel.OnWake.AddListener(() => oscSettingsPendingApplication = null);
         InitializeUI();
         InitializeOSCSelectionMenu(_data.OscSettings);
         SetFieldsToControllerValues();
@@ -76,9 +78,23 @@ public class ControllerOptionsMenu : OptionsMenu
 
         float smoothTime = smoothnessField.value;
 
-        OSCControllerSettings oscSettings = new OSCControllerSettings(oscSelectionMenu.OscSettings);
+        OSCControllerSettings oscSettings;
+
+        if(oscSettingsPendingApplication == null)
+        {
+            oscSettings = controllerConfig.OscSettings;
+        }
+        else
+        {
+            oscSettings = new OSCControllerSettings(oscSettingsPendingApplication);
+        }
 
         controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
+    }
+
+    public void StageOSCChangesToApply(OSCControllerSettings _settings)
+    {
+        oscSettingsPendingApplication = new OSCControllerSettings(_settings);
     }
 
     void PopulateDropdowns()

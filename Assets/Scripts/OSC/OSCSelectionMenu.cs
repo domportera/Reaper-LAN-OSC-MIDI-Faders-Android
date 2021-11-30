@@ -117,6 +117,7 @@ public class OSCSelectionMenu : OptionsMenu
 
     void BackButton()
     {
+        LastToEdit.StageOSCChangesToApply(OscSettings);
         gameObject.SetActive(false);
     }
 
