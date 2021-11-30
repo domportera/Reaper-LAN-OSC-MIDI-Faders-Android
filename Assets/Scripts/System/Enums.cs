@@ -50,7 +50,7 @@ public enum OSCAddressMode
 
 public enum MIDIChannel
 {
-    [Description("All")]        All = -1,
+    [Description("All")]        All,
     [Description("Channel 1")]  One,
     [Description("Channel 2")]  Two,
     [Description("Channel 3")]  Three,
