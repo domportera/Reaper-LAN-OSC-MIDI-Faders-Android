@@ -11,9 +11,19 @@ public abstract class OptionsMenu : MonoBehaviourExtended
 
     protected void ToggleUIObject(Selectable _object, bool _on)
     {
+        ToggleUIObject(_object.gameObject, _on);
+    }
+
+    protected void ToggleUIObject(GameObject _object, bool _on)
+    {
+        ToggleUIObject(_object.transform, _on);
+    }
+
+    protected void ToggleUIObject(Transform _object, bool _on)
+    {
         if(toggleOptionParent)
         {
-            _object.transform.parent.gameObject.SetActive(_on);
+            _object.parent.gameObject.SetActive(_on);
         }
         else
         {

@@ -24,6 +24,9 @@ public class OSCSelectionMenu : OptionsMenu
     [SerializeField] Dropdown valueRangeDropdown = null;
     [SerializeField] InputField ccChannelField = null;
     [SerializeField] InputField customAddressField = null;
+    [SerializeField] Text oscPreview = null;
+    [SerializeField] InputField minField = null;
+    [SerializeField] InputField maxField = null;
     #endregion Built-in OSC Message Option Fields
 
     ControllerSettings controllerSettings;
@@ -42,15 +45,46 @@ public class OSCSelectionMenu : OptionsMenu
         SetFieldsToControllerValues(_controllerSettings.OscSettings);
 
         PopulateDropdowns();
-        addressTypeDropdown.onValueChanged.AddListener(AddressTypeMenuChange);
-        addressTypeDropdown.onValueChanged.AddListener(CheckForCCControl);
-        customAddressField.onEndEdit.AddListener(VerifyCustomAddressField);
 
         saveAsButton.onClick.AddListener(SaveAsButton);
         backButton.onClick.AddListener(BackButton);
 
+        InitializeOSCEditingUIElements();
+
         InitializeBuiltInMessagePresets();
         InitializeUserTemplates();
+    }
+
+    private void InitializeOSCEditingUIElements()
+    {
+        customAddressField.onEndEdit.AddListener(VerifyCustomAddressField);
+        minField.onEndEdit.AddListener(ChangeMin);
+        maxField.onEndEdit.AddListener(ChangeMax);
+
+        ccChannelField.onEndEdit.AddListener((string val) =>
+        {
+            ChangeCCNumber(val);
+            UpdateOSCPreview();
+        });
+
+        addressTypeDropdown.onValueChanged.AddListener((int val) =>
+        {
+            ChangeAddressType(val);
+            UpdateOSCPreview();
+        });
+
+
+        valueRangeDropdown.onValueChanged.AddListener((int val) =>
+        {
+            ChangeValueRange(val);
+            UpdateOSCPreview();
+        });
+
+        midiChannelDropdown.onValueChanged.AddListener((int val) =>
+        {
+            ChangeMIDIChannel(val);
+            UpdateOSCPreview();
+        });
     }
 
     void VerifyCustomAddressField(string _input)
@@ -78,18 +112,6 @@ public class OSCSelectionMenu : OptionsMenu
         else
         {
             OscSettings.SetCustomAddress(_input);
-        }
-    }
-
-    public void CheckForCCControl(int _value)
-    {
-        if((OSCAddressType)_value == OSCAddressType.MidiCC)
-        {
-            ccChannelField.gameObject.SetActive(true);
-        }
-        else
-        {
-            ccChannelField.gameObject.SetActive(false);
         }
     }
 
@@ -150,16 +172,16 @@ public class OSCSelectionMenu : OptionsMenu
 
     void OSCSelectionButtonPressed(OSCControllerSettingsTemplate _template)
     {
-        OscSettings = _template.oscSettings;
+        OscSettings = new OSCControllerSettings(_template.oscSettings);
 
         UnityAction confirm = () =>
         {
-            SetFieldsToControllerValues(_template.oscSettings);
-            AddressTypeMenuChange(_template.oscSettings.AddressType);
-            originalSettings = new OSCControllerSettings(_template.oscSettings);
+            SetFieldsToControllerValues(OscSettings);
+            AddressTypeMenuChange(OscSettings);
+            originalSettings = new OSCControllerSettings(OscSettings);
         };
 
-        if(!_template.oscSettings.Compare(originalSettings))
+        if(!_template.oscSettings.IsEqualTo(originalSettings))
         {
             UtilityWindows.instance.ConfirmationWindow($"Override current settings to apply \"{_template.name}\" template?", confirm);
         }
@@ -169,41 +191,62 @@ public class OSCSelectionMenu : OptionsMenu
         }
     }
 
-    void AddressTypeMenuChange(OSCAddressType _type)
+    bool ShouldEnableMinMaxFields(OSCControllerSettings _settings)
     {
-        switch(_type)
+        return _settings.Range == ValueRange.CustomFloat || _settings.Range == ValueRange.CustomInt;
+    }
+
+    void AddressTypeMenuChange(OSCControllerSettings _settings)
+    {
+        bool enableMinMax = ShouldEnableMinMaxFields(_settings);
+        switch(_settings.AddressType)
         {
             case OSCAddressType.MidiCC:
-                valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
-                //ToggleUIObject(valueRangeDropdown, false); //was this for a unity UI thing where I needed to disable and then re-enable the dropdown for it to show the new value?
+                valueRangeDropdown.SetValueWithoutNotify((int)_settings.Range);
+
                 ToggleUIObject(valueRangeDropdown, true);
-                ccChannelField.SetTextWithoutNotify("1");
                 ToggleUIObject(ccChannelField, true);
                 ToggleUIObject(customAddressField, false);
+                ToggleUIObject(oscPreview.transform, true);
+                ToggleUIObject(midiChannelDropdown, true);
+
+                ToggleMinMaxFields(enableMinMax);
                 break;
             case OSCAddressType.MidiPitch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.FourteenBit);
+                _settings.SetRange(ValueRange.FourteenBit);
+
                 ToggleUIObject(valueRangeDropdown, false);
-                ccChannelField.SetTextWithoutNotify("");
                 ToggleUIObject(ccChannelField, false);
                 ToggleUIObject(customAddressField, false);
+                ToggleUIObject(oscPreview.transform, true);
+                ToggleUIObject(midiChannelDropdown, true);
+
+                ToggleMinMaxFields(false);
                 break;
             case OSCAddressType.MidiAftertouch:
                 valueRangeDropdown.SetValueWithoutNotify((int)ValueRange.SevenBit);
+                _settings.SetRange(ValueRange.SevenBit);
+
                 ToggleUIObject(valueRangeDropdown, false);
-                ccChannelField.SetTextWithoutNotify("");
                 ToggleUIObject(ccChannelField, false);
                 ToggleUIObject(customAddressField, false);
+                ToggleUIObject(oscPreview.transform, true);
+                ToggleUIObject(midiChannelDropdown, true);
+
+                ToggleMinMaxFields(false);
                 break;
             case OSCAddressType.Custom:
                 ToggleUIObject(valueRangeDropdown, true);
                 ToggleUIObject(ccChannelField, false);
                 ToggleUIObject(midiChannelDropdown, false);
-                ToggleUIObject(addressTypeDropdown, true);
                 ToggleUIObject(customAddressField, true);
+                ToggleUIObject(oscPreview.transform, false);
+
+                ToggleMinMaxFields(enableMinMax);
                 break;
             default:
-                Debug.LogError($"OSC Address Type {_type} not implemented for menu change", this);
+                Debug.LogError($"OSC Address Type {_settings.AddressType} not implemented for menu change", this);
                 return;
         }
     }
@@ -268,26 +311,104 @@ public class OSCSelectionMenu : OptionsMenu
         return template;
     }
 
-    void AddressTypeMenuChange(int _val)
+    void ChangeMIDIChannel(int _val)
     {
-        AddressTypeMenuChange((OSCAddressType)_val);
+        MIDIChannel channel = (MIDIChannel)_val;
+        OscSettings.SetMIDIChannel(channel);
+        LogDebug($"Set MIDI Channel as {channel}");
+    }
+
+    void ChangeAddressType(int _val)
+    {
+        OSCAddressType type = (OSCAddressType)_val;
+        OscSettings.SetOSCAddressType(type);
+        AddressTypeMenuChange(OscSettings);
+        LogDebug($"Set Address Type as {type}");
+    }
+
+    void ChangeValueRange(int _val)
+    {
+        ValueRange range = (ValueRange)_val;
+        OscSettings.SetRange(range);
+        LogDebug($"Set Value Range as {range}");
+
+        bool enableMinMax = range == ValueRange.CustomFloat || range == ValueRange.CustomInt;
+        ToggleMinMaxFields(enableMinMax);
+    }
+
+    void ChangeCCNumber(string _input)
+    {
+        int ccNum = int.Parse(_input);
+        ccNum = Mathf.Clamp(ccNum, OSCControllerSettings.MIN_CC, OSCControllerSettings.MAX_CC);
+        ccChannelField.SetTextWithoutNotify(ccNum.ToString());
+        OscSettings.SetCCNumber(ccNum);
+        LogDebug($"Set CC Number to {ccNum}");
+    }
+
+    void ChangeMin(string _val)
+    {
+        float val = float.Parse(_val);
+        if(OscSettings.Range == ValueRange.CustomInt)
+        {
+            int intVal = (int)val;
+            OscSettings.SetMin(intVal);
+            minField.SetTextWithoutNotify((intVal).ToString());
+            LogDebug($"Set Min as {intVal}");
+        }
+        else
+        {
+            OscSettings.SetMin(val);
+            LogDebug($"Set Min as {val}");
+        }
+
+    }
+
+    void ChangeMax(string _val)
+    {
+        float val = float.Parse(_val);
+        if(OscSettings.Range == ValueRange.CustomInt)
+        {
+            int intVal = (int)val;
+            OscSettings.SetMax(intVal);
+            maxField.SetTextWithoutNotify((intVal).ToString());
+            LogDebug($"Set Max as {intVal}");
+        }
+        else
+        {
+            OscSettings.SetMax(val);
+            LogDebug($"Set Max as {val}");
+        }
+    }
+
+    void ToggleMinMaxFields(bool _on)
+    {
+        ToggleUIObject(minField, _on);
+        ToggleUIObject(maxField, _on);
+        
+        if(_on)
+        {
+            minField.SetTextWithoutNotify(OscSettings.Min.ToString());
+            maxField.SetTextWithoutNotify(OscSettings.Max.ToString());
+        }
+    }
+
+    void UpdateOSCPreview()
+    {
+        oscPreview.text = OscSettings.GetAddress();
     }
 
     void SetFieldsToControllerValues(OSCControllerSettings _settings)
     {
-        AddressTypeMenuChange((int)_settings.AddressType);
+        AddressTypeMenuChange(_settings);
 
-        midiChannelDropdown.SetValueWithoutNotify(_settings.Channel.GetInt());
+        midiChannelDropdown.SetValueWithoutNotify(_settings.MidiChannel.GetInt());
         addressTypeDropdown.SetValueWithoutNotify(_settings.AddressType.GetInt());
         valueRangeDropdown.SetValueWithoutNotify(_settings.Range.GetInt());
         ccChannelField.SetTextWithoutNotify(_settings.CCNumber.ToString());
+        minField.SetTextWithoutNotify(_settings.Min.ToString());
+        maxField.SetTextWithoutNotify(_settings.Max.ToString());
 
-        ToggleUIObject(midiChannelDropdown, false);
-        ToggleUIObject(midiChannelDropdown, true);
-        ToggleUIObject(addressTypeDropdown, false);
-        ToggleUIObject(addressTypeDropdown, true);
-        ToggleUIObject(valueRangeDropdown, false);
-        ToggleUIObject(valueRangeDropdown, true);
+        UpdateOSCPreview();
 
     }
 
@@ -304,6 +425,8 @@ public class OSCSelectionMenu : OptionsMenu
             {
                 pair.Key.options.Add(new OptionData(s));
             }
+
+            pair.Key.RefreshShownValue();
         }
     }
 }
