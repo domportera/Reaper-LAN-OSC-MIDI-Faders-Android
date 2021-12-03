@@ -45,8 +45,6 @@ public class OSCControllerSettings
     public float Max { get { return max; } }
     #endregion Properties
 
-    public const float MIN_UNMAPPED = 0f;
-    public const float MAX_UNMAPPED = 1f;
     public const int MIN_CC = 0;
     public const int MAX_CC = 127;
 
@@ -190,7 +188,7 @@ public class OSCControllerSettings
 
     public float GetValueFloat(float _value)
     {
-        return _value.Map(MIN_UNMAPPED, MAX_UNMAPPED, min, max);
+        return Mathf.Clamp(_value.Map(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, min, max), Min, Max);
     }
 
     bool AddressTypeIsMIDI(OSCAddressType _addressType)

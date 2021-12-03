@@ -110,8 +110,9 @@ public class Controller2D : MonoBehaviour, ISortingMember
 
     void MoveComponentsWithMIDI()
     {
-        float xPercent = Mathf.InverseLerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, horizontalController.modValue);
-        float yPercent = Mathf.InverseLerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, verticalController.modValue);
+        //this inverse lerp is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
+        float xPercent = Mathf.InverseLerp(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, horizontalController.SmoothValue);
+        float yPercent = Mathf.InverseLerp(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, verticalController.SmoothValue);
 
         float xMin = GetRectLocalBounds(RectBounds.Left, buttonRect) + interactionPadding;
         float xMax = GetRectLocalBounds(RectBounds.Right, buttonRect) - interactionPadding;
@@ -141,9 +142,15 @@ public class Controller2D : MonoBehaviour, ISortingMember
         }
 
         Vector2 touchPositionAsPercentage = GetTouchPositionWithinButton(currentTouchPosition);
-       // Debug.Log($"Touch position: {currentTouchPosition.ToString("f0")} Percentage: {touchPositionAsPercentage.ToString("f2")}");
-        horizontalController.SetValueAsPercentage(touchPositionAsPercentage.x);
-        verticalController.SetValueAsPercentage(touchPositionAsPercentage.y);
+        // Debug.Log($"Touch position: {currentTouchPosition.ToString("f0")} Percentage: {touchPositionAsPercentage.ToString("f2")}");
+
+        //this mapping is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
+        Vector2 mappedTouchPosition;
+        mappedTouchPosition.x = touchPositionAsPercentage.x.Map(0f, 1f, Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE);
+        mappedTouchPosition.y = touchPositionAsPercentage.y.Map(0f, 1f, Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE);
+
+        horizontalController.SetValue(mappedTouchPosition.x);
+        verticalController.SetValue(mappedTouchPosition.y);
     }
 
     /// <summary>

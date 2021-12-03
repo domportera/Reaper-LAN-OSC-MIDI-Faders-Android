@@ -26,22 +26,21 @@ public class FaderControl : Controller, ISortingMember
 
         base.Initialize(_controller);
         label.text = _controller.GetName();
-        name = _controller.GetName() + " " + controllerSettings.ReleaseBehavior;
+        name = _controller.GetName() + " Fader";
         InitializeFaderInteraction();
         InitializeSorting();
     }
 
     // Update is called once per frame
-    protected override void Update()
+    protected void Update()
     {
-        base.Update();
-        slider.SetValueWithoutNotify(modValue);
+        slider.SetValueWithoutNotify(SmoothValue);
     }
 
     void InitializeFaderInteraction()
     {
-        slider.maxValue = OSCControllerSettings.MAX_UNMAPPED;
-        slider.minValue = OSCControllerSettings.MIN_UNMAPPED;
+        slider.maxValue = MAX_CONTROLLER_VALUE;
+        slider.minValue = MIN_CONTROLLER_VALUE;
         slider.onValueChanged.AddListener(SetValue);
 
         EventTrigger.Entry startEntry = new EventTrigger.Entry();

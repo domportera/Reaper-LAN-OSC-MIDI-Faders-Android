@@ -7,25 +7,28 @@ using UnityEngine.UI;
 public class Controller : MonoBehaviour
 {
     [SerializeField] OscPropertySender oscSender;
-    public ControllerSettings controllerSettings { get; private set; }
+    private ControllerSettings controllerSettings;
+    private OSCControllerSettings OscSettings { get { return controllerSettings.OscSettings; } }
 
-    public float modValue { get; private set; }
-    protected float pModValue{ get; private set; }
-    protected float targetModValue { get; private set; }
+    float smoothValue; //the value we're actually sending
+    float targetControllerValue;
+    float defaultValue;
 
-    const int FRAMES_TO_SEND_DUPLICATES = 10;
-    int dupeCount = FRAMES_TO_SEND_DUPLICATES; //so it doesnt send anything out before it's touched
+    /// <summary>
+    /// returns moving mod value as it approaches target value
+    /// </summary>
+    public float SmoothValue { get { return smoothValue; } }
+
+    public const float MIN_CONTROLLER_VALUE = 0f;
+    public const float MAX_CONTROLLER_VALUE = 1f;
+
+    const int NUMBER_OF_FINAL_MESSAGES = 1;
+
+    Coroutine updateModValueCoroutine = null;
 
     protected virtual void Start()
     {
         IPSetter.instance.TryConnect(oscSender);
-    }
-
-    // Update is called once per frame
-    protected virtual void Update()
-    {
-        TweenModValue();
-        SendValuesWithDuplicates();
     }
 
     public virtual void Initialize(ControllerData _controller, int whichIndex = 0)
@@ -39,48 +42,73 @@ public class Controller : MonoBehaviour
 
         oscSender.SetAddress(controllerSettings.GetAddress());
 
-        //load default values
-        float defaultValue = controllerSettings.DefaultValue;
-        modValue = defaultValue;
-        pModValue = defaultValue;
-        targetModValue = defaultValue;
+        defaultValue = GetDefault(controllerSettings.DefaultType);
+        smoothValue = defaultValue;
+        targetControllerValue = defaultValue;
+
+        if(updateModValueCoroutine == null)
+        {
+            updateModValueCoroutine = StartCoroutine(UpdateModValueLoop());
+        }
+        else
+        {
+            Debug.LogWarning($"Attempted to start the update loop on controller {_controller.GetName()} again", this);
+        }
+    }
+
+    float GetDefault(DefaultValueType _defaultValueType)
+    {
+        switch(_defaultValueType)
+        {
+            case DefaultValueType.Min:
+                return MIN_CONTROLLER_VALUE;
+            case DefaultValueType.Mid:
+                return Operations.Average(MIN_CONTROLLER_VALUE, MAX_CONTROLLER_VALUE);
+            case DefaultValueType.Max:
+                return MAX_CONTROLLER_VALUE;
+            default:
+                Debug.LogError("Default value type not implemented! Defaulting to min.");
+                return MIN_CONTROLLER_VALUE;
+        }
+    }
+
+    /// <summary>
+    /// This exists to allow this base class to have an "update" loop that always has to be run and can never be overridden by child class
+    /// </summary>
+    IEnumerator UpdateModValueLoop()
+    {
+        while(true)
+        {
+            UpdateModValue();
+            yield return null;
+        }
     }
 
     #region Mod Value Manipulation
-    protected void SetValue(float _val)
+    public void SetValue(float _val)
     {
-        targetModValue = _val;
-    }
-
-    protected void SetValue (int _val)
-    {
-        targetModValue = _val;
-    }
-
-    public void SetValueAsPercentage (float _val)
-    {
-        targetModValue = Mathf.Lerp(OSCControllerSettings.MIN_UNMAPPED, OSCControllerSettings.MAX_UNMAPPED, Mathf.Clamp01(_val));
+        targetControllerValue = _val;
     }
 
     protected float MapValueToCurve(float _value, bool _inverse)
     {
         if (controllerSettings.Curve != CurveType.Linear)
         {
-            float range = OSCControllerSettings.MAX_UNMAPPED - OSCControllerSettings.MIN_UNMAPPED;
-            float tempVal = _value - OSCControllerSettings.MIN_UNMAPPED;
+            float range = MAX_CONTROLLER_VALUE - MIN_CONTROLLER_VALUE;
+            float tempVal = _value - MIN_CONTROLLER_VALUE;
             float ratio = tempVal / range;
             float mappedRatio;
 
             if (_inverse)
             {
-                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Pow(ratio, 2f) : Mathf.Sqrt(ratio);
+                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Pow(ratio, 2) : Mathf.Sqrt(ratio);
             }
             else
             {
                 mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
             }
 
-            return mappedRatio * range + OSCControllerSettings.MIN_UNMAPPED;
+            return mappedRatio * range + MIN_CONTROLLER_VALUE;
         }
         else
         {
@@ -88,74 +116,89 @@ public class Controller : MonoBehaviour
         }
     }
 
-    void TweenModValue()
+    bool ModValueCaughtUpToTarget { get { return smoothValue == targetControllerValue; } }
+    void UpdateModValue()
     {
-        pModValue = modValue;
-
-        if (modValue == targetModValue)
+        if (ModValueCaughtUpToTarget)
         {
             return;
         }
 
-        bool shouldSmooth = controllerSettings.SmoothTime <= 0;
-        if (shouldSmooth)
+        bool shouldSmooth = controllerSettings.SmoothTime > 0;
+        if (!shouldSmooth)
         {
-            modValue = targetModValue;
+            smoothValue = targetControllerValue;
         }
         else
         {
-            float difference = (OSCControllerSettings.MAX_UNMAPPED - OSCControllerSettings.MIN_UNMAPPED) * Time.deltaTime / controllerSettings.SmoothTime;
+            float difference = (MAX_CONTROLLER_VALUE - MIN_CONTROLLER_VALUE) * Time.deltaTime / controllerSettings.SmoothTime;
 
             //set to idle if close enough to zero
-            if (Mathf.Abs(modValue - targetModValue) < difference)
+            if (Mathf.Abs(smoothValue - targetControllerValue) < difference)
             {
-                modValue = targetModValue;
+                smoothValue = targetControllerValue;
             }
             else
             {
                 //approach target value
-                if (modValue > targetModValue)
+                if (smoothValue > targetControllerValue)
                 {
-                    modValue -= difference;
+                    smoothValue -= difference;
                 }
                 else
                 {
-                    modValue += difference;
+                    smoothValue += difference;
                 }
             }
         }
+
+        if(ModValueCaughtUpToTarget)
+        {
+            StartCoroutine(SendModValueMultipleTimes(NUMBER_OF_FINAL_MESSAGES));
+        }
+        else
+        {
+            SendModValue();
+        }
+
     }
 
     public void ReturnToCenter()
     {
         if (controllerSettings.ReleaseBehavior == ReleaseBehaviorType.PitchWheel)
         {
-            SetValue(MapValueToCurve(controllerSettings.DefaultValue, true));
+            SetValue(MapValueToCurve(defaultValue, true));
         }
     }
     #endregion Mod Value Manipulation
 
     #region OSC Communication
-    void SendValuesWithDuplicates()
-    {
-        if (modValue == pModValue)
-        {
-            dupeCount = Mathf.Clamp(++dupeCount, 0, FRAMES_TO_SEND_DUPLICATES);
-        }
-        else
-        {
-            dupeCount = 0;
-        }
-
-        if (dupeCount < FRAMES_TO_SEND_DUPLICATES)
-        {
-            SendModValue();
-        }
-    }
 
     void SendModValue()
     {
-        oscSender.Send(MapValueToCurve(modValue, false));
+        float curveMappedValue = MapValueToCurve(smoothValue, false);
+        float valueToSend;
+
+        bool isFloat = OscSettings.Range == ValueRange.CustomFloat || OscSettings.Range == ValueRange.Float;
+        if(isFloat)
+        {
+            valueToSend = OscSettings.GetValueFloat(curveMappedValue);
+        }
+        else
+        {
+            valueToSend = OscSettings.GetValueInt(curveMappedValue);
+        }
+
+        oscSender.Send(valueToSend);
+    }
+
+    IEnumerator SendModValueMultipleTimes(int _numberOfTimes)
+    {
+        for(int i = 0; i < _numberOfTimes; i++)
+        {
+            SendModValue();
+            yield return null;
+        }
     }
 
     #endregion OSC Communication

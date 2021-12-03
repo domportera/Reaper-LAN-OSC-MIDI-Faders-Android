@@ -61,12 +61,6 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    void Save()
-    {
-        PlayerPrefs.SetString(IP_ADDRESS_PLAYER_PREF, currentIP.ToString());
-        PlayerPrefs.SetInt(PORT_PLAYER_PREF, currentPort);
-    }
-
     void SetIP(string _ip)
     {
         //validate ip
@@ -76,6 +70,7 @@ public class IPSetter : MonoBehaviour
         if(valid)
         {
             currentIP = ipString;
+            PlayerPrefs.SetString(IP_ADDRESS_PLAYER_PREF, currentIP.ToString());
             TryConnectAll();
         }
         else
@@ -94,6 +89,7 @@ public class IPSetter : MonoBehaviour
         if(valid)
         {
             SetPort(port);
+            PlayerPrefs.SetInt(PORT_PLAYER_PREF, currentPort);
         }
         else
         {
@@ -138,7 +134,6 @@ public class IPSetter : MonoBehaviour
         if (currentPort != int.MinValue && currentIP != null)
         {
             _sender.ChangeConnection(currentIP, currentPort);
-            Save();
         }
     }
 
