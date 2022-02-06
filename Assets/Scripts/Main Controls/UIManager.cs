@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using DomsUnityHelper;
 using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviourExtended
@@ -409,7 +410,7 @@ public class UIManager : MonoBehaviourExtended
             activationToggle = activateControllerOptionsButton.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             activationToggle.SetIsOnWithoutNotify(_config.GetEnabled());
-            controlObjectTransform = _controlObject.GetComponentSafer<RectTransform>();
+            controlObjectTransform = _controlObject.GetComponent<RectTransform>();
         }
 
         void Delete()

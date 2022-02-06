@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using DomsUnityHelper;
 
 public class ProfilesManager : MonoBehaviour
 {

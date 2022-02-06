@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using DomsUnityHelper;
 
 public class Controller2D : MonoBehaviour, ISortingMember
 {
@@ -34,8 +35,8 @@ public class Controller2D : MonoBehaviour, ISortingMember
 
     bool moving = false;
 
-    readonly Vector2 NULL_VEC = Vector2.negativeInfinity;
-    Vector2 currentTouchPosition;
+    static readonly Vector2 NULL_VEC = Vector2.one * float.MinValue;
+    Vector2 currentTouchPosition = NULL_VEC;
 
     float originalWidth;
 
@@ -50,7 +51,6 @@ public class Controller2D : MonoBehaviour, ISortingMember
 #if UNITY_EDITOR
         isUnityEditor = true;
 #endif
-        currentTouchPosition = NULL_VEC;
         originalWidth = buttonRect.rect.width;
 
         border.SetActive(showBorder);
@@ -132,7 +132,8 @@ public class Controller2D : MonoBehaviour, ISortingMember
 
     void SetTargetPosition()
     {
-        if (currentTouchPosition == NULL_VEC)
+        bool noCurrentTouch = currentTouchPosition == NULL_VEC;
+        if (noCurrentTouch)
         {
             currentTouchPosition = GetTouchNearestToCenter();
         }
@@ -237,15 +238,16 @@ public class Controller2D : MonoBehaviour, ISortingMember
             return Input.mousePosition;
         }
 
-        int touchCount = Input.touchCount;
+
+        int touchCount = Input.touches.Length;
         Vector2 nearest = NULL_VEC;
         float nearestDistance = float.PositiveInfinity;
 
         for (int i = 0; i < touchCount; i++)
         {
-            Vector2 pos = Input.GetTouch(i).position;
+            Vector2 pos = Input.touches[i].position;
 
-            if(nearest == NULL_VEC)
+            if (nearest == NULL_VEC)
             {
                 nearest = pos;
                 continue;

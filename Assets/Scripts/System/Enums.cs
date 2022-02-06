@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using DomsUnityHelper;
 
 
 public enum DefaultValueType { Min, Mid, Max };

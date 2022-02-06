@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using DomsUnityHelper;
 using static UnityEngine.UI.Dropdown;
 
 public class OSCSelectionMenu : OptionsMenu
@@ -132,7 +133,7 @@ public class OSCSelectionMenu : OptionsMenu
 
     OSCCommandButton CreateOSCCommandButton(OSCControllerSettingsTemplate _template, Transform _parent)
     {
-        OSCCommandButton button = Instantiate(oscSettingsButtonPrefab, _parent, false).GetComponentSafer<OSCCommandButton>();
+        OSCCommandButton button = Instantiate(oscSettingsButtonPrefab, _parent, false).GetComponent<OSCCommandButton>();
         Action longPressAction = _parent == userCommandsParent ? () => DeleteTemplatePrompt(_template, button) : null;
         button.Initialize(() => OSCSelectionButtonPressed(_template), longPressAction, _template.name, _template.oscSettings.GetAddress());
         return button;

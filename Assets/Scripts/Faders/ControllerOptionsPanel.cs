@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using DomsUnityHelper;
 
 public abstract class ControllerOptionsPanel : MonoBehaviourExtended
 {
@@ -15,8 +16,8 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     protected ControllerData controlData;
     protected RectTransform controlObjectTransform;
 
-    private const int SLIDER_STEPS = 6;
-    private int sliderStepsCorrected { get { return SLIDER_STEPS - 1; } }
+    private const int SLIDER_STEPS = 7;
+    private int SliderStepsCorrected { get { return SLIDER_STEPS - 1; } }
 
     public UnityEvent OnWake = new UnityEvent();
     public UnityEvent OnSleep = new UnityEvent();
@@ -49,7 +50,7 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
         controlObjectTransform = _controlObjectTransform;
         controlData = _data;
         nameField.SetTextWithoutNotify(controlData.GetName());
-        InitializeWidthSlider();
+        InitializeWidthSlider(_data);
         SetWidth(_data.GetWidth());
     }
 
@@ -82,14 +83,14 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     }
 
     #region Width
-    void InitializeWidthSlider()
+    void InitializeWidthSlider(ControllerData _data)
     {
-        Range<float> widthRange = controlData.GetWidthRange();
+        Range<float> widthRange = _data.GetWidthRange();
         widthSlider.wholeNumbers = true;
         widthSlider.minValue = ConvertWidthToSliderValue(widthRange.min);
         widthSlider.maxValue = ConvertWidthToSliderValue(widthRange.max);
 
-        int width = ConvertWidthToSliderValue(controlData.GetWidth());
+        int width = ConvertWidthToSliderValue(_data.GetWidth());
         widthSlider.SetValueWithoutNotify(width);
     }
 
@@ -103,13 +104,13 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     int ConvertWidthToSliderValue(float _width)
     {
         Range<float> widthRange = controlData.GetWidthRange();
-        return (int)_width.Map(widthRange.min, widthRange.max, 0, sliderStepsCorrected);
+        return (int)_width.Map(widthRange.min, widthRange.max, 0, SliderStepsCorrected);
     }
 
     float ConvertSliderValueToWidth(int _value)
     {
         Range<float> widthRange = controlData.GetWidthRange();
-        return ((float)_value).Map(0, sliderStepsCorrected, widthRange.min, widthRange.max);
+        return ((float)_value).Map(0, SliderStepsCorrected, widthRange.min, widthRange.max);
     }
     #endregion Width
 

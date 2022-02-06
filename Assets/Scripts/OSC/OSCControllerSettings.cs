@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using OscJack;
+using DomsUnityHelper;
 
 /// <summary>
 /// Used for saving and loading OSC Controller settings templates

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OscJack;
 using UnityEngine.UI;
+using DomsUnityHelper;
 
 public class Controller : MonoBehaviour
 {
@@ -63,7 +64,7 @@ public class Controller : MonoBehaviour
             case DefaultValueType.Min:
                 return MIN_CONTROLLER_VALUE;
             case DefaultValueType.Mid:
-                return Operations.Average(MIN_CONTROLLER_VALUE, MAX_CONTROLLER_VALUE);
+                return MathOps.Average(MIN_CONTROLLER_VALUE, MAX_CONTROLLER_VALUE);
             case DefaultValueType.Max:
                 return MAX_CONTROLLER_VALUE;
             default:

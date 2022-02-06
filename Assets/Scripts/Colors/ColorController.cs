@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DomsUnityHelper;
 using static ColorProfile;
 
 public class ColorController : MonoBehaviourExtended

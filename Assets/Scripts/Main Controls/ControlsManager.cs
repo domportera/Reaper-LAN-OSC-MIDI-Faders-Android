@@ -6,6 +6,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using DomsUnityHelper;
 
 public class ControlsManager : MonoBehaviourExtended
 {
