@@ -14354,6 +14354,11 @@ MonoBehaviour:
     primary: {r: 0.9372549, g: 0.3529412, b: 0.3529412, a: 1}
     secondary: {r: 1, g: 0.81720376, b: 0.427451, a: 1}
     tertiary: {r: 0.92549, g: 0.4157981, b: 0.29760858, a: 1}
+  - name: OLED Green
+    background: {r: 0, g: 0, b: 0, a: 1}
+    primary: {r: 0.17997748, g: 0.34117648, b: 0.16322953, a: 1}
+    secondary: {r: 0.41079584, g: 0.83137256, b: 0.4602755, a: 1}
+    tertiary: {r: 0.5961246, g: 0.85882354, b: 0.6084869, a: 1}
 --- !u!4 &1221475020
 Transform:
   m_ObjectHideFlags: 0
