@@ -24,6 +24,14 @@ public class ControllerOptionsMenu : OptionsMenu
 
     bool shouldResetOSCMenu = false;
 
+    private void OnEnable()
+    {
+        if (controllerConfig != null)
+        {
+            UpdateOSCPreview(controllerConfig.OscSettings);
+        }
+    }
+
     private void InitializeUI()
     {
         PopulateDropdowns();
@@ -68,6 +76,7 @@ public class ControllerOptionsMenu : OptionsMenu
         curveTypeDropdown.SetValueWithoutNotify(controllerConfig.Curve.GetInt());
 
         smoothnessField.SetValueWithoutNotify(controllerConfig.SmoothTime);
+        UpdateOSCPreview(controllerConfig.OscSettings);
     }
 
     public void SetControllerValuesToFields()
@@ -96,6 +105,12 @@ public class ControllerOptionsMenu : OptionsMenu
     public void StageOSCChangesToApply(OSCControllerSettings _settings)
     {
         oscSettingsPendingApplication = new OSCControllerSettings(_settings);
+        UpdateOSCPreview(_settings);
+    }
+
+    void UpdateOSCPreview(OSCControllerSettings _settings)
+    {
+        openOSCOptionsButton.GetComponentInChildren<Text>().text = $"<b>OSC Options</b>\n{_settings.GetAddress()}";
     }
 
     void PopulateDropdowns()
