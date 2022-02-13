@@ -26,10 +26,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
     private void OnEnable()
     {
-        if (controllerConfig != null)
-        {
-            UpdateOSCPreview(controllerConfig.OscSettings);
-        }
+        SetFieldsToControllerValues();
     }
 
     private void InitializeUI()
