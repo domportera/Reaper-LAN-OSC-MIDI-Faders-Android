@@ -2,20 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class OSCCommandButton : MonoBehaviour
 {
-    [SerializeField] ButtonExtended button;
-    [SerializeField] Text title;
-    [SerializeField] Text messagePreview;
+    [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
+    [FormerlySerializedAs("title")] [SerializeField] Text _title;
+    [FormerlySerializedAs("messagePreview")] [SerializeField] Text _messagePreview;
 
     public void Initialize(Action _buttonAction, Action _longPressAction, string _title, string _messagePreview)
     {
-        button.onClick.AddListener(() => { _buttonAction.Invoke(); });
-        button.OnPointerHeld.AddListener(() => { _longPressAction.Invoke(); });
-        title.text = _title;
-        messagePreview.text = _messagePreview;
+        _button.OnClick.AddListener(() => { _buttonAction.Invoke(); });
+        _button.OnPointerHeld.AddListener(() => { _longPressAction.Invoke(); });
+        this._title.text = _title;
+        this._messagePreview.text = _messagePreview;
         name = _title + " OSC button";
     }
 

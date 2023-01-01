@@ -5,28 +5,30 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
+using PopUpWindows;
 
 public abstract class ControllerOptionsPanel : MonoBehaviourExtended
 {
-    [SerializeField] protected InputField nameField;
-    [SerializeField] protected Button applyButton;
-    [SerializeField] protected Button closeButton;
-    [SerializeField] protected Slider widthSlider;
+    [FormerlySerializedAs("nameField")] [SerializeField] protected InputField NameField;
+    [FormerlySerializedAs("applyButton")] [SerializeField] protected Button ApplyButton;
+    [FormerlySerializedAs("closeButton")] [SerializeField] protected Button CloseButton;
+    [FormerlySerializedAs("widthSlider")] [SerializeField] protected Slider WidthSlider;
 
-    protected ControllerData controlData;
-    protected RectTransform controlObjectTransform;
+    protected ControllerData ControlData;
+    protected RectTransform ControlObjectTransform;
 
-    private const int SLIDER_STEPS = 7;
-    private int SliderStepsCorrected { get { return SLIDER_STEPS - 1; } }
+    public const int SliderSteps = 7;
+    int SliderStepsCorrected { get { return SliderSteps - 1; } }
 
-    public UnityEvent OnWake = new UnityEvent();
-    public UnityEvent OnSleep = new UnityEvent();
+    public UnityEvent OnWake = new();
+    public UnityEvent OnSleep = new();
 
     protected void Awake()
     {
-        nameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
-        applyButton.onClick.AddListener(Apply);
-        closeButton.onClick.AddListener(Close);
+        NameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
+        ApplyButton.onClick.AddListener(Apply);
+        CloseButton.onClick.AddListener(Close);
         AwakeExtended();
     }
 
@@ -45,36 +47,36 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     /// </summary>
     protected virtual void AwakeExtended(){}
 
-    protected void BaseInitialize(ControllerData _data, RectTransform _controlObjectTransform)
+    protected void BaseInitialize(ControllerData data, RectTransform controlObjectTransform)
     {
-        controlObjectTransform = _controlObjectTransform;
-        controlData = _data;
-        nameField.SetTextWithoutNotify(controlData.GetName());
-        InitializeWidthSlider(_data);
-        SetWidth(_data.GetWidth());
+        ControlObjectTransform = controlObjectTransform;
+        ControlData = data;
+        NameField.SetTextWithoutNotify(ControlData.GetName());
+        InitializeWidthSlider(data);
+        SetWidth(data.GetWidth());
     }
 
-    void RemoveProblemCharactersInNameField(string _input)
+    void RemoveProblemCharactersInNameField(string input)
     {
-        _input.Replace("\"", "");
-        _input.Replace("\\", "");
-        nameField.SetTextWithoutNotify(_input);
+        input.Replace("\"", "");
+        input.Replace("\\", "");
+        NameField.SetTextWithoutNotify(input);
     }
 
     void SetControllerDataMasterVariables()
     {
-        string controllerName = nameField.text;
-        controlData.SetName(controllerName);
+        string controllerName = NameField.text;
+        ControlData.SetName(controllerName);
 
-        float width = ConvertSliderValueToWidth((int)widthSlider.value);
-        controlData.SetWidth(width);
+        float width = ConvertSliderValueToWidth((int)WidthSlider.value);
+        ControlData.SetWidth(width);
     }
 
     protected virtual void Apply()
     {
         SetControllerDataMasterVariables();
-        ControlsManager.instance.RespawnController(controlData);
-        UtilityWindows.instance.QuickNoticeWindow("Settings applied!");
+        ControlsManager.Instance.RespawnController(ControlData);
+        PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
     
     void Close()
@@ -86,54 +88,52 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     void InitializeWidthSlider(ControllerData _data)
     {
         Range<float> widthRange = _data.GetWidthRange();
-        widthSlider.wholeNumbers = true;
-        widthSlider.minValue = ConvertWidthToSliderValue(widthRange.min);
-        widthSlider.maxValue = ConvertWidthToSliderValue(widthRange.max);
+        WidthSlider.wholeNumbers = true;
+        WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.min);
+        WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.max);
 
         int width = ConvertWidthToSliderValue(_data.GetWidth());
-        widthSlider.SetValueWithoutNotify(width);
+        WidthSlider.SetValueWithoutNotify(width);
     }
 
     void SetWidth(float _width)
     {
-        controlObjectTransform.sizeDelta = new Vector2(controlObjectTransform.sizeDelta.y * _width, controlObjectTransform.sizeDelta.y);
-        UIManager.instance.RefreshFaderLayoutGroup();
+        ControlObjectTransform.sizeDelta = new Vector2(ControlObjectTransform.sizeDelta.y * _width, ControlObjectTransform.sizeDelta.y);
+        UIManager.Instance.RefreshFaderLayoutGroup();
     }
 
     //all this conversion stuff is to achieve the stepping slider with the multiplicative fractional width functionality
     int ConvertWidthToSliderValue(float _width)
     {
-        Range<float> widthRange = controlData.GetWidthRange();
+        Range<float> widthRange = ControlData.GetWidthRange();
         return (int)_width.Map(widthRange.min, widthRange.max, 0, SliderStepsCorrected);
     }
 
     float ConvertSliderValueToWidth(int _value)
     {
-        Range<float> widthRange = controlData.GetWidthRange();
+        Range<float> widthRange = ControlData.GetWidthRange();
         return ((float)_value).Map(0, SliderStepsCorrected, widthRange.min, widthRange.max);
     }
     #endregion Width
 
-    bool VerifyUniqueName(string _s)
+    bool VerifyUniqueName(string s)
     {
         bool valid = true;
-        ReadOnlyCollection<ControllerData> controllers = ControlsManager.instance.Controllers;
+        ReadOnlyCollection<ControllerData> controllers = ControlsManager.Instance.Controllers;
 
         foreach (ControllerData set in controllers)
         {
-            if (set.GetName() == _s)
-            {
-                valid = false;
-                break;
-            }
+            if (set.GetName() != s)
+                continue;
+            
+            valid = false;
+            break;
         }
 
-        if (!valid)
-        {
-            UtilityWindows.instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
-            return false;
-        }
+        if (valid) return true;
+        
+        PopUpController.Instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
+        return false;
 
-        return true;
     }
 }

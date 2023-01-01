@@ -1,64 +1,66 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ColorSetter : MonoBehaviour
+namespace Colors
 {
-    [SerializeField]
-    ColorProfile.ColorType colorType;
-
-    Image image;
-	Text text;
-
-	bool canColor = true;
-	bool HasComponent { get { return image != null || text != null; } }
-	bool isImage = false;
-
-	private void Awake()
+	public class ColorSetter : MonoBehaviour
 	{
-		GetColoredComponents();
-	}
+		[FormerlySerializedAs("colorType")] [SerializeField]
+		ColorProfile.ColorType _colorType;
 
-	private void Start()
-	{
-		ColorController.AddToControls(this);
-	}
+		Image _image;
+		Text _text;
 
-	private void OnDestroy()
-	{
-		ColorController.RemoveFromControls(this);
-	}
+		bool _canColor = true;
+		bool HasComponent => _image != null || _text != null;
+		bool _isImage = false;
 
-	public void SetColors(ColorProfile _colors)
-	{
-		if (!canColor || !HasComponent) return;
-
-		if (!isImage)
+		private void Awake()
 		{
-			text.color = _colors.GetColor(colorType);
+			GetColoredComponents();
 		}
-		else
-		{
-			image.color = _colors.GetColor(colorType);
-		}
-	}
 
-	void GetColoredComponents()
-    {
-		text = GetComponent<Text>();
-		if (text == null)
+		private void Start()
 		{
-			image = GetComponent<Image>();
-			if (image == null)
+			ColorController.AddToControls(this);
+		}
+
+		private void OnDestroy()
+		{
+			ColorController.RemoveFromControls(this);
+		}
+
+		public void SetColors(ColorProfile colors)
+		{
+			if (!_canColor || !HasComponent) return;
+
+			if (!_isImage)
 			{
-				Debug.LogWarning($"{name} has no component to color", this);
-				canColor = false;
+				_text.color = colors.GetColor(_colorType);
 			}
 			else
 			{
-				canColor = true;
-				isImage = true;
+				_image.color = colors.GetColor(_colorType);
+			}
+		}
+
+		void GetColoredComponents()
+		{
+			_text = GetComponent<Text>();
+			if (_text == null)
+			{
+				_image = GetComponent<Image>();
+				if (_image == null)
+				{
+					Debug.LogWarning($"{name} has no component to color", this);
+					_canColor = false;
+				}
+				else
+				{
+					_canColor = true;
+					_isImage = true;
+				}
 			}
 		}
 	}

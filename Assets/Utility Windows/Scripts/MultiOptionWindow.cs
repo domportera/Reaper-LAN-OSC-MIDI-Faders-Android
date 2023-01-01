@@ -1,49 +1,52 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class MultiOptionWindow : MonoBehaviour
+namespace PopUpWindows
 {
-    [SerializeField] GameObject buttonPrefab;
-    [SerializeField] Transform buttonParent;
-    [SerializeField] Text text;
-    [SerializeField] Button closeButton;
-
-    private void Awake()
+    public class MultiOptionWindow : MonoBehaviour
     {
-        closeButton.onClick.AddListener(CloseWindow);
-    }
+        [FormerlySerializedAs("buttonPrefab")] [SerializeField] GameObject _buttonPrefab;
+        [FormerlySerializedAs("buttonParent")] [SerializeField] Transform _buttonParent;
+        [FormerlySerializedAs("text")] [SerializeField] Text _text;
+        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton;
 
-    public void SetActions(string _text, MultiOptionAction[] _actions)
-    {
-        text.text = _text;
-
-        foreach(MultiOptionAction a in _actions)
+        private void Awake()
         {
-            GameObject newButtonObj = Instantiate(buttonPrefab, buttonParent);
-            newButtonObj.SetActive(true);
-            Button button = newButtonObj.GetComponent<Button>();
-            button.GetComponentInChildren<Text>().text = a.name;
-            button.onClick.AddListener(() => { a.action.Invoke(); });
-            button.onClick.AddListener(CloseWindow);
+            _closeButton.onClick.AddListener(CloseWindow);
+        }
+
+        public void SetActions(string text, MultiOptionAction[] actions)
+        {
+            this._text.text = text;
+
+            foreach(MultiOptionAction a in actions)
+            {
+                GameObject newButtonObj = Instantiate(_buttonPrefab, _buttonParent);
+                newButtonObj.SetActive(true);
+                Button button = newButtonObj.GetComponent<Button>();
+                button.GetComponentInChildren<Text>().text = a.Name;
+                button.onClick.AddListener(() => { a.Action.Invoke(); });
+                button.onClick.AddListener(CloseWindow);
+            }
+        }
+
+        void CloseWindow()
+        {
+            Destroy(gameObject);
         }
     }
 
-    void CloseWindow()
+    public struct MultiOptionAction
     {
-        Destroy(gameObject);
-    }
-}
+        public string Name;
+        public Action Action;
 
-public struct MultiOptionAction
-{
-    public string name;
-    public Action action;
-
-    public MultiOptionAction(string name, Action action)
-    {
-        this.name = name;
-        this.action = action;
+        public MultiOptionAction(string name, Action action)
+        {
+            this.Name = name;
+            this.Action = action;
+        }
     }
 }

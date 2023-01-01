@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OscJack;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Used for saving and loading OSC Controller settings templates
@@ -10,13 +11,13 @@ using DomsUnityHelper;
 [System.Serializable]
 public class OSCControllerSettingsTemplate
 {
-    public string name;
-    public OSCControllerSettings oscSettings;
+    [FormerlySerializedAs("name")] public string Name;
+    [FormerlySerializedAs("oscSettings")] public OSCControllerSettings OscSettings;
 
     public OSCControllerSettingsTemplate(string name, OSCControllerSettings oscSettings)
     {
-        this.name = name;
-        this.oscSettings = oscSettings;
+        this.Name = name;
+        this.OscSettings = oscSettings;
     }
 }
 
@@ -27,136 +28,136 @@ public class OSCControllerSettingsTemplate
 public class OSCControllerSettings
 {
     #region Saved Values
-    [SerializeField] MIDIChannel channel;
-    [SerializeField] ValueRange range;
-    [SerializeField] int ccNumber;
-    [SerializeField] OSCAddressType addressType;
-    [SerializeField] float min;
-    [SerializeField] float max;
-    [SerializeField] string customAddress;
+    [FormerlySerializedAs("channel")] [SerializeField] MidiChannel _channel;
+    [FormerlySerializedAs("range")] [SerializeField] ValueRange _range;
+    [FormerlySerializedAs("ccNumber")] [SerializeField] int _ccNumber;
+    [FormerlySerializedAs("addressType")] [SerializeField] OscAddressType _addressType;
+    [FormerlySerializedAs("min")] [SerializeField] float _min;
+    [FormerlySerializedAs("max")] [SerializeField] float _max;
+    [FormerlySerializedAs("customAddress")] [SerializeField] string _customAddress;
     #endregion Saved Values
 
     #region Properties
-    public MIDIChannel MidiChannel { get { return channel; } }
-    public ValueRange Range { get { return range; } }
-    public OSCAddressType AddressType { get { return addressType; } }
-    public string CustomAddress { get { return customAddress; } }
-    public int CCNumber { get { return ccNumber; } }
-    public float Min { get { return min; } }
-    public float Max { get { return max; } }
+    public MidiChannel MidiChannel { get { return _channel; } }
+    public ValueRange Range { get { return _range; } }
+    public OscAddressType AddressType { get { return _addressType; } }
+    public string CustomAddress { get { return _customAddress; } }
+    public int CcNumber { get { return _ccNumber; } }
+    public float Min { get { return _min; } }
+    public float Max { get { return _max; } }
     #endregion Properties
 
-    public const int MIN_CC = 0;
-    public const int MAX_CC = 127;
+    public const int MinCc = 0;
+    public const int MaxCc = 127;
 
     #region Built-in addresses
-    const string REAPER_MIDI_BASE_ADDRESS = "/vkb_midi/";
-    public const string MIDI_CHANNEL_STRING = "MIDI_CHANNEL/"; //string of characters to insert the midi channel
-    public const string CC_CHANNEL_STRING = "CC_NUMBER"; //string of characters to insert the CC channel
+    const string ReaperMidiBaseAddress = "/vkb_midi/";
+    public const string MidiChannelString = "MIDI_CHANNEL/"; //string of characters to insert the midi channel
+    public const string CcChannelString = "CC_NUMBER"; //string of characters to insert the CC channel
 
-    static readonly Dictionary<OSCAddressType, string> addressesBuiltIn = new Dictionary<OSCAddressType, string>()
+    static readonly Dictionary<OscAddressType, string> AddressesBuiltIn = new Dictionary<OscAddressType, string>()
     {
-        { OSCAddressType.MidiCC, REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "cc/" + CC_CHANNEL_STRING },
-        { OSCAddressType.MidiAftertouch,  REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "channelPressure" },
-        { OSCAddressType.MidiPitch, REAPER_MIDI_BASE_ADDRESS + MIDI_CHANNEL_STRING + "pitch" }
+        { OscAddressType.MidiCc, ReaperMidiBaseAddress + MidiChannelString + "cc/" + CcChannelString },
+        { OscAddressType.MidiAftertouch,  ReaperMidiBaseAddress + MidiChannelString + "channelPressure" },
+        { OscAddressType.MidiPitch, ReaperMidiBaseAddress + MidiChannelString + "pitch" }
     };
 
-    public static readonly Dictionary<OSCAddressType, OSCAddressMode> addressModes = new Dictionary<OSCAddressType, OSCAddressMode>()
+    public static readonly Dictionary<OscAddressType, OscAddressMode> AddressModes = new Dictionary<OscAddressType, OscAddressMode>()
     {
-        { OSCAddressType.MidiCC, OSCAddressMode.MIDI },
-        { OSCAddressType.MidiAftertouch,  OSCAddressMode.MIDI },
-        { OSCAddressType.MidiPitch, OSCAddressMode.MIDI },
-        { OSCAddressType.Custom, OSCAddressMode.Custom }
+        { OscAddressType.MidiCc, OscAddressMode.Midi },
+        { OscAddressType.MidiAftertouch,  OscAddressMode.Midi },
+        { OscAddressType.MidiPitch, OscAddressMode.Midi },
+        { OscAddressType.Custom, OscAddressMode.Custom }
     };
 
-    public static readonly Dictionary<OSCAddressType, OSCControllerSettings> defaultOSCTemplates = new Dictionary<OSCAddressType, OSCControllerSettings>()
+    public static readonly Dictionary<OscAddressType, OSCControllerSettings> DefaultOscTemplates = new Dictionary<OscAddressType, OSCControllerSettings>()
     {
-        { OSCAddressType.MidiPitch,         new OSCControllerSettings(OSCAddressType.MidiPitch,         MIDIChannel.All, ValueRange.FourteenBit,    0) },
-        { OSCAddressType.MidiAftertouch,    new OSCControllerSettings(OSCAddressType.MidiAftertouch,    MIDIChannel.All, ValueRange.SevenBit,       0) },
-        { OSCAddressType.MidiCC,            new OSCControllerSettings(OSCAddressType.MidiCC,            MIDIChannel.All, ValueRange.SevenBit,       1) }
+        { OscAddressType.MidiPitch,         new OSCControllerSettings(OscAddressType.MidiPitch,         MidiChannel.All, ValueRange.FourteenBit,    0) },
+        { OscAddressType.MidiAftertouch,    new OSCControllerSettings(OscAddressType.MidiAftertouch,    MidiChannel.All, ValueRange.SevenBit,       0) },
+        { OscAddressType.MidiCc,            new OSCControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       1) }
 
     };
 
     #endregion
 
-    public OSCControllerSettings(OSCAddressType addressType, MIDIChannel channel, ValueRange range, int ccNumber)
+    public OSCControllerSettings(OscAddressType addressType, MidiChannel channel, ValueRange range, int ccNumber)
     {
-        this.channel = channel;
-        this.range = range;
-        this.ccNumber = ccNumber;
-        this.addressType = addressType;
+        this._channel = channel;
+        this._range = range;
+        this._ccNumber = ccNumber;
+        this._addressType = addressType;
         SetRange(range);
     }
 
     public OSCControllerSettings(OSCControllerSettings _template)
     {
-        this.channel = _template.MidiChannel;
-        this.addressType = _template.AddressType;
-        this.ccNumber = _template.CCNumber;
-        this.range = _template.Range;
-        this.customAddress = _template.CustomAddress;
-        this.min = _template.Min;
-        this.max = _template.Max;
+        this._channel = _template.MidiChannel;
+        this._addressType = _template.AddressType;
+        this._ccNumber = _template.CcNumber;
+        this._range = _template.Range;
+        this._customAddress = _template.CustomAddress;
+        this._min = _template.Min;
+        this._max = _template.Max;
     }
 
     public bool IsEqualTo(OSCControllerSettings _settings)
     {
-        bool identical = _settings.CCNumber == CCNumber && _settings.AddressType == AddressType && _settings.MidiChannel == MidiChannel && _settings.CustomAddress == CustomAddress && _settings.Range == Range && _settings.min == min && _settings.max == max && _settings.MidiChannel == _settings.MidiChannel;
+        bool identical = _settings.CcNumber == CcNumber && _settings.AddressType == AddressType && _settings.MidiChannel == MidiChannel && _settings.CustomAddress == CustomAddress && _settings.Range == Range && _settings._min == _min && _settings._max == _max && _settings.MidiChannel == _settings.MidiChannel;
         return identical;
     }
 
-    public void SetOSCAddressType(OSCAddressType _addressType)
+    public void SetOscAddressType(OscAddressType _addressType)
     {
-        addressType = _addressType;
+        this._addressType = _addressType;
     }
 
-    public void SetCCNumber(int _cc)
+    public void SetCcNumber(int _cc)
     {
-        ccNumber = Mathf.Clamp(_cc, MIN_CC, MAX_CC);
+        _ccNumber = Mathf.Clamp(_cc, MinCc, MaxCc);
     }
 
-    public void SetMIDIChannel(MIDIChannel _channel)
+    public void SetMidiChannel(MidiChannel _channel)
     {
-        channel = _channel;
+        this._channel = _channel;
     }
 
     public void SetCustomAddress(string _address)
     {
-        customAddress = _address;
+        _customAddress = _address;
     }
 
     public void SetRange(ValueRange _range)
     {
-        range = _range;
+        this._range = _range;
         switch(_range)
         {
             case ValueRange.SevenBit:
-                min = 0;
-                max = 127;
+                _min = 0;
+                _max = 127;
                 break;
             case ValueRange.FourteenBit:
-                min = 0;
-                max = 16383;
+                _min = 0;
+                _max = 16383;
                 break;
             case ValueRange.Float:
-                min = 0f;
-                max = 1f;
+                _min = 0f;
+                _max = 1f;
                 break;
             case ValueRange.EightBit:
-                min = 0;
-                max = 255;
+                _min = 0;
+                _max = 255;
                 break;
             case ValueRange.CustomInt:
-                min = 0;
-                max = 127;
+                _min = 0;
+                _max = 127;
                 break;
             case ValueRange.CustomFloat:
-                min = 0f;
-                max = 1f;
+                _min = 0f;
+                _max = 1f;
                 break;
             default:
-                min = 0;
-                max = 127;
+                _min = 0;
+                _max = 127;
                 Debug.LogError("Value range not implemented! Defaulting to 7-bit 0-127");
                 break;
         }
@@ -164,22 +165,22 @@ public class OSCControllerSettings
 
     public void SetMin(float _min)
     {
-        min = _min;
+        this._min = _min;
     }
 
     public void SetMax(float _max)
     {
-        max = _max;
+        this._max = _max;
     }
 
     public string GetAddress()
     {
-        if(addressType == OSCAddressType.Custom)
+        if(_addressType == OscAddressType.Custom)
         {
-            return customAddress;
+            return _customAddress;
         }
 
-        return CreateBuiltInAddress(addressType);
+        return CreateBuiltInAddress(_addressType);
     }
 
     public int GetValueInt(float _value)
@@ -189,36 +190,36 @@ public class OSCControllerSettings
 
     public float GetValueFloat(float _value)
     {
-        return Mathf.Clamp(_value.Map(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, min, max), Min, Max);
+        return Mathf.Clamp(_value.Map(Controller.MinControllerValue, Controller.MaxControllerValue, _min, _max), Min, Max);
     }
 
-    bool AddressTypeIsMIDI(OSCAddressType _addressType)
+    bool AddressTypeIsMidi(OscAddressType _addressType)
     {
-        return addressModes[_addressType] == OSCAddressMode.MIDI;
+        return AddressModes[_addressType] == OscAddressMode.Midi;
     }
 
-    string CreateBuiltInAddress(OSCAddressType _type)
+    string CreateBuiltInAddress(OscAddressType _type)
     {
         string address = string.Empty;
 
-        if(addressesBuiltIn.ContainsKey(_type))
+        if(AddressesBuiltIn.ContainsKey(_type))
         {
-            address = addressesBuiltIn[_type];
+            address = AddressesBuiltIn[_type];
         }
         else
         {
             Debug.LogError($"OSC Address type {_type} not added to addresses built in!");
         }
 
-        bool shouldReplaceAddressChannels = AddressTypeIsMIDI(_type) && !string.IsNullOrWhiteSpace(address);
+        bool shouldReplaceAddressChannels = AddressTypeIsMidi(_type) && !string.IsNullOrWhiteSpace(address);
         if(shouldReplaceAddressChannels)
         {
-            string addressReplacement = MidiChannel == MIDIChannel.All ? "" : ((int)channel).ToString() + '/';
-            address = address.Replace(MIDI_CHANNEL_STRING, addressReplacement);
+            string addressReplacement = MidiChannel == MidiChannel.All ? "" : ((int)_channel).ToString() + '/';
+            address = address.Replace(MidiChannelString, addressReplacement);
 
-            if(_type == OSCAddressType.MidiCC)
+            if(_type == OscAddressType.MidiCc)
             {
-                address = address.Replace(CC_CHANNEL_STRING, ccNumber.ToString());
+                address = address.Replace(CcChannelString, _ccNumber.ToString());
             }
         }
 

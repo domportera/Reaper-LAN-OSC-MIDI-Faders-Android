@@ -1,77 +1,79 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
 {
-    const float DEFAULT_HOLD_STATE = float.MaxValue;
-    float pressTime = DEFAULT_HOLD_STATE;
+    float _pressTime = 0f;
 
-    float holdTime = 0.8f;
-    bool ignoreClick = false;
-    bool isDragging = false;
+    const float DefaultPressTime = float.MaxValue;
+
+    const float HoldTime = 0.8f;
+    
+    bool _ignoreClick;
+    bool _isDragging;
+    bool _couldBeHolding;
 
     //hiding the original event so we can allow the button color to change states as normal, even if we ignore calling the onClick stuff in OnPointerUp
-    public new ButtonClickedEvent onClick = new ButtonClickedEvent(); 
+    [FormerlySerializedAs("onClick")] public ButtonClickedEvent OnClick = new (); 
 
-    public ButtonExtendedEvent OnPointerHeld = new ButtonExtendedEvent();
+    public readonly ButtonExtendedEvent OnPointerHeld = new ();
 
     //needed to make a separate class since the UnityEvent class's functions are not virtual
     public class ButtonExtendedEvent
     {
-        UnityEvent myEvent = new UnityEvent();
-        public int subscriptionCount { get; private set; }
+        readonly UnityEvent _myEvent = new ();
+        public int SubscriptionCount { get; private set; }
 
-        public void AddListener(UnityAction _action)
+        public void AddListener(UnityAction action)
         {
-            myEvent.AddListener(_action);
-            subscriptionCount++;
+            _myEvent.AddListener(action);
+            SubscriptionCount++;
         }
 
-        public void RemoveListener(UnityAction _action)
+        public void RemoveListener(UnityAction action)
         {
-            myEvent.RemoveListener(_action);
-            subscriptionCount--;
+            _myEvent.RemoveListener(action);
+            SubscriptionCount--;
         }
 
         public void RemoveAllListeners()
         {
-            myEvent.RemoveAllListeners();
-            subscriptionCount = 0;
+            _myEvent.RemoveAllListeners();
+            SubscriptionCount = 0;
         }
 
-        public void Invoke()
-        {
-            myEvent.Invoke();
-        }
+        public void Invoke() => _myEvent.Invoke();
         
     }
 
-    public void OnBeginDrag(PointerEventData _data)
+    public void OnBeginDrag(PointerEventData data)
     {
-        pressTime = DEFAULT_HOLD_STATE;
-        isDragging = true;
+        _couldBeHolding = false;
+        _pressTime = DefaultPressTime;
+        _isDragging = true;
     }
 
-    public void OnEndDrag(PointerEventData _data)
+    public void OnEndDrag(PointerEventData data)
     {
-        isDragging = false;
+        _isDragging = false;
     }
 
     public override void OnPointerExit(PointerEventData eventData)
     {
         base.OnPointerExit(eventData);
-        pressTime = DEFAULT_HOLD_STATE;
+        _couldBeHolding = false;
+        _pressTime = DefaultPressTime;
     }
 
     public override void OnPointerDown(PointerEventData eventData)
     {
         base.OnPointerDown(eventData);
-        pressTime = Time.time;
-        ignoreClick = false;
+        _pressTime = Time.time;
+        _ignoreClick = false;
+        _couldBeHolding = true;
     }
 
     public override void OnPointerUp(PointerEventData eventData)
@@ -81,41 +83,36 @@ public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        if(isDragging)
+        if(_isDragging)
         {
             return;
         }
 
-        if(OnPointerHeld.subscriptionCount == 0 || !ignoreClick)
+        if(OnPointerHeld.SubscriptionCount == 0 || !_ignoreClick)
         {
-            onClick.Invoke();
+            OnClick.Invoke();
         }
 
-        pressTime = DEFAULT_HOLD_STATE;
+        _pressTime = DefaultPressTime;
     }
 
-    private void Update()
+    void Update()
     {
         ButtonLongPressCheck();
     }
 
-    private void ButtonLongPressCheck()
+    void ButtonLongPressCheck()
     {
-        if(pressTime == DEFAULT_HOLD_STATE)
-        {
+        if(!_couldBeHolding)
             return;
-        }
 
-        if(Time.time - pressTime > holdTime)
-        {
-            ignoreClick = true;
-            OnPointerHeld.Invoke();
-            pressTime = DEFAULT_HOLD_STATE;
-        }
-    }
-
-    public void SetHoldtime(float _seconds)
-    {
-        holdTime = _seconds;
+        bool held = Time.time - _pressTime > HoldTime;
+        
+        if (!held)
+            return;
+        
+        _ignoreClick = true;
+        OnPointerHeld.Invoke();
+        _pressTime = DefaultPressTime;
     }
 }

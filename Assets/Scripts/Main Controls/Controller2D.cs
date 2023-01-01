@@ -1,62 +1,56 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 
 public class Controller2D : MonoBehaviour, ISortingMember
 {
     [Header("Visuals")]
-    [SerializeField] RectTransform horizontalLine;
-    [SerializeField] RectTransform verticalLine;
-    [SerializeField] RectTransform centerDot;
+    [SerializeField] RectTransform _horizontalLine;
+    [SerializeField] RectTransform _verticalLine;
+    [SerializeField] RectTransform _centerDot;
 
     [Header("Controllers")]
-    [SerializeField] Controller horizontalController;
-    [SerializeField] Controller verticalController;
+    [SerializeField] Controller _horizontalController;
+    [SerializeField] Controller _verticalController;
 
     [Header("Interaction")]
-    [SerializeField] RectTransform buttonRect;
-    [SerializeField] Button button;
-    [SerializeField] EventTrigger eventTrigger;
+    [SerializeField] RectTransform _buttonTransform;
+    [SerializeField] Button _button;
+    [SerializeField] EventTrigger _eventTrigger;
 
     [Header("Aesthetics")]
-    [SerializeField] bool showBorder;
-    [SerializeField] GameObject border;
-    [SerializeField] Text title;
+    [SerializeField] bool _showBorder;
+    [SerializeField] GameObject _border;
+    [SerializeField] Text _title;
 
-    [SerializeField] List<Image> controlImages = new List<Image>();
+    [SerializeField] List<Image> _controlImages = new();
 
     [Header("Sorting")]
-    [SerializeField] Button sortLeftButton;
-    [SerializeField] Button sortRightButton;
+    [SerializeField] Button _sortLeftButton;
+    [SerializeField] Button _sortRightButton;
 
-    bool moving = false;
+    bool _moving = false;
 
-    static readonly Vector2 NULL_VEC = Vector2.one * float.MinValue;
-    Vector2 currentTouchPosition = NULL_VEC;
+    static readonly Vector2 NullVec = Vector2.one * float.MinValue;
+    Vector2 _currentTouchPosition = NullVec;
 
-    float originalWidth;
+    [SerializeField] float _interactionPadding = 20f;
 
-    Controller2DData controlData;
+    bool _isUnityEditor;
 
-    [SerializeField] float interactionPadding = 20f;
-
-    bool isUnityEditor = false;
-
-    private void Awake()
+    void Awake()
     {
 #if UNITY_EDITOR
-        isUnityEditor = true;
+        _isUnityEditor = true;
 #endif
-        originalWidth = buttonRect.rect.width;
 
-        border.SetActive(showBorder);
+        _border.SetActive(_showBorder);
     }
 
-    private void Start()
+    void Start()
     {
         InitializeButtonInteraction();
     }
@@ -66,92 +60,93 @@ public class Controller2D : MonoBehaviour, ISortingMember
     // Update is called once per frame
     protected void Update()
     {
-        if(moving)
+        if(_moving)
         {
             SetTargetPosition();
         }
 
-        MoveComponentsWithMIDI();
+        MoveComponentsWithMidi();
     }
 
-    public void Initialize(Controller2DData _data)
+    public void Initialize(Controller2DData data)
     {
-        verticalController.Initialize(_data, 0);
-        horizontalController.Initialize(_data, 1);
-        controlData = _data;
-        title.text = _data.GetName();
+        _verticalController.Initialize(data, 0);
+        _horizontalController.Initialize(data, 1);
+        _title.text = data.GetName();
         InitializeSorting();
     }
 
     void InitializeButtonInteraction()
     {
-        EventTrigger.Entry startEntry = new EventTrigger.Entry();
-        startEntry.eventID = EventTriggerType.PointerDown;
+        EventTrigger.Entry startEntry = new EventTrigger.Entry
+        {
+            eventID = EventTriggerType.PointerDown
+        };
+        
         startEntry.callback.AddListener((data) => { StartTouch(); });
-        eventTrigger.triggers.Add(startEntry);
+        _eventTrigger.triggers.Add(startEntry);
 
         EventTrigger.Entry endEntry = new EventTrigger.Entry();
         endEntry.eventID = EventTriggerType.PointerUp;
         endEntry.callback.AddListener((data) => { EndTouch(); });
-        eventTrigger.triggers.Add(endEntry);
+        _eventTrigger.triggers.Add(endEntry);
     }
 
     void StartTouch()
     {
-        moving = true;
+        _moving = true;
     }
 
     void EndTouch()
     {
-        moving = false;
-        horizontalController.ReturnToCenter();
-        verticalController.ReturnToCenter();
+        _moving = false;
+        _horizontalController.ReturnToCenter();
+        _verticalController.ReturnToCenter();
     }
 
-    void MoveComponentsWithMIDI()
+    void MoveComponentsWithMidi()
     {
         //this inverse lerp is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
-        float xPercent = Mathf.InverseLerp(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, horizontalController.SmoothValue);
-        float yPercent = Mathf.InverseLerp(Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE, verticalController.SmoothValue);
+        float xPercent = Mathf.InverseLerp(Controller.MinControllerValue, Controller.MaxControllerValue, _horizontalController.SmoothValue);
+        float yPercent = Mathf.InverseLerp(Controller.MinControllerValue, Controller.MaxControllerValue, _verticalController.SmoothValue);
 
-        float xMin = GetRectLocalBounds(RectBounds.Left, buttonRect) + interactionPadding;
-        float xMax = GetRectLocalBounds(RectBounds.Right, buttonRect) - interactionPadding;
-        float yMin = GetRectLocalBounds(RectBounds.Bottom, buttonRect) + interactionPadding;
-        float yMax = GetRectLocalBounds(RectBounds.Top, buttonRect) - interactionPadding;
+        float xMin = GetRectLocalBounds(RectBounds.Left, _buttonTransform) + _interactionPadding;
+        float xMax = GetRectLocalBounds(RectBounds.Right, _buttonTransform) - _interactionPadding;
+        float yMin = GetRectLocalBounds(RectBounds.Bottom, _buttonTransform) + _interactionPadding;
+        float yMax = GetRectLocalBounds(RectBounds.Top, _buttonTransform) - _interactionPadding;
 
-        verticalLine.localPosition = new Vector3(Mathf.Lerp(xMin, xMax, xPercent),
-            verticalLine.localPosition.y,
-            verticalLine.localPosition.z);
-        horizontalLine.localPosition = new Vector3(horizontalLine.localPosition.x,
+        Vector3 verticalPosition = _verticalLine.localPosition;
+        verticalPosition = new Vector3(Mathf.Lerp(xMin, xMax, xPercent),
+            verticalPosition.y,
+            verticalPosition.z);
+        
+        var horizontalPosition = _horizontalLine.localPosition;
+        horizontalPosition = new Vector3(horizontalPosition.x,
             Mathf.Lerp(yMin, yMax, yPercent),
-            horizontalLine.localPosition.z);
-        centerDot.localPosition = new Vector3(verticalLine.localPosition.x, horizontalLine.localPosition.y, centerDot.localPosition.z);
+            horizontalPosition.z);
+        
+        _verticalLine.localPosition = verticalPosition;
+        _horizontalLine.localPosition = horizontalPosition;
+        _centerDot.localPosition = new Vector3(verticalPosition.x, horizontalPosition.y, _centerDot.localPosition.z);
 
         //Debug.Log($"modValue: {horizontalController.modValue} | xPercent: {xPercent} | xMin and max ({xMin}, {xMax})");
     }
 
     void SetTargetPosition()
     {
-        bool noCurrentTouch = currentTouchPosition == NULL_VEC;
-        if (noCurrentTouch)
-        {
-            currentTouchPosition = GetTouchNearestToCenter();
-        }
-        else
-        {
-            currentTouchPosition = GetTouchNearestToTarget();
-        }
+        bool noCurrentTouch = _currentTouchPosition == NullVec;
+        _currentTouchPosition = noCurrentTouch ? GetTouchNearestToCenter() : GetTouchNearestToTarget();
 
-        Vector2 touchPositionAsPercentage = GetTouchPositionWithinButton(currentTouchPosition);
+        Vector2 touchPositionAsPercentage = GetTouchPositionWithinButton(_currentTouchPosition);
         // Debug.Log($"Touch position: {currentTouchPosition.ToString("f0")} Percentage: {touchPositionAsPercentage.ToString("f2")}");
 
         //this mapping is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
         Vector2 mappedTouchPosition;
-        mappedTouchPosition.x = touchPositionAsPercentage.x.Map(0f, 1f, Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE);
-        mappedTouchPosition.y = touchPositionAsPercentage.y.Map(0f, 1f, Controller.MIN_CONTROLLER_VALUE, Controller.MAX_CONTROLLER_VALUE);
+        mappedTouchPosition.x = touchPositionAsPercentage.x.Map(0f, 1f, Controller.MinControllerValue, Controller.MaxControllerValue);
+        mappedTouchPosition.y = touchPositionAsPercentage.y.Map(0f, 1f, Controller.MinControllerValue, Controller.MaxControllerValue);
 
-        horizontalController.SetValue(mappedTouchPosition.x);
-        verticalController.SetValue(mappedTouchPosition.y);
+        _horizontalController.SetValue(mappedTouchPosition.x);
+        _verticalController.SetValue(mappedTouchPosition.y);
     }
 
     /// <summary>
@@ -161,10 +156,10 @@ public class Controller2D : MonoBehaviour, ISortingMember
     /// <returns></returns>
     Vector2 GetTouchPositionWithinButton(Vector2 _touchPos)
     {
-        float xMin = GetRectScreenBounds(RectBounds.Left, buttonRect) + interactionPadding;
-        float xMax = GetRectScreenBounds(RectBounds.Right, buttonRect) - interactionPadding;
-        float yMin = GetRectScreenBounds(RectBounds.Bottom, buttonRect) + interactionPadding;
-        float yMax = GetRectScreenBounds(RectBounds.Top, buttonRect) - interactionPadding;
+        float xMin = GetRectScreenBounds(RectBounds.Left, _buttonTransform) + _interactionPadding;
+        float xMax = GetRectScreenBounds(RectBounds.Right, _buttonTransform) - _interactionPadding;
+        float yMin = GetRectScreenBounds(RectBounds.Bottom, _buttonTransform) + _interactionPadding;
+        float yMax = GetRectScreenBounds(RectBounds.Top, _buttonTransform) - _interactionPadding;
 
         float xPercent = Mathf.InverseLerp(xMin, xMax, _touchPos.x);
         float yPercent = Mathf.InverseLerp(yMin, yMax, _touchPos.y);
@@ -174,121 +169,114 @@ public class Controller2D : MonoBehaviour, ISortingMember
         return new Vector2(xPercent, yPercent);
     }
 
-    float GetRectScreenBounds(RectBounds _side, RectTransform _rect)
+    float GetRectScreenBounds(RectBounds side, RectTransform rect)
     {
-        Vector2 _rectPos = GetRectScreenPosition(_rect);
-        switch (_side)
+        Vector2 rectScreenPosition = GetRectScreenPosition(rect);
+        var position = rect.position;
+        switch (side)
         { 
             case RectBounds.Left:
-                Vector3 rawLeft = new Vector3(_rect.position.x - buttonRect.rect.width * buttonRect.pivot.x, _rect.position.y, _rect.position.z);
+                Vector3 rawLeft = new Vector3(position.x - _buttonTransform.rect.width * _buttonTransform.pivot.x, position.y, position.z);
                 return RectTransformUtility.WorldToScreenPoint(null, rawLeft).x;
             case RectBounds.Right:
-                Vector3 rawRight = new Vector3(_rect.position.x + buttonRect.rect.width * (1 - buttonRect.pivot.x), _rect.position.y, _rect.position.z);
+                Vector3 rawRight = new Vector3(rect.position.x + _buttonTransform.rect.width * (1 - _buttonTransform.pivot.x), position.y, position.z);
                 return RectTransformUtility.WorldToScreenPoint(null, rawRight).x;
             case RectBounds.Top:
-                Vector3 rawTop = new Vector3(_rect.position.x, _rectPos.y + buttonRect.rect.height * (1 - buttonRect.pivot.y), _rect.position.z);
+                Vector3 rawTop = new Vector3(rect.position.x, rectScreenPosition.y + _buttonTransform.rect.height * (1 - _buttonTransform.pivot.y), position.z);
                 return RectTransformUtility.WorldToScreenPoint(null, rawTop).y;
             case RectBounds.Bottom:
-                Vector3 rawBottom = new Vector3(_rect.position.x, _rectPos.y - buttonRect.rect.height * buttonRect.pivot.y, _rect.position.z);
+                Vector3 rawBottom = new Vector3(rect.position.x, rectScreenPosition.y - _buttonTransform.rect.height * _buttonTransform.pivot.y, position.z);
                 return RectTransformUtility.WorldToScreenPoint(null, rawBottom).y;
             default:
-                Debug.LogError($"Button bound {_side} not implemented", this);
+                Debug.LogError($"Button bound {side} not implemented", this);
                 return 0;
         }
     }
 
-    float GetRectLocalBounds(RectBounds _side, RectTransform _rect)
+    float GetRectLocalBounds(RectBounds side, RectTransform rect)
     {
-        switch (_side)
+        switch (side)
         {
             case RectBounds.Left:
-                return -_rect.rect.width * _rect.pivot.x;
+                return -rect.rect.width * rect.pivot.x;
             case RectBounds.Right:
-                return _rect.rect.width * (1 - _rect.pivot.x);
+                return rect.rect.width * (1 - rect.pivot.x);
             case RectBounds.Top:
-                return _rect.rect.height * (1 - _rect.pivot.y); ;
+                return rect.rect.height * (1 - rect.pivot.y); ;
             case RectBounds.Bottom:
-                return -_rect.rect.height * _rect.pivot.y; ;
+                return -rect.rect.height * rect.pivot.y; ;
             default:
-                Debug.LogError($"Rect bound {_side} not implemented", this);
+                Debug.LogError($"Rect bound {side} not implemented", this);
                 return 0;
         }
     }
 
-    Vector2 GetRectScreenPosition(RectTransform _rect)
+    Vector2 GetRectScreenPosition(RectTransform rect)
     {
-        return RectTransformUtility.WorldToScreenPoint(null, _rect.position);
+        return RectTransformUtility.WorldToScreenPoint(null, rect.position);
     }
 
     Vector2 GetTouchNearestToCenter()
     {
-        Vector2 buttonPos = GetRectScreenPosition(buttonRect);
+        Vector2 buttonPos = GetRectScreenPosition(_buttonTransform);
         return GetTouchNearestTo(buttonPos);
     }
 
     Vector2 GetTouchNearestToTarget()
     {
-        return GetTouchNearestTo(currentTouchPosition);
+        return GetTouchNearestTo(_currentTouchPosition);
     }
 
-    Vector2 GetTouchNearestTo(Vector2 _pos)
+    Vector2 GetTouchNearestTo(Vector2 position)
     {
-        if (isUnityEditor)
+        if (_isUnityEditor)
         {
             return Input.mousePosition;
         }
 
 
         int touchCount = Input.touches.Length;
-        Vector2 nearest = NULL_VEC;
+        Vector2 nearest = NullVec;
         float nearestDistance = float.PositiveInfinity;
 
         for (int i = 0; i < touchCount; i++)
         {
             Vector2 pos = Input.touches[i].position;
 
-            if (nearest == NULL_VEC)
+            if (nearest == NullVec)
             {
                 nearest = pos;
                 continue;
             }
 
-            if(Vector2.Distance(pos, _pos) < nearestDistance)
+            if(Vector2.Distance(pos, position) < nearestDistance)
             {
                 nearest = pos;
             }
         }
 
-        if(nearest == NULL_VEC)
+        if(nearest == NullVec)
         {
             Debug.LogError($"Touch position is null!", this);
         }
         return nearest;
     }
 
-    public struct Controller2DFaderProperties
-    {
-        public bool showBorder;
-        public float widthModifier;
-        public ControllerSettings horizontalController;
-        public ControllerSettings verticalController;
-    }
-
     #region Sorting
     public void InitializeSorting()
     {
-        sortLeftButton.onClick.AddListener(SortLeft);
-        sortRightButton.onClick.AddListener(SortRight);
+        _sortLeftButton.onClick.AddListener(SortLeft);
+        _sortRightButton.onClick.AddListener(SortRight);
         SetSortButtonVisibility(false);
     }
 
-    public void SetSortButtonVisibility(bool _visible)
+    public void SetSortButtonVisibility(bool visible)
     {
-        sortLeftButton.gameObject.SetActive(_visible);
-        sortRightButton.gameObject.SetActive(_visible);
-        foreach (Image i in controlImages)
+        _sortLeftButton.gameObject.SetActive(visible);
+        _sortRightButton.gameObject.SetActive(visible);
+        foreach (Image i in _controlImages)
         {
-            i.enabled = !_visible;
+            i.enabled = !visible;
         }
     }
 
@@ -302,9 +290,9 @@ public class Controller2D : MonoBehaviour, ISortingMember
         SortPosition(true);
     }
 
-    public void SortPosition(bool _right)
+    public void SortPosition(bool right)
     {
-        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
+        transform.SetSiblingIndex(right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
     }
     #endregion Sorting
 

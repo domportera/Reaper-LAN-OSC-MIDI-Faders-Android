@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Comment : MonoBehaviour
 {
+    [FormerlySerializedAs("notes")]
     [TextArea(3,100)]
     [Tooltip("Doesn't do anything. Just comments shown in inspector")]
-    public string notes = "Enter your comment here";
+    public string Notes = "Enter your comment here";
 
 }

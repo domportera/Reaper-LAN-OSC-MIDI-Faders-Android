@@ -3,32 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 
 public abstract class OptionsMenu : MonoBehaviourExtended
 {
-    [SerializeField] bool toggleOptionParent;
-    protected Dictionary<Dropdown, string[]> dropDownEntryNames = new Dictionary<Dropdown, string[]>();
+    [FormerlySerializedAs("toggleOptionParent")] [SerializeField] bool _toggleOptionParent;
+    protected readonly Dictionary<Dropdown, string[]> DropDownEntryNames = new ();
 
-
-    protected void ToggleUIObject(Selectable _object, bool _on)
+    protected void ToggleUIObject(Selectable selectable, bool on)
     {
-        ToggleUIObject(_object.gameObject, _on);
+        ToggleUIObject(selectable.gameObject, on);
     }
 
-    protected void ToggleUIObject(GameObject _object, bool _on)
+    protected void ToggleUIObject(GameObject selectable, bool on)
     {
-        ToggleUIObject(_object.transform, _on);
+        ToggleUIObject(selectable.transform, on);
     }
 
-    protected void ToggleUIObject(Transform _object, bool _on)
+    protected void ToggleUIObject(Transform selectable, bool on)
     {
-        if(toggleOptionParent)
+        if(_toggleOptionParent)
         {
-            _object.parent.gameObject.SetActive(_on);
+            selectable.parent.gameObject.SetActive(on);
         }
         else
         {
-            _object.gameObject.SetActive(_on);
+            selectable.gameObject.SetActive(on);
         }
     }
 }

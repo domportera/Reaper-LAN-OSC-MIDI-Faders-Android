@@ -6,117 +6,121 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 using static UnityEngine.UI.Dropdown;
 
 public class ControllerOptionsMenu : OptionsMenu
 {
-    ControllerSettings controllerConfig;
+    ControllerSettings _controllerConfig;
 
-    [SerializeField] Slider smoothnessField = null;
-    [SerializeField] Dropdown controlTypeDropdown = null;
-    [SerializeField] Dropdown defaultValueDropdown = null;
-    [SerializeField] Dropdown curveTypeDropdown = null;
-    [SerializeField] Button resetValuesButton = null;
-    [SerializeField] Button openOSCOptionsButton = null;
+    [FormerlySerializedAs("smoothnessField")] [SerializeField] Slider _smoothnessField = null;
+    [FormerlySerializedAs("controlTypeDropdown")] [SerializeField] Dropdown _controlTypeDropdown = null;
+    [FormerlySerializedAs("defaultValueDropdown")] [SerializeField] Dropdown _defaultValueDropdown = null;
+    [FormerlySerializedAs("curveTypeDropdown")] [SerializeField] Dropdown _curveTypeDropdown = null;
+    [FormerlySerializedAs("resetValuesButton")] [SerializeField] Button _resetValuesButton = null;
+    [FormerlySerializedAs("openOSCOptionsButton")] [SerializeField] Button _openOscOptionsButton = null;
 
-    OSCSelectionMenu oscSelectionMenu;
-    OSCControllerSettings oscSettingsPendingApplication;
+    OSCSelectionMenu _oscSelectionMenu;
+    OSCControllerSettings _oscSettingsPendingApplication;
 
-    bool shouldResetOSCMenu = false;
+    bool _shouldResetOscMenu = false;
+    bool _initialized;
 
     private void OnEnable()
     {
+        if (!_initialized) return;
         SetFieldsToControllerValues();
     }
 
     private void InitializeUI()
     {
         PopulateDropdowns();
-        resetValuesButton.onClick.AddListener(ResetValues);
+        _resetValuesButton.onClick.AddListener(ResetValues);
     }
 
-    public void Initialize(ControllerSettings _data, ControllerOptionsPanel _optionsPanel, OSCSelectionMenu _oscMenu)
+    public void Initialize(ControllerSettings data, ControllerOptionsPanel optionsPanel, OSCSelectionMenu oscMenu)
     {
-        controllerConfig = _data;
-        oscSelectionMenu = _oscMenu;
-        _optionsPanel.OnWake.AddListener(() => shouldResetOSCMenu = true);
-        _optionsPanel.OnWake.AddListener(() => oscSettingsPendingApplication = null);
+        _controllerConfig = data;
+        _oscSelectionMenu = oscMenu;
+        optionsPanel.OnWake.AddListener(() => _shouldResetOscMenu = true);
+        optionsPanel.OnWake.AddListener(() => _oscSettingsPendingApplication = null);
         InitializeUI();
-        InitializeOSCSelectionMenu(_data.OscSettings);
+        InitializeOscSelectionMenu(data.OscSettings);
         SetFieldsToControllerValues();
+        _initialized = true;
     }
 
-    private void InitializeOSCSelectionMenu(OSCControllerSettings _settings)
+    private void InitializeOscSelectionMenu(OSCControllerSettings settings)
     {
-        openOSCOptionsButton.onClick.AddListener(() => OpenOSCSelectionMenu(_settings));
+        _openOscOptionsButton.onClick.AddListener(() => OpenOscSelectionMenu(settings));
     }
 
-    void OpenOSCSelectionMenu(OSCControllerSettings _settings)
+    void OpenOscSelectionMenu(OSCControllerSettings settings)
     {
-        if(shouldResetOSCMenu)
+        if(_shouldResetOscMenu)
         {
-            oscSelectionMenu.Initialize(_settings, this);
-            shouldResetOSCMenu = false;
+            _oscSelectionMenu.Initialize(settings, this);
+            _shouldResetOscMenu = false;
         }
-        else if(oscSelectionMenu.LastToEdit != this)
+        else if(_oscSelectionMenu.LastToEdit != this)
         {
-            oscSelectionMenu.Initialize(_settings, this);
+            _oscSelectionMenu.Initialize(settings, this);
         }
 
-        oscSelectionMenu.gameObject.SetActive(true);
+        _oscSelectionMenu.gameObject.SetActive(true);
     }
 
     void SetFieldsToControllerValues()
     {
-        controlTypeDropdown.SetValueWithoutNotify(controllerConfig.ReleaseBehavior.GetInt());
-        defaultValueDropdown.SetValueWithoutNotify(controllerConfig.DefaultType.GetInt());
-        curveTypeDropdown.SetValueWithoutNotify(controllerConfig.Curve.GetInt());
+        _controlTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.ReleaseBehavior);
+        _defaultValueDropdown.SetValueWithoutNotify((int)_controllerConfig.DefaultType);
+        _curveTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.Curve);
 
-        smoothnessField.SetValueWithoutNotify(controllerConfig.SmoothTime);
-        UpdateOSCPreview(controllerConfig.OscSettings);
+        _smoothnessField.SetValueWithoutNotify(_controllerConfig.SmoothTime);
+        UpdateOscPreview(_controllerConfig.OscSettings);
     }
 
     public void SetControllerValuesToFields()
     {
-        ReleaseBehaviorType controlType = (ReleaseBehaviorType)controlTypeDropdown.value;
-        DefaultValueType defaultValueType = (DefaultValueType)defaultValueDropdown.value;
-        CurveType curveType = (CurveType)curveTypeDropdown.value;
+        ReleaseBehaviorType controlType = (ReleaseBehaviorType)_controlTypeDropdown.value;
+        DefaultValueType defaultValueType = (DefaultValueType)_defaultValueDropdown.value;
+        CurveType curveType = (CurveType)_curveTypeDropdown.value;
         InputMethod inputType = InputMethod.Touch; //hard-coded for now until other input types are implemented
 
-        float smoothTime = smoothnessField.value;
+        float smoothTime = _smoothnessField.value;
 
         OSCControllerSettings oscSettings;
 
-        if(oscSettingsPendingApplication == null)
+        if(_oscSettingsPendingApplication == null)
         {
-            oscSettings = controllerConfig.OscSettings;
+            oscSettings = _controllerConfig.OscSettings;
         }
         else
         {
-            oscSettings = new OSCControllerSettings(oscSettingsPendingApplication);
+            oscSettings = new OSCControllerSettings(_oscSettingsPendingApplication);
         }
 
-        controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
+        _controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
     }
 
-    public void StageOSCChangesToApply(OSCControllerSettings _settings)
+    public void StageOscChangesToApply(OSCControllerSettings settings)
     {
-        oscSettingsPendingApplication = new OSCControllerSettings(_settings);
-        UpdateOSCPreview(_settings);
+        _oscSettingsPendingApplication = new OSCControllerSettings(settings);
+        UpdateOscPreview(settings);
     }
 
-    void UpdateOSCPreview(OSCControllerSettings _settings)
+    void UpdateOscPreview(OSCControllerSettings settings)
     {
-        openOSCOptionsButton.GetComponentInChildren<Text>().text = $"<b>OSC Options</b>\n{_settings.GetAddress()}";
+        _openOscOptionsButton.GetComponentInChildren<Text>().text = $"<b>OSC Options</b>\n{settings.GetAddress()}";
     }
 
     void PopulateDropdowns()
     {
-        dropDownEntryNames.Add(controlTypeDropdown, EnumUtility.GetControllerBehaviorTypeNameArray());
-        dropDownEntryNames.Add(defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
-        dropDownEntryNames.Add(curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
+        DropDownEntryNames.Add(_controlTypeDropdown, EnumUtility.GetControllerBehaviorTypeNameArray());
+        DropDownEntryNames.Add(_defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
+        DropDownEntryNames.Add(_curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
 
-        foreach (KeyValuePair<Dropdown, string[]> pair in dropDownEntryNames)
+        foreach (KeyValuePair<Dropdown, string[]> pair in DropDownEntryNames)
         {
             pair.Key.ClearOptions();
             foreach (string s in pair.Value)
@@ -128,7 +132,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
     public void ResetValues()
     {
-        oscSelectionMenu.Initialize(controllerConfig.OscSettings, this);
+        _oscSelectionMenu.Initialize(_controllerConfig.OscSettings, this);
         SetFieldsToControllerValues();
     }
 }

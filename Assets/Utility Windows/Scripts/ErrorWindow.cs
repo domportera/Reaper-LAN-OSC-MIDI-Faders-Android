@@ -1,31 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ErrorWindow : MonoBehaviour
+namespace PopUpWindows
 {
-
-    [SerializeField] Text errorText = null;
-    [SerializeField] Button closeButton = null;
-
-    private void Awake()
+    public class ErrorWindow : MonoBehaviour
     {
-        closeButton.onClick.AddListener(HideErrorWindow);
-    }
 
-    public void Initialize(string _text, UnityAction _onClose)
-    {
-        errorText.text = _text;
-        if(_onClose != null)
+        [FormerlySerializedAs("errorText")] [SerializeField] Text _errorText = null;
+        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton = null;
+
+        private void Awake()
         {
-            closeButton.onClick.AddListener(_onClose);
+            _closeButton.onClick.AddListener(HideErrorWindow);
         }
-    }
 
-    void HideErrorWindow()
-    {
-        Destroy(gameObject);
+        public void Initialize(string text, UnityAction onClose)
+        {
+            _errorText.text = text;
+            if(onClose != null)
+            {
+                _closeButton.onClick.AddListener(onClose);
+            }
+        }
+
+        void HideErrorWindow()
+        {
+            Destroy(gameObject);
+        }
     }
 }

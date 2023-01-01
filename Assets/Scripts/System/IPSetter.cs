@@ -5,35 +5,37 @@ using OscJack;
 using System.Net;
 using UnityEngine.UI;
 using System.IO;
+using UnityEngine.Serialization;
+using PopUpWindows;
 
 public class IPSetter : MonoBehaviour
 {
-    [SerializeField] InputField ipAddressField = null;
-    [SerializeField] InputField portField = null;
+    [FormerlySerializedAs("ipAddressField")] [SerializeField] InputField _ipAddressField = null;
+    [FormerlySerializedAs("portField")] [SerializeField] InputField _portField = null;
 
-    string currentIP;
-    int currentPort = int.MinValue;
+    string _currentIP;
+    int _currentPort = int.MinValue;
 
-    const string IP_ADDRESS_PLAYER_PREF = "IP Address";
-    const string PORT_PLAYER_PREF = "Port";
+    const string IPAddressPlayerPref = "IP Address";
+    const string PortPlayerPref = "Port";
 
-    public static IPSetter instance;
+    public static IPSetter Instance;
 
     // Start is called before the first frame update
     void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {
             Debug.LogError($"There is a second IPSetter in the scene!", this);
-            Debug.LogError($"This is the first one", instance);
+            Debug.LogError($"This is the first one", Instance);
         }
 
-        ipAddressField.onEndEdit.AddListener(SetIP);
-        portField.onEndEdit.AddListener(SetPort);
+        _ipAddressField.onEndEdit.AddListener(SetIP);
+        _portField.onEndEdit.AddListener(SetPort);
 
         Load();
     }
@@ -46,18 +48,18 @@ public class IPSetter : MonoBehaviour
 
     void Load()
     {
-        if(PlayerPrefs.HasKey(IP_ADDRESS_PLAYER_PREF))
+        if(PlayerPrefs.HasKey(IPAddressPlayerPref))
         {
-            string ip = PlayerPrefs.GetString(IP_ADDRESS_PLAYER_PREF);
+            string ip = PlayerPrefs.GetString(IPAddressPlayerPref);
             SetIP(ip);
-            ipAddressField.SetTextWithoutNotify(ip);
+            _ipAddressField.SetTextWithoutNotify(ip);
         }
 
-        if (PlayerPrefs.HasKey(PORT_PLAYER_PREF))
+        if (PlayerPrefs.HasKey(PortPlayerPref))
         {
-            int port = PlayerPrefs.GetInt(PORT_PLAYER_PREF);
+            int port = PlayerPrefs.GetInt(PortPlayerPref);
             SetPort(port);
-            portField.SetTextWithoutNotify(port.ToString());
+            _portField.SetTextWithoutNotify(port.ToString());
         }
     }
 
@@ -69,13 +71,13 @@ public class IPSetter : MonoBehaviour
 
         if(valid)
         {
-            currentIP = ipString;
-            PlayerPrefs.SetString(IP_ADDRESS_PLAYER_PREF, currentIP.ToString());
+            _currentIP = ipString;
+            PlayerPrefs.SetString(IPAddressPlayerPref, _currentIP.ToString());
             TryConnectAll();
         }
         else
         {
-            UtilityWindows.instance.ErrorWindow("Invalid IP Address");
+            PopUpController.Instance.ErrorWindow("Invalid IP Address");
         }
     }
 
@@ -89,7 +91,7 @@ public class IPSetter : MonoBehaviour
         if(valid)
         {
             SetPort(port);
-            PlayerPrefs.SetInt(PORT_PLAYER_PREF, currentPort);
+            PlayerPrefs.SetInt(PortPlayerPref, _currentPort);
         }
         else
         {
@@ -109,12 +111,12 @@ public class IPSetter : MonoBehaviour
 
         if (valid)
         {
-            currentPort = _port;
+            _currentPort = _port;
             TryConnectAll();
         }
         else
         {
-            UtilityWindows.instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
+            PopUpController.Instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
         }
     }
 
@@ -131,9 +133,9 @@ public class IPSetter : MonoBehaviour
     public void TryConnect(OscPropertySender _sender)
     {
         //only connect if we have a port and an IP
-        if (currentPort != int.MinValue && currentIP != null)
+        if (_currentPort != int.MinValue && _currentIP != null)
         {
-            _sender.ChangeConnection(currentIP, currentPort);
+            _sender.ChangeConnection(_currentIP, _currentPort);
         }
     }
 

@@ -4,72 +4,72 @@ using UnityEngine;
 using OscJack;
 using UnityEngine.UI;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 
 public class Controller : MonoBehaviour
 {
-    [SerializeField] OscPropertySender oscSender;
-    private ControllerSettings controllerSettings;
-    private OSCControllerSettings OscSettings { get { return controllerSettings.OscSettings; } }
+    [FormerlySerializedAs("oscSender")] [SerializeField] OscPropertySender _oscSender;
+    private ControllerSettings _controllerSettings;
+    private OSCControllerSettings OscSettings { get { return _controllerSettings.OscSettings; } }
 
-    float smoothValue; //the value we're actually sending
-    float targetControllerValue;
-    float defaultValue;
+    float _targetControllerValue;
+    float _defaultValue;
 
     /// <summary>
     /// returns moving mod value as it approaches target value
     /// </summary>
-    public float SmoothValue { get { return smoothValue; } }
+    public float SmoothValue { get; private set; }
 
-    public const float MIN_CONTROLLER_VALUE = 0f;
-    public const float MAX_CONTROLLER_VALUE = 1f;
+    public const float MinControllerValue = 0f;
+    public const float MaxControllerValue = 1f;
 
-    const int NUMBER_OF_FINAL_MESSAGES = 1;
+    const int NumberOfFinalMessages = 1;
 
-    Coroutine updateModValueCoroutine = null;
+    Coroutine _updateModValueCoroutine = null;
 
     protected virtual void Start()
     {
-        IPSetter.instance.TryConnect(oscSender);
+        IPSetter.Instance.TryConnect(_oscSender);
     }
 
-    public virtual void Initialize(ControllerData _controller, int whichIndex = 0)
+    public virtual void Initialize(ControllerData controller, int whichIndex = 0)
     {
-        if (_controller == null)
+        if (controller == null)
         {
             Debug.LogError("Null controller on " + gameObject.name, this);
         }
 
-        controllerSettings = _controller.GetController();
+        _controllerSettings = controller.GetController();
 
-        oscSender.SetAddress(controllerSettings.GetAddress());
+        _oscSender.SetAddress(_controllerSettings.GetAddress());
 
-        defaultValue = GetDefault(controllerSettings.DefaultType);
-        smoothValue = defaultValue;
-        targetControllerValue = defaultValue;
+        _defaultValue = GetDefault(_controllerSettings.DefaultType);
+        SmoothValue = _defaultValue;
+        _targetControllerValue = _defaultValue;
 
-        if(updateModValueCoroutine == null)
+        if(_updateModValueCoroutine == null)
         {
-            updateModValueCoroutine = StartCoroutine(UpdateModValueLoop());
+            _updateModValueCoroutine = StartCoroutine(UpdateModValueLoop());
         }
         else
         {
-            Debug.LogWarning($"Attempted to start the update loop on controller {_controller.GetName()} again", this);
+            Debug.LogWarning($"Attempted to start the update loop on controller {controller.GetName()} again", this);
         }
     }
 
-    float GetDefault(DefaultValueType _defaultValueType)
+    float GetDefault(DefaultValueType defaultValueType)
     {
-        switch(_defaultValueType)
+        switch(defaultValueType)
         {
             case DefaultValueType.Min:
-                return MIN_CONTROLLER_VALUE;
+                return MinControllerValue;
             case DefaultValueType.Mid:
-                return MathOps.Average(MIN_CONTROLLER_VALUE, MAX_CONTROLLER_VALUE);
+                return MathOps.Average(MinControllerValue, MaxControllerValue);
             case DefaultValueType.Max:
-                return MAX_CONTROLLER_VALUE;
+                return MaxControllerValue;
             default:
                 Debug.LogError("Default value type not implemented! Defaulting to min.");
-                return MIN_CONTROLLER_VALUE;
+                return MinControllerValue;
         }
     }
 
@@ -86,38 +86,38 @@ public class Controller : MonoBehaviour
     }
 
     #region Mod Value Manipulation
-    public void SetValue(float _val)
+    public void SetValue(float val)
     {
-        targetControllerValue = _val;
+        _targetControllerValue = val;
     }
 
-    protected float MapValueToCurve(float _value, bool _inverse)
+    float MapValueToCurve(float value, bool inverse)
     {
-        if (controllerSettings.Curve != CurveType.Linear)
+        if (_controllerSettings.Curve != CurveType.Linear)
         {
-            float range = MAX_CONTROLLER_VALUE - MIN_CONTROLLER_VALUE;
-            float tempVal = _value - MIN_CONTROLLER_VALUE;
+            float range = MaxControllerValue - MinControllerValue;
+            float tempVal = value - MinControllerValue;
             float ratio = tempVal / range;
             float mappedRatio;
 
-            if (_inverse)
+            if (inverse)
             {
-                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Pow(ratio, 2) : Mathf.Sqrt(ratio);
+                mappedRatio = _controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Pow(ratio, 2) : Mathf.Sqrt(ratio);
             }
             else
             {
-                mappedRatio = controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
+                mappedRatio = _controllerSettings.Curve == CurveType.Logarithmic ? Mathf.Sqrt(ratio) : Mathf.Pow(ratio, 2);
             }
 
-            return mappedRatio * range + MIN_CONTROLLER_VALUE;
+            return mappedRatio * range + MinControllerValue;
         }
         else
         {
-            return _value;
+            return value;
         }
     }
 
-    bool ModValueCaughtUpToTarget { get { return smoothValue == targetControllerValue; } }
+    bool ModValueCaughtUpToTarget => SmoothValue == _targetControllerValue;
     void UpdateModValue()
     {
         if (ModValueCaughtUpToTarget)
@@ -125,37 +125,37 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        bool shouldSmooth = controllerSettings.SmoothTime > 0;
+        bool shouldSmooth = _controllerSettings.SmoothTime > 0;
         if (!shouldSmooth)
         {
-            smoothValue = targetControllerValue;
+            SmoothValue = _targetControllerValue;
         }
         else
         {
-            float difference = (MAX_CONTROLLER_VALUE - MIN_CONTROLLER_VALUE) * Time.deltaTime / controllerSettings.SmoothTime;
+            float difference = (MaxControllerValue - MinControllerValue) * Time.deltaTime / _controllerSettings.SmoothTime;
 
             //set to idle if close enough to zero
-            if (Mathf.Abs(smoothValue - targetControllerValue) < difference)
+            if (Mathf.Abs(SmoothValue - _targetControllerValue) < difference)
             {
-                smoothValue = targetControllerValue;
+                SmoothValue = _targetControllerValue;
             }
             else
             {
                 //approach target value
-                if (smoothValue > targetControllerValue)
+                if (SmoothValue > _targetControllerValue)
                 {
-                    smoothValue -= difference;
+                    SmoothValue -= difference;
                 }
                 else
                 {
-                    smoothValue += difference;
+                    SmoothValue += difference;
                 }
             }
         }
 
         if(ModValueCaughtUpToTarget)
         {
-            StartCoroutine(SendModValueMultipleTimes(NUMBER_OF_FINAL_MESSAGES));
+            StartCoroutine(SendModValueMultipleTimes(NumberOfFinalMessages));
         }
         else
         {
@@ -166,9 +166,9 @@ public class Controller : MonoBehaviour
 
     public void ReturnToCenter()
     {
-        if (controllerSettings.ReleaseBehavior == ReleaseBehaviorType.PitchWheel)
+        if (_controllerSettings.ReleaseBehavior == ReleaseBehaviorType.PitchWheel)
         {
-            SetValue(MapValueToCurve(defaultValue, true));
+            SetValue(MapValueToCurve(_defaultValue, true));
         }
     }
     #endregion Mod Value Manipulation
@@ -177,10 +177,10 @@ public class Controller : MonoBehaviour
 
     void SendModValue()
     {
-        float curveMappedValue = MapValueToCurve(smoothValue, false);
+        float curveMappedValue = MapValueToCurve(SmoothValue, false);
         float valueToSend;
 
-        bool isFloat = OscSettings.Range == ValueRange.CustomFloat || OscSettings.Range == ValueRange.Float;
+        bool isFloat = OscSettings.Range is ValueRange.CustomFloat or ValueRange.Float;
         if(isFloat)
         {
             valueToSend = OscSettings.GetValueFloat(curveMappedValue);
@@ -190,12 +190,12 @@ public class Controller : MonoBehaviour
             valueToSend = OscSettings.GetValueInt(curveMappedValue);
         }
 
-        oscSender.Send(valueToSend);
+        _oscSender.Send(valueToSend);
     }
 
-    IEnumerator SendModValueMultipleTimes(int _numberOfTimes)
+    IEnumerator SendModValueMultipleTimes(int numberOfTimes)
     {
-        for(int i = 0; i < _numberOfTimes; i++)
+        for(int i = 0; i < numberOfTimes; i++)
         {
             SendModValue();
             yield return null;
@@ -208,8 +208,8 @@ public class Controller : MonoBehaviour
 interface ISortingMember
 {
     void InitializeSorting();
-    void SetSortButtonVisibility(bool _visible);
+    void SetSortButtonVisibility(bool visible);
     void SortLeft();
     void SortRight();
-    void SortPosition(bool _right);
+    void SortPosition(bool right);
 }

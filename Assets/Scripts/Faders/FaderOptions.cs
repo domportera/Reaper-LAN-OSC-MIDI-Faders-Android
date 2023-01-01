@@ -1,21 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class FaderOptions : ControllerOptionsPanel
 {
-    [SerializeField] ControllerOptionsMenu optionsMenu;
+    [FormerlySerializedAs("optionsMenu")] [SerializeField] ControllerOptionsMenu _optionsMenu;
 
     public void Initialize(FaderData _data, RectTransform _controlObjectTransform, OSCSelectionMenu _oscMenu)
     {
-        optionsMenu.Initialize(_data.GetController(), this, _oscMenu);
+        _optionsMenu.Initialize(_data.GetController(), this, _oscMenu);
 
         BaseInitialize(_data, _controlObjectTransform);
     }
 
     protected override void Apply()
     {
-        optionsMenu.SetControllerValuesToFields();
+        _optionsMenu.SetControllerValuesToFields();
         base.Apply();
     }
 

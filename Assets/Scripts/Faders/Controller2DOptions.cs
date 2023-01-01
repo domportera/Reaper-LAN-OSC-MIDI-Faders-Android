@@ -1,23 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 public class Controller2DOptions : ControllerOptionsPanel
 {
-    [SerializeField] ControllerOptionsMenu horizontalOptions;
-    [SerializeField] ControllerOptionsMenu verticalOptions;
+    [FormerlySerializedAs("horizontalOptions")] [SerializeField] ControllerOptionsMenu _horizontalOptions;
+    [FormerlySerializedAs("verticalOptions")] [SerializeField] ControllerOptionsMenu _verticalOptions;
 
     public void Initialize(Controller2DData _data, RectTransform _controlObjectTransform, OSCSelectionMenu _oscMenu)
     {
-        horizontalOptions.Initialize(_data.GetHorizontalController(), this, _oscMenu);
-        verticalOptions.Initialize(_data.GetVerticalController(), this, _oscMenu);
+        _horizontalOptions.Initialize(_data.GetHorizontalController(), this, _oscMenu);
+        _verticalOptions.Initialize(_data.GetVerticalController(), this, _oscMenu);
 
         BaseInitialize(_data, _controlObjectTransform);
     }
 
     protected override void Apply()
     {
-        horizontalOptions.SetControllerValuesToFields();
-        verticalOptions.SetControllerValuesToFields();
+        _horizontalOptions.SetControllerValuesToFields();
+        _verticalOptions.SetControllerValuesToFields();
         base.Apply();
     }
 }

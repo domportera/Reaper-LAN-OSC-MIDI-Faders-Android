@@ -2,89 +2,80 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using DomsUnityHelper;
+using UnityEngine.Serialization;
 
 
 [Serializable]
 public abstract class ControllerData
 {
-    [SerializeField] protected string name;
-    [SerializeField] protected List<ControllerSettings> controllers = new List<ControllerSettings>();
-    [SerializeField] protected int position = NULL_POSITION;
-    [SerializeField] protected bool enabled = true;
-    [SerializeField] protected float width = NULL_WIDTH;
+    [FormerlySerializedAs("name")] [SerializeField] protected string Name;
+    [FormerlySerializedAs("controllers")] [SerializeField] protected List<ControllerSettings> Controllers = new List<ControllerSettings>();
+    [FormerlySerializedAs("position")] [SerializeField] protected int Position = NullPosition;
+    [FormerlySerializedAs("enabled")] [SerializeField] protected bool Enabled = true;
+    [FormerlySerializedAs("width")] [SerializeField] protected float Width = NullWidth;
 
-    protected const int NULL_POSITION = -1;
-    protected const int NULL_WIDTH = -1;
+    protected const int NullPosition = -1;
+    protected const int NullWidth = -1;
 
-    public static readonly Dictionary<Type, Range<float>> widthRanges = new Dictionary<Type, Range<float>>()
+    public static readonly Dictionary<Type, Range<float>> WidthRanges = new Dictionary<Type, Range<float>>()
     {
         {typeof(Controller2DData), new Range<float>(0.4f, 2f, 1f) },
         {typeof(FaderData), new Range<float>(0.125f, 1f, 0.25f) }
     };
 
-    public void SetPosition(int _index)
+    public void SetPosition(int index)
     {
-        position = _index;
+        Position = index;
     }
 
     public int GetPosition()
     {
-        return position;
+        return Position;
     }
 
     public ControllerSettings GetController()
     {
-        if (controllers.Count > 0)
-        {
-            return controllers[0];
-        }
-
-        return null;
+        return Controllers.Count > 0 ? Controllers[0] : null;
     }
 
     public List<ControllerSettings> GetControllers()
     {
-        return controllers;
+        return Controllers;
     }
 
     public string GetName()
     {
-        return name;
+        return Name;
     }
 
-    public void SetName(string _name)
+    public void SetName(string name)
     {
-        name = _name;
+        Name = name;
     }
 
     public bool GetEnabled()
     {
-        return enabled;
+        return Enabled;
     }
 
-    public void SetWidth(float _width)
+    public void SetWidth(float width)
     {
-        width = _width;
+        Width = width;
     }
 
     public float GetWidth()
     {
-        if(width == NULL_WIDTH)
-        {
-            return widthRanges[GetType()].defaultValue;
-        }
-
-        return width;
+        return Width == NullWidth ? WidthRanges[GetType()].defaultValue : Width;
     }
 
     public Range<float> GetWidthRange()
     {
-        return widthRanges[GetType()];
+        return WidthRanges[GetType()];
     }
 
-    public void SetEnabled(bool _enabled)
+    public void SetEnabled(bool enabled)
     {
-        enabled = _enabled;
+        Enabled = enabled;
     }
 }
 
@@ -93,15 +84,15 @@ public class FaderData : ControllerData
 {
     public FaderData(string name, ControllerSettings config)
     {
-        controllers.Add(config);
-        this.name = name;
+        Controllers.Add(config);
+        this.Name = name;
     }
 
-    public FaderData(FaderData _data)
+    public FaderData(FaderData data)
     {
-        name = _data.name;
-        controllers = _data.controllers;
-        position = _data.GetPosition();
+        Name = data.Name;
+        Controllers = data.Controllers;
+        Position = data.GetPosition();
     }
 }
 
@@ -110,24 +101,24 @@ public class Controller2DData : ControllerData
 {
     public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
     {
-        controllers.Add(horizontalConfig);
-        controllers.Add(verticalConfig);
-        this.name = name;
+        Controllers.Add(horizontalConfig);
+        Controllers.Add(verticalConfig);
+        this.Name = name;
     }
-    public Controller2DData(Controller2DData _data)
+    public Controller2DData(Controller2DData data)
     {
-        name = _data.name;
-        controllers = _data.controllers;
-        position = _data.GetPosition();
+        Name = data.Name;
+        Controllers = data.Controllers;
+        Position = data.GetPosition();
     }
 
     public ControllerSettings GetHorizontalController()
     {
-        return controllers[0];
+        return Controllers[0];
     }
     public ControllerSettings GetVerticalController()
     {
-        return controllers[1];
+        return Controllers[1];
     }
 }
 

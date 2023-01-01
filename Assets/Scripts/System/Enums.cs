@@ -36,20 +36,20 @@ public enum ControllerType
     [Description("2D Controller")]  Controller2D
 };
 
-public enum OSCAddressType
+public enum OscAddressType
 {
-    [Description("CC (MIDI)")] MidiCC,
+    [Description("CC (MIDI)")] MidiCc,
     [Description("Pitch (MIDI)")] MidiPitch,
     [Description("Aftertouch (MIDI)")] MidiAftertouch,
     [Description("Custom")] Custom
 };
 
-public enum OSCAddressMode
+public enum OscAddressMode
 {
-    MIDI, Custom
+    Midi, Custom
 }
 
-public enum MIDIChannel
+public enum MidiChannel
 {
     [Description("All")]        All,
     [Description("Channel 1")]  One,
@@ -83,10 +83,10 @@ public static class EnumUtility
         return names.ToArray();
     }
 
-    public static string[] GetOSCAddressTypeNameArray()
+    public static string[] GetOscAddressTypeNameArray()
     {
         List<string> names = new List<string>();
-        foreach (OSCAddressType address in (OSCAddressType[])Enum.GetValues(typeof(OSCAddressType)))
+        foreach (OscAddressType address in (OscAddressType[])Enum.GetValues(typeof(OscAddressType)))
         {
             names.Add(address.GetDescription());
         }
@@ -97,7 +97,7 @@ public static class EnumUtility
     public static string[] GetMidiChannelNameArray()
     {
         List<string> names = new List<string>();
-        foreach (MIDIChannel channel in (MIDIChannel[])Enum.GetValues(typeof(MIDIChannel)))
+        foreach (MidiChannel channel in (MidiChannel[])Enum.GetValues(typeof(MidiChannel)))
         {
             names.Add(channel.GetDescription());
         }

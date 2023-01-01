@@ -1,97 +1,102 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ConfirmationWindow : MonoBehaviour
+namespace PopUpWindows
 {
-    [SerializeField] GameObject root;
-    [SerializeField] Button confirmButton;
-    [SerializeField] Button cancelButton;
-    [SerializeField] Text confirmButtonText;
-    [SerializeField] Text cancelButtonText;
-    [SerializeField] Text descriptionText;
-
-    [SerializeField] InputField inputText;
-    [SerializeField] Text inputTitle;
-    UnityAction<string> inputAction;
-
-    public UnityEvent OnClose = new UnityEvent();
-
-    public void SetActions(string _text, UnityAction _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
+    public class ConfirmationWindow : MonoBehaviour
     {
-        ActivateBasicVersion();
-        descriptionText.text = _text;
-        confirmButton.onClick.AddListener(_confirm);
-        confirmButton.onClick.AddListener(Close);
+        [FormerlySerializedAs("root")] [SerializeField] GameObject _root;
+        [FormerlySerializedAs("confirmButton")] [SerializeField] Button _confirmButton;
+        [FormerlySerializedAs("cancelButton")] [SerializeField] Button _cancelButton;
+        [FormerlySerializedAs("confirmButtonText")] [SerializeField] Text _confirmButtonText;
+        [FormerlySerializedAs("cancelButtonText")] [SerializeField] Text _cancelButtonText;
+        [FormerlySerializedAs("descriptionText")] [SerializeField] Text _descriptionText;
 
+        [FormerlySerializedAs("inputText")] [SerializeField] InputField _inputText;
+        [FormerlySerializedAs("inputTitle")] [SerializeField] Text _inputTitle;
+        UnityAction<string> _inputAction;
 
-        if (_cancel != null)
+        public UnityEvent OnClose = new UnityEvent();
+
+        public void SetActions(string text, UnityAction confirm, UnityAction cancel = null, string confirmButtonLabel = null, string cancelButtonLabel = null)
         {
-            cancelButton.onClick.AddListener(_cancel);
+            ActivateBasicVersion();
+            _descriptionText.text = text;
+            _confirmButton.onClick.AddListener(confirm);
+            _confirmButton.onClick.AddListener(Close);
+
+
+            if (cancel != null)
+            {
+                _cancelButton.onClick.AddListener(cancel);
+            }
+
+            _cancelButton.onClick.AddListener(Close);
+
+            if(confirmButtonLabel != null)
+            {
+                _confirmButtonText.text = confirmButtonLabel;
+            }
+
+            if (cancelButtonLabel != null)
+            {
+                _cancelButtonText.text = cancelButtonLabel;
+            }
+        }
+        public void SetActionsInputField(string inputLabel, UnityAction<string> confirm, UnityAction cancel = null, string confirmButtonLabel = null, string cancelButtonLabel = null, InputField.ContentType contentType = InputField.ContentType.Standard)
+        {
+            ActivateInputVersion();
+            _inputTitle.text = inputLabel;
+            _inputAction = confirm;
+            _inputText.contentType = contentType;
+            _confirmButton.onClick.AddListener(ConfirmTextEntry);
+            _confirmButton.onClick.AddListener(Close);
+
+            if (cancel != null)
+            {
+                _cancelButton.onClick.AddListener(cancel);
+            }
+
+            _cancelButton.onClick.AddListener(() => { Close(); });
+
+            if (confirmButtonLabel != null)
+            {
+                _confirmButtonText.text = confirmButtonLabel;
+                Debug.Log($"Confirm button label {confirmButtonLabel}");
+            }
+
+            if (cancelButtonLabel != null)
+            {
+                _cancelButtonText.text = cancelButtonLabel;
+            }
         }
 
-        cancelButton.onClick.AddListener(() => { Close(); });
-
-        if(_confirmButtonLabel != null)
+        void ConfirmTextEntry()
         {
-            confirmButtonText.text = _confirmButtonLabel;
+            _inputAction(_inputText.text);
         }
 
-        if (_cancelButtonLabel != null)
+        void ActivateInputVersion()
         {
-            cancelButtonText.text = _cancelButtonLabel;
+            _inputText.gameObject.SetActive(true);
+            _inputTitle.gameObject.SetActive(true);
+            _descriptionText.gameObject.SetActive(false);
+        }
+
+        void ActivateBasicVersion()
+        {
+            _inputText.gameObject.SetActive(false);
+            _inputTitle.gameObject.SetActive(false);
+            _descriptionText.gameObject.SetActive(true);
+        }
+
+
+        void Close()
+        {
+            OnClose.Invoke();
+            Destroy(_root);
         }
     }
-    public void SetActionsInputField(string _inputLabel, UnityAction<string> _confirm, UnityAction _cancel = null, string _confirmButtonLabel = null, string _cancelButtonLabel = null)
-    {
-        ActivateInputVersion();
-        inputTitle.text = _inputLabel;
-        inputAction = _confirm;
-        confirmButton.onClick.AddListener(ConfirmTextEntry);
-        confirmButton.onClick.AddListener(Close);
-
-        if (_cancel != null)
-        {
-            cancelButton.onClick.AddListener(_cancel);
-        }
-
-        cancelButton.onClick.AddListener(() => { Close(); });
-
-        if (_confirmButtonLabel != null)
-        {
-            confirmButtonText.text = _confirmButtonLabel;
-            Debug.Log($"Confirm button label {_confirmButtonLabel}");
-        }
-
-        if (_cancelButtonLabel != null)
-        {
-            cancelButtonText.text = _cancelButtonLabel;
-        }
-    }
-
-    void ConfirmTextEntry()
-    {
-        inputAction(inputText.text);
-	}
-
-    void ActivateInputVersion()
-    {
-        inputText.gameObject.SetActive(true);
-        inputTitle.gameObject.SetActive(true);
-        descriptionText.gameObject.SetActive(false);
-	}
-
-    void ActivateBasicVersion()
-    {
-        inputText.gameObject.SetActive(false);
-        inputTitle.gameObject.SetActive(false);
-        descriptionText.gameObject.SetActive(true);
-    }
-
-
-    void Close()
-    {
-        OnClose.Invoke();
-        Destroy(root);
-	}
 }

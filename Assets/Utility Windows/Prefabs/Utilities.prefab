@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   windowParent: {fileID: 0}
+  toastParent: {fileID: 0}
   confirmationDisplayTime: 3
   confirmationWindowPrefab: {fileID: 2784571829508924954, guid: 57266b972dbb974478f244c9120b90b3,
     type: 3}
@@ -56,3 +57,43 @@ MonoBehaviour:
     type: 3}
   quickNoticeWindowPrefab: {fileID: 4117071663050219842, guid: 53d028dddd5e98346a08f2351ffb9111,
     type: 3}
+  toastPrefab: {fileID: 0}
+  colors:
+    borderColor: {r: 0, g: 0, b: 0, a: 0}
+    titleColor: {r: 0, g: 0, b: 0, a: 0}
+    descriptionColor: {r: 0, g: 0, b: 0, a: 0}
+    buttonColor: {r: 0, g: 0, b: 0, a: 0}
+    buttonTextColor: {r: 0, g: 0, b: 0, a: 0}
+    backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  toastColors:
+  - type: 0
+    color: {r: 0, g: 0, b: 0, a: 0}
+  - type: 1
+    color: {r: 0, g: 0, b: 0, a: 0}
+  - type: 2
+    color: {r: 0, g: 0, b: 0, a: 0}
+  toastLifespan: 3
+  toastFadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

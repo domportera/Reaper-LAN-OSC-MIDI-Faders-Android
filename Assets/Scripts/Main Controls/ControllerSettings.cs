@@ -1,44 +1,42 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class ControllerSettings
 {
-    [SerializeField] ReleaseBehaviorType releaseBehavior;
-    [SerializeField] InputMethod inputType;
-    [SerializeField] DefaultValueType defaultType;
-    [SerializeField] float smoothTime;
-    [SerializeField] CurveType curveType;
-    [SerializeField] OSCControllerSettings oscSettings;
+    [FormerlySerializedAs("releaseBehavior")] [SerializeField] ReleaseBehaviorType _releaseBehavior;
+    [FormerlySerializedAs("inputType")] [SerializeField] InputMethod _inputType;
+    [FormerlySerializedAs("defaultType")] [SerializeField] DefaultValueType _defaultType;
+    [FormerlySerializedAs("smoothTime")] [SerializeField] float _smoothTime;
+    [FormerlySerializedAs("curveType")] [SerializeField] CurveType _curveType;
+    [FormerlySerializedAs("oscSettings")] [SerializeField] OSCControllerSettings _oscSettings;
 
 
-    public ReleaseBehaviorType ReleaseBehavior { get { return releaseBehavior; } }
-    public InputMethod InputType { get { return inputType; } }
-    public DefaultValueType DefaultType { get { return defaultType; } }
-    public float SmoothTime { get { return smoothTime; } }
-    public CurveType Curve { get { return curveType; } }
-    public OSCControllerSettings OscSettings { get { return oscSettings; } }
+    public ReleaseBehaviorType ReleaseBehavior => _releaseBehavior;
+    public InputMethod InputType => _inputType;
+    public DefaultValueType DefaultType => _defaultType;
+    public float SmoothTime => _smoothTime;
+    public CurveType Curve => _curveType;
+    public OSCControllerSettings OscSettings => _oscSettings;
 
-    public ControllerSettings(ControllerSettings _c)
+    public ControllerSettings(ControllerSettings settings)
     {
-        SetVariables(_c.inputType, _c.releaseBehavior, _c.oscSettings, _c.defaultType, _c.curveType, _c.smoothTime);
+        SetVariables(settings._inputType, settings._releaseBehavior, settings._oscSettings, settings._defaultType, settings._curveType, settings._smoothTime);
     }
 
-    public ControllerSettings(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscSettings, DefaultValueType _defaultValueType, CurveType _curveType,  float _smoothTime = 0.1f)
+    public ControllerSettings(InputMethod inputType, ReleaseBehaviorType controlType, OSCControllerSettings oscSettings, DefaultValueType defaultValueType, CurveType curveType,  float smoothTime = 0.1f)
     {
-        SetVariables(_inputType, _controlType, _oscSettings, _defaultValueType, _curveType, _smoothTime);
+        SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
     }
 
-    public void SetVariables(InputMethod _inputType, ReleaseBehaviorType _controlType, OSCControllerSettings _oscSettings,  DefaultValueType _defaultValueType, CurveType _curveType, float _smoothTime)
+    public void SetVariables(InputMethod inputType, ReleaseBehaviorType controlType, OSCControllerSettings oscSettings,  DefaultValueType defaultValueType, CurveType curveType, float smoothTime)
     {
-        oscSettings = _oscSettings;
-        releaseBehavior = _controlType;
-        defaultType = _defaultValueType;
-        smoothTime = _smoothTime;
-        curveType = _curveType;
-        inputType = _inputType;
+        _oscSettings = oscSettings;
+        _releaseBehavior = controlType;
+        _defaultType = defaultValueType;
+        _smoothTime = smoothTime;
+        _curveType = curveType;
+        _inputType = inputType;
     }
 
     public string GetAddress()
@@ -48,9 +46,9 @@ public class ControllerSettings
 
     public override string ToString()
     {
-        string result = $"Control Type: {releaseBehavior}\n" +
-            $"Input Type: {inputType}\n" +
-            $"Default Value: {defaultType}\n";
+        string result = $"Control Type: {_releaseBehavior}\n" +
+            $"Input Type: {_inputType}\n" +
+            $"Default Value: {_defaultType}\n";
 
         return result;
     }

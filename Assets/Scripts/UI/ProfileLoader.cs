@@ -3,41 +3,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ProfileLoader : MonoBehaviour
 {
-    [SerializeField] GameObject highlightImage;
-    [SerializeField] Text titleText;
-    [SerializeField] ButtonExtended button;
-    [SerializeField] GameObject root;
+    [FormerlySerializedAs("highlightImage")] [SerializeField] GameObject _highlightImage;
+    [FormerlySerializedAs("titleText")] [SerializeField] Text _titleText;
+    [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
+    [FormerlySerializedAs("root")] [SerializeField] GameObject _root;
 
-    bool active;
-    public bool isActiveProfile { get { return active; } set { active = value; } }
+    public bool IsActiveProfile { get; set; }
 
-    public void ToggleHighlight(bool _enabled)
+    public void ToggleHighlight(bool enable)
     {
-        highlightImage.SetActive(_enabled);
+        _highlightImage.SetActive(enable);
 	}
 
-    public void SetText(string _profileName)
+    public void SetText(string profileName)
     {
-        titleText.text = _profileName;
+        _titleText.text = profileName;
 	}
 
-    public void SetButtonActions(UnityAction _buttonAction, UnityAction _holdAction)
+    public void SetButtonActions(UnityAction buttonAction, UnityAction holdAction)
     {
-        button.onClick.AddListener(_buttonAction);
-        button.OnPointerHeld.AddListener(_holdAction);
+        _button.OnClick.AddListener(buttonAction);
+        _button.OnPointerHeld.AddListener(holdAction);
 	}
 
 	public void Annihilate()
 	{
-        Destroy(root);
+        Destroy(_root);
 	}
 
     public string GetName()
     {
-        return titleText.text;
+        return _titleText.text;
     }
 }

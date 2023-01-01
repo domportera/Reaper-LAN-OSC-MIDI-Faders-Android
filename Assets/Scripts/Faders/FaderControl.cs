@@ -4,28 +4,29 @@ using System.Collections.Generic;
 using OscJack;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(OscPropertySender))]
 public class FaderControl : Controller, ISortingMember
 {
-    [SerializeField] Slider slider = null;
-    [SerializeField] EventTrigger eventTrigger = null;
-    [SerializeField] Text label = null;
-    [SerializeField] Button sortLeftButton;
-    [SerializeField] Button sortRightButton;
+    [FormerlySerializedAs("slider")] [SerializeField] Slider _slider = null;
+    [FormerlySerializedAs("eventTrigger")] [SerializeField] EventTrigger _eventTrigger = null;
+    [FormerlySerializedAs("label")] [SerializeField] Text _label = null;
+    [FormerlySerializedAs("sortLeftButton")] [SerializeField] Button _sortLeftButton;
+    [FormerlySerializedAs("sortRightButton")] [SerializeField] Button _sortRightButton;
 
     public override void Initialize(ControllerData _controller, int whichIndex = 0)
     {
         Type controllerType = _controller.GetType();
-        if(controllerType != ControlsManager.controllerClassesByControl[this.GetType()])
+        if(controllerType != ControlsManager.ControllerClassesByControl[this.GetType()])
         {
             Debug.LogError($"Gave wrong controller data type {controllerType} to {this.GetType()}", this);
             return;
         }
 
         base.Initialize(_controller);
-        label.text = _controller.GetName();
+        _label.text = _controller.GetName();
         name = _controller.GetName() + " Fader";
         InitializeFaderInteraction();
         InitializeSorting();
@@ -34,24 +35,24 @@ public class FaderControl : Controller, ISortingMember
     // Update is called once per frame
     protected void Update()
     {
-        slider.SetValueWithoutNotify(SmoothValue);
+        _slider.SetValueWithoutNotify(SmoothValue);
     }
 
     void InitializeFaderInteraction()
     {
-        slider.maxValue = MAX_CONTROLLER_VALUE;
-        slider.minValue = MIN_CONTROLLER_VALUE;
-        slider.onValueChanged.AddListener(SetValue);
+        _slider.maxValue = MaxControllerValue;
+        _slider.minValue = MinControllerValue;
+        _slider.onValueChanged.AddListener(SetValue);
 
         EventTrigger.Entry startEntry = new EventTrigger.Entry();
         startEntry.eventID = EventTriggerType.PointerDown;
         startEntry.callback.AddListener((data) => { StartSliding(); });
-        eventTrigger.triggers.Add(startEntry);
+        _eventTrigger.triggers.Add(startEntry);
 
         EventTrigger.Entry endEntry = new EventTrigger.Entry();
         endEntry.eventID = EventTriggerType.PointerUp;
         endEntry.callback.AddListener((data) => { EndSliding(); });
-        eventTrigger.triggers.Add(endEntry);
+        _eventTrigger.triggers.Add(endEntry);
     }
 
 
@@ -68,17 +69,17 @@ public class FaderControl : Controller, ISortingMember
     #region Sorting
     public void InitializeSorting()
     {
-        sortLeftButton.onClick.AddListener(SortLeft);
-        sortRightButton.onClick.AddListener(SortRight);
+        _sortLeftButton.onClick.AddListener(SortLeft);
+        _sortRightButton.onClick.AddListener(SortRight);
         SetSortButtonVisibility(false);
     }
 
     public void SetSortButtonVisibility(bool _visible)
     {
-        sortLeftButton.gameObject.SetActive(_visible);
-        sortRightButton.gameObject.SetActive(_visible);
+        _sortLeftButton.gameObject.SetActive(_visible);
+        _sortRightButton.gameObject.SetActive(_visible);
 
-        Image[] sliderImages = slider.GetComponentsInChildren<Image>();
+        Image[] sliderImages = _slider.GetComponentsInChildren<Image>();
 
         foreach (Image i in sliderImages)
         {

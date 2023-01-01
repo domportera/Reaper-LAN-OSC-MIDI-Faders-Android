@@ -1,38 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class QuickNoticeWindow : MonoBehaviour
+namespace PopUpWindows
 {
-    [SerializeField] Text confirmationText = null;
-    [SerializeField] Button closeButton = null;
-
-    UnityAction onHide = null;
-
-    // Start is called before the first frame update
-    void Awake()
+    public class QuickNoticeWindow : MonoBehaviour
     {
-        closeButton.onClick.AddListener(HideConfirmationWindow);
-    }
+        [FormerlySerializedAs("confirmationText")] [SerializeField] Text _confirmationText = null;
+        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton = null;
 
-    public void Initialize(string _text, float _hideDelay, UnityAction _onHide)
-    {
-        onHide = _onHide;
-        confirmationText.text = _text;
-        StartCoroutine(HideConfirmationWindowAfterDelay(_hideDelay));
-    }
+        UnityAction _onHide = null;
 
-    IEnumerator HideConfirmationWindowAfterDelay(float _hideDelay)
-    {
-        yield return new WaitForSeconds(_hideDelay);
-        HideConfirmationWindow();
-    }
+        // Start is called before the first frame update
+        void Awake()
+        {
+            _closeButton.onClick.AddListener(HideConfirmationWindow);
+        }
 
-    void HideConfirmationWindow()
-    {
-        onHide?.Invoke();
-        Destroy(gameObject);
+        public void Initialize(string text, float hideDelay, UnityAction onHide)
+        {
+            this._onHide = onHide;
+            _confirmationText.text = text;
+            StartCoroutine(HideConfirmationWindowAfterDelay(hideDelay));
+        }
+
+        IEnumerator HideConfirmationWindowAfterDelay(float hideDelay)
+        {
+            yield return new WaitForSeconds(hideDelay);
+            HideConfirmationWindow();
+        }
+
+        void HideConfirmationWindow()
+        {
+            _onHide?.Invoke();
+            Destroy(gameObject);
+        }
     }
 }

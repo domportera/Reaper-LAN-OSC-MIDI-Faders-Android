@@ -1,57 +1,59 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ColorPresetSelector : MonoBehaviour
+namespace Colors
 {
-    [SerializeField] ButtonExtended button;
-    [SerializeField] Text title;
-    [SerializeField] Image background;
-    [SerializeField] Image buttonBorder;
-    [SerializeField] PresetPaletteImage[] paletteImages = new PresetPaletteImage[0];
-    public bool isBuiltIn { get; private set; }
-
-    ColorPreset colorPreset;
-    public ColorPreset Preset
+    public class ColorPresetSelector : MonoBehaviour
     {
-        get { return colorPreset; }
-        private set
+        [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
+        [FormerlySerializedAs("title")] [SerializeField] Text _title;
+        [FormerlySerializedAs("background")] [SerializeField] Image _background;
+        [FormerlySerializedAs("buttonBorder")] [SerializeField] Image _buttonBorder;
+        [FormerlySerializedAs("paletteImages")] [SerializeField] PresetPaletteImage[] _paletteImages = new PresetPaletteImage[0];
+        public bool IsBuiltIn { get; private set; }
+
+        ColorPreset _colorPreset;
+        public ColorPreset Preset
         {
-            colorPreset = value;
-        }
-    }
-
-    public void Initialize(ColorPreset _preset, Action _buttonFunction, Action _buttonHeldFunction, bool _isBuiltIn)
-    {
-        button.onClick.AddListener(() => _buttonFunction.Invoke());
-        button.OnPointerHeld.AddListener(() => _buttonHeldFunction.Invoke());
-        SetPaletteColors(_preset);
-        isBuiltIn = _isBuiltIn;
-
-        title.text = _preset.Name;
-        title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
-        background.color = _preset.GetColor(ColorProfile.ColorType.Background);
-        buttonBorder.color = _preset.GetColor(ColorProfile.ColorType.Primary);
-
-        Preset = _preset;
-    }
-
-    void SetPaletteColors(ColorPreset _preset)
-    {
-        foreach (PresetPaletteImage i in paletteImages)
-        {
-            i.image.color = _preset.GetColor(i.colorType);
+            get { return _colorPreset; }
+            private set
+            {
+                _colorPreset = value;
+            }
         }
 
-        title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
-    }
+        public void Initialize(ColorPreset _preset, Action _buttonFunction, Action _buttonHeldFunction, bool _isBuiltIn)
+        {
+            _button.OnClick.AddListener(() => _buttonFunction.Invoke());
+            _button.OnPointerHeld.AddListener(() => _buttonHeldFunction.Invoke());
+            SetPaletteColors(_preset);
+            IsBuiltIn = _isBuiltIn;
 
-    [Serializable]
-    struct PresetPaletteImage
-    {
-        public Image image;
-        public ColorProfile.ColorType colorType;
+            _title.text = _preset.Name;
+            _title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
+            _background.color = _preset.GetColor(ColorProfile.ColorType.Background);
+            _buttonBorder.color = _preset.GetColor(ColorProfile.ColorType.Primary);
+
+            Preset = _preset;
+        }
+
+        void SetPaletteColors(ColorPreset _preset)
+        {
+            foreach (PresetPaletteImage i in _paletteImages)
+            {
+                i.Image.color = _preset.GetColor(i.ColorType);
+            }
+
+            _title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
+        }
+
+        [Serializable]
+        struct PresetPaletteImage
+        {
+            [FormerlySerializedAs("image")] public Image Image;
+            [FormerlySerializedAs("colorType")] public ColorProfile.ColorType ColorType;
+        }
     }
 }
