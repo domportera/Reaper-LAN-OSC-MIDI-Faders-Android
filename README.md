@@ -1,15 +1,17 @@
 ## [Reaper MIDI OSC Faders over Wifi - Android](https://forum.cockos.com/showthread.php?t=235365)
 
-<img src="https://i.imgur.com/EMef9Ou.png" width="640" height="360">
+<img src="https://i.imgur.com/EMef9Ou.png" width="640" height="auto">
 
 This is my repo for my customizable Reaper OSC MIDI control solution for Android. Built in Unity. All feedback and feature requests are welcome! Currently this only works with Reaper, but I am open to extending it to other DAWs if people request it.
 
 Also in-development are custom OSC messages that can be pre-programmed and mapped to specific controllers.
 
-<img src="https://i.imgur.com/eso7wAj.png" width="640" height="360">
-<img src="https://i.imgur.com/5B7qOs0.png" width="640" height="360">
-<img src="https://i.imgur.com/5AEvgB3.png" width="640" height="360">
-<img src="https://i.imgur.com/owOULni.png" width="640" height="360">
+<img src="https://i.imgur.com/eso7wAj.png" width="640" height="auto"/>
+<img src="https://i.imgur.com/5B7qOs0.png" width="640" height="auto"/>
+<img src="https://i.imgur.com/5AEvgB3.png" width="640" height="auto"/>
+<img src="https://i.imgur.com/owOULni.png" width="640" height="auto"/>
+<img src="https://user-images.githubusercontent.com/6530600/211082844-412bb4b3-9a97-44ed-8132-4bce85e3057c.png" width="100%" height="auto"/>
+
 
 
 **With this you can:**
@@ -29,7 +31,7 @@ Also in-development are custom OSC messages that can be pre-programmed and mappe
  - Faders can be sorted into an order that suits your needs best
  - Use built-in defaults to test controls that are verified to work
  
-<img src="https://i.imgur.com/Y7WnuAu.png" alt="Fader options" width="640" height="360">
+<img src="https://i.imgur.com/Y7WnuAu.png" alt="Fader options" width="640" height="auto">
 
 **All you need to do is:**
  - Configure Reaper to receive OSC messages
