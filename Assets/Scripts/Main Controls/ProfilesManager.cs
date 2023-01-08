@@ -310,11 +310,8 @@ public class ProfilesManager : MonoBehaviourExtended
             bool saved = SaveProfile(profileName);
 
             if (!saved) return false;
-            
-            if(!ColorController.Instance.CurrentColorProfileIsDefault())
-            {
-                ColorController.Instance.SaveColorProfileByName(profileName);
-            }
+
+            ColorController.SaveCurrentColorsWithProfileName(profileName);
 
             return true;
         }

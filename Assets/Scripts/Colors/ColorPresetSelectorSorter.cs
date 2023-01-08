@@ -9,12 +9,12 @@ namespace Colors
     {
         [FormerlySerializedAs("objectsOnTop")] [SerializeField] GameObject[] _objectsOnTop;
 
-        public void SortChildren(List<ColorPresetSelector> _children)
+        public void SortChildren(List<ColorPresetSelector> children)
         {
-            _children = _children.OrderBy(child => child.Preset.Name, System.StringComparer.CurrentCultureIgnoreCase).ToList();
-            for(int i = 0; i < _children.Count; i++)
+            children = children.OrderBy(child => child.Preset.Name, System.StringComparer.CurrentCultureIgnoreCase).ToList();
+            for(int i = 0; i < children.Count; i++)
             {
-                _children[i].transform.SetSiblingIndex(i + _objectsOnTop.Length);
+                children[i].transform.SetSiblingIndex(i + _objectsOnTop.Length);
             }
         }
     }

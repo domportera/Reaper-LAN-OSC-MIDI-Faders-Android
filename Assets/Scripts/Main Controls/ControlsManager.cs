@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using Colors;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -117,13 +118,13 @@ public class ControlsManager : MonoBehaviourExtended
 
     #region Saving and Loading
 
-    public void LoadControllers(string _profile)
+    public void LoadControllers(string profileName)
     {
-        Log($"Loading {_profile}", this);
+        Log($"Loading {profileName}", this);
 
-        if (_profile != ProfilesManager.DefaultSaveName)
+        if (profileName != ProfilesManager.DefaultSaveName)
         {
-            ProfilesManager.ProfileSaveData loadedData = _profilesManager.LoadControlsFile(_profile);
+            ProfilesManager.ProfileSaveData loadedData = _profilesManager.LoadControlsFile(profileName);
 
             NukeControllers();
 
@@ -132,14 +133,14 @@ public class ControlsManager : MonoBehaviourExtended
                 _controllers = loadedData.GetControllers();
                 
                 SpawnControllers(_controllers);
-                OnProfileLoaded.Invoke(_profile);
+                OnProfileLoaded.Invoke(profileName);
             }
             else
             {
                 //spawn defaults if no save data
                 SpawnDefaultControllers();
                 OnProfileLoaded.Invoke(ProfilesManager.DefaultSaveName);
-                Debug.LogError($"Saved data for {_profile} was empty");
+                Debug.LogError($"Saved data for {profileName} was empty");
             }
         }
         else
@@ -148,6 +149,9 @@ public class ControlsManager : MonoBehaviourExtended
             SpawnDefaultControllers();
             OnProfileLoaded.Invoke(ProfilesManager.DefaultSaveName);
         }
+
+
+        ColorController.LoadAndSetColorProfile(profileName);
     }
 
     void SpawnDefaultControllers()

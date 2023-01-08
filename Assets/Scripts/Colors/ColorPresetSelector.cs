@@ -11,11 +11,11 @@ namespace Colors
         [FormerlySerializedAs("title")] [SerializeField] Text _title;
         [FormerlySerializedAs("background")] [SerializeField] Image _background;
         [FormerlySerializedAs("buttonBorder")] [SerializeField] Image _buttonBorder;
-        [FormerlySerializedAs("paletteImages")] [SerializeField] PresetPaletteImage[] _paletteImages = new PresetPaletteImage[0];
+        [FormerlySerializedAs("paletteImages")] [SerializeField] PresetPaletteImage[] _paletteImages = Array.Empty<PresetPaletteImage>();
         public bool IsBuiltIn { get; private set; }
 
-        ColorPreset _colorPreset;
-        public ColorPreset Preset
+        ColorProfile _colorPreset;
+        public ColorProfile Preset
         {
             get { return _colorPreset; }
             private set
@@ -24,36 +24,36 @@ namespace Colors
             }
         }
 
-        public void Initialize(ColorPreset _preset, Action _buttonFunction, Action _buttonHeldFunction, bool _isBuiltIn)
+        public void Initialize(ColorProfile preset, Action buttonFunction, Action buttonHeldFunction, bool isBuiltIn)
         {
-            _button.OnClick.AddListener(() => _buttonFunction.Invoke());
-            _button.OnPointerHeld.AddListener(() => _buttonHeldFunction.Invoke());
-            SetPaletteColors(_preset);
-            IsBuiltIn = _isBuiltIn;
+            _button.OnClick.AddListener(buttonFunction.Invoke);
+            _button.OnPointerHeld.AddListener(buttonHeldFunction.Invoke);
+            SetPaletteColors(preset);
+            IsBuiltIn = isBuiltIn;
 
-            _title.text = _preset.Name;
-            _title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
-            _background.color = _preset.GetColor(ColorProfile.ColorType.Background);
-            _buttonBorder.color = _preset.GetColor(ColorProfile.ColorType.Primary);
+            _title.text = preset.Name;
+            _title.color = preset.GetColor(ColorType.Tertiary);
+            _background.color = preset.GetColor(ColorType.Background);
+            _buttonBorder.color = preset.GetColor(ColorType.Primary);
 
-            Preset = _preset;
+            Preset = preset;
         }
 
-        void SetPaletteColors(ColorPreset _preset)
+        void SetPaletteColors(ColorProfile preset)
         {
             foreach (PresetPaletteImage i in _paletteImages)
             {
-                i.Image.color = _preset.GetColor(i.ColorType);
+                i.Image.color = preset.GetColor(i.ColorType);
             }
 
-            _title.color = _preset.GetColor(ColorProfile.ColorType.Tertiary);
+            _title.color = preset.GetColor(ColorType.Tertiary);
         }
 
         [Serializable]
         struct PresetPaletteImage
         {
             [FormerlySerializedAs("image")] public Image Image;
-            [FormerlySerializedAs("colorType")] public ColorProfile.ColorType ColorType;
+            [FormerlySerializedAs("colorType")] public ColorType ColorType;
         }
     }
 }

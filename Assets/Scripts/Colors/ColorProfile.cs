@@ -6,11 +6,11 @@ namespace Colors
 	[System.Serializable]
 	public class ColorProfile
 	{
-		[FormerlySerializedAs("Name")] [FormerlySerializedAs("name")] [SerializeField] protected string ProfileName;
-		[FormerlySerializedAs("background")] [SerializeField] protected Color Background;
-		[FormerlySerializedAs("secondary")] [SerializeField] protected Color Secondary;
-		[FormerlySerializedAs("primary")] [SerializeField] protected Color Primary;
-		[FormerlySerializedAs("tertiary")] [SerializeField] protected Color Tertiary;
+		[FormerlySerializedAs("Name")] [SerializeField] protected string ProfileName;
+		[SerializeField] protected Color Background;
+		[SerializeField] protected Color Secondary;
+		[SerializeField] protected Color Primary;
+		[SerializeField] protected Color Tertiary;
 
 		public string Name => ProfileName;
 
@@ -26,25 +26,25 @@ namespace Colors
 		/// <summary>
 		/// Create a duplicate color profile with a new name
 		/// </summary>
-		public ColorProfile(ColorProfile _template, string _name = null)
+		public ColorProfile(ColorProfile template, string name = null)
 		{
-			ProfileName = _name == null ? _template.ProfileName : _name;
-			Background = _template.Background;
-			Primary = _template.Primary;
-			Secondary = _template.Secondary;
-			Tertiary = _template.Tertiary;
+			ProfileName = name ?? template.ProfileName;
+			Background = template.Background;
+			Primary = template.Primary;
+			Secondary = template.Secondary;
+			Tertiary = template.Tertiary;
 		}
 
 		public ColorProfile(string name, Color background, Color primary, Color secondary, Color tertiary)
 		{
-			this.ProfileName = name;
-			this.Background = background;
-			this.Primary = primary;
-			this.Secondary = secondary;
-			this.Tertiary = tertiary;
+			ProfileName = name;
+			Background = background;
+			Primary = primary;
+			Secondary = secondary;
+			Tertiary = tertiary;
 		}
 
-		public void SetColor(ColorType type, Color color)
+		internal void SetColor(ColorType type, Color color)
 		{
 			switch (type)
 			{
@@ -61,12 +61,12 @@ namespace Colors
 					Tertiary = color;
 					break;
 				default:
-					Debug.LogError($"Tried to set {type} color in profile, but no implementation exists!");
+					Debug.LogError($"Tried to set {nameof(type)} color in profile, but no implementation exists!");
 					break;
 			}
 		}
 
-		public Color GetColor(ColorType type)
+		internal Color GetColor(ColorType type)
 		{
 			switch (type)
 			{
@@ -79,7 +79,7 @@ namespace Colors
 				case ColorType.Tertiary:
 					return Tertiary;
 				default:
-					Debug.LogError($"Tried to get {type} color in profile, but no implementation exists!");
+					Debug.LogError($"Tried to get {nameof(type)} color in profile, but no implementation exists!");
 					return Color.white;
 			}
 		}
@@ -122,60 +122,25 @@ namespace Colors
 				);
 		}
 
-		protected void SetName(string _name)
+		protected void SetName(string name)
 		{
-			ProfileName = _name;
+			ProfileName = name;
 		}
 
-		public enum ColorType { Background, Primary, Secondary, Tertiary }
 
 	}
 
+	public enum ColorType { Background, Primary, Secondary, Tertiary }
 
 	[System.Serializable]
-	public class ColorPreset : ColorProfile 
+	internal struct ColorProfileStruct
 	{
-		public static ColorPreset ProfileToPreset(ColorProfile profile, string name = null)
-		{
-			ColorPreset preset = new ColorPreset
-			{
-				Background = profile.GetColor(ColorType.Background),
-				Primary = profile.GetColor(ColorType.Primary),
-				Secondary = profile.GetColor(ColorType.Secondary),
-				Tertiary = profile.GetColor(ColorType.Tertiary)
-			};
+		[SerializeField] internal string Name;
+		[SerializeField] internal Color Background;
+		[SerializeField] internal Color Primary;
+		[SerializeField] internal Color Secondary;
+		[SerializeField] internal Color Tertiary;
 
-			preset.SetName(name ?? profile.Name);
-
-			return preset;
-		}
-
-		public static ColorPreset BuiltInToPreset(ColorPresetBuiltIn _preset)
-		{
-			ColorPreset preset = new()
-			{
-				Background = _preset.Background,
-				Primary = _preset.Primary,
-				Secondary = _preset.Secondary,
-				Tertiary = _preset.Tertiary,
-				ProfileName = _preset.Name
-			};
-			return preset;
-		}
-	}
-
-	[System.Serializable]
-	public struct ColorPresetBuiltIn
-	{
-		[FormerlySerializedAs("name")] public string Name;
-		[FormerlySerializedAs("background")] public Color Background;
-		[FormerlySerializedAs("primary")] public Color Primary;
-		[FormerlySerializedAs("secondary")] public Color Secondary;
-		[FormerlySerializedAs("tertiary")] public Color Tertiary;
-
-		public static ColorProfile BuiltInPresetToProfile(ColorPresetBuiltIn preset)
-		{
-			return new (preset.Name, preset.Background, preset.Primary, preset.Secondary, preset.Tertiary);
-		}
+		internal ColorProfile ToReferenceType() => new(Name, Background, Primary, Secondary, Tertiary);
 	}
 }

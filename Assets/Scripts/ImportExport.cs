@@ -32,8 +32,8 @@ public class ImportExport : MonoBehaviour
     [SerializeField]
     GameObject _runtimeDebugger;
 
-    readonly string _exportName = "Reaper Faders Backup";
-    readonly string _fileExtension = ".zip";
+    const string ExportName = "Reaper Faders Backup";
+    const string FileExtension = ".zip";
 
     readonly string[] _fileExtensions = { "*/*" };
     string _exportPath;
@@ -94,7 +94,7 @@ public class ImportExport : MonoBehaviour
     string GetExportPath()
     {
         return Path.Combine(_exportPath,
-            _exportName + " " + DateTime.Now.ToString("dd-MM-yy HH-mm-ss") + _fileExtension);
+            ExportName + " " + DateTime.Now.ToString("dd-MM-yy HH-mm-ss") + FileExtension);
     }
 
     void Import(string path)

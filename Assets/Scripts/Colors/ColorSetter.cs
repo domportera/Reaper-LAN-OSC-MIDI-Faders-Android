@@ -7,7 +7,7 @@ namespace Colors
 	public class ColorSetter : MonoBehaviour
 	{
 		[FormerlySerializedAs("colorType")] [SerializeField]
-		ColorProfile.ColorType _colorType;
+		ColorType _colorType;
 
 		Image _image;
 		Text _text;
@@ -16,22 +16,22 @@ namespace Colors
 		bool HasComponent => _image != null || _text != null;
 		bool _isImage = false;
 
-		private void Awake()
+		void Awake()
 		{
 			GetColoredComponents();
 		}
 
-		private void Start()
+		void Start()
 		{
 			ColorController.AddToControls(this);
 		}
 
-		private void OnDestroy()
+		void OnDestroy()
 		{
 			ColorController.RemoveFromControls(this);
 		}
 
-		public void SetColors(ColorProfile colors)
+		internal void SetColors(ColorProfile colors)
 		{
 			if (!_canColor || !HasComponent) return;
 
