@@ -4,8 +4,9 @@ using System;
 
 public class UniClipboard
 {
-    static IBoard _board;
-    static IBoard board{
+    private static IBoard _board;
+
+    private static IBoard board{
         get{
             if (_board == null) {
                 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -29,16 +30,16 @@ public class UniClipboard
     }
 }
 
-interface IBoard{
+internal interface IBoard{
     void SetText(string str);
     string GetText();
 }
 
-class StandardBoard : IBoard {
+internal class StandardBoard : IBoard {
     private static PropertyInfo m_systemCopyBufferProperty = null;
     private static PropertyInfo GetSystemCopyBufferProperty() {
         if (m_systemCopyBufferProperty == null) {
-            Type T = typeof(GUIUtility);
+            var T = typeof(GUIUtility);
             m_systemCopyBufferProperty = T.GetProperty("systemCopyBuffer", BindingFlags.Static | BindingFlags.Public);
             if (m_systemCopyBufferProperty == null)
             {
@@ -55,11 +56,11 @@ class StandardBoard : IBoard {
         return m_systemCopyBufferProperty;
     }
     public void SetText(string str) {
-        PropertyInfo P = GetSystemCopyBufferProperty();
+        var P = GetSystemCopyBufferProperty();
         P.SetValue(null, str, null);
     }
     public string GetText(){
-        PropertyInfo P = GetSystemCopyBufferProperty();
+        var P = GetSystemCopyBufferProperty();
         return (string)P.GetValue(null, null);
     }
 }

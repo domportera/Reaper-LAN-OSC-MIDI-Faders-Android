@@ -5,10 +5,14 @@ using UnityEngine.UI;
 
 public class ProfileLoader : MonoBehaviour
 {
-    [FormerlySerializedAs("highlightImage")] [SerializeField] GameObject _highlightImage;
-    [FormerlySerializedAs("titleText")] [SerializeField] Text _titleText;
-    [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
-    [FormerlySerializedAs("root")] [SerializeField] GameObject _root;
+    [FormerlySerializedAs("highlightImage")] [SerializeField]
+    private GameObject _highlightImage;
+    [FormerlySerializedAs("titleText")] [SerializeField]
+    private Text _titleText;
+    [FormerlySerializedAs("button")] [SerializeField]
+    private ButtonExtended _button;
+    [FormerlySerializedAs("root")] [SerializeField]
+    private GameObject _root;
 
     public bool IsActiveProfile { get; set; }
 

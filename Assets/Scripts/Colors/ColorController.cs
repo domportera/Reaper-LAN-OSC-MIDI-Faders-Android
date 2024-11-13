@@ -7,12 +7,13 @@ namespace Colors
     public static class ColorController
     {
         #region Profile Variables
-        static ColorProfile _currentColorProfile;
-        static readonly List<ColorSetter> ColorSetters = new();
+
+        private static ColorProfile _currentColorProfile;
+        private static readonly List<ColorSetter> ColorSetters = new();
 
         public static event Action ColorsLoaded;
 
-        static BuiltInColorPresets _builtInColorPresets;
+        private static BuiltInColorPresets _builtInColorPresets;
 
         internal static BuiltInColorPresets BuiltInPresets =>
             _builtInColorPresets ??= BuiltInColorPresets.Instance;
@@ -44,7 +45,7 @@ namespace Colors
 
         public static void UpdateAppColors()
         {
-            foreach (ColorSetter c in ColorSetters)
+            foreach (var c in ColorSetters)
             {
                 try
                 {
@@ -52,7 +53,7 @@ namespace Colors
                 }
                 catch (Exception e)
                 {
-                    GameObject obj = c.gameObject;
+                    var obj = c.gameObject;
                     Debug.LogError($"Error setting colors of {obj.name}\n{e}", obj);
                 }
             }
@@ -86,7 +87,7 @@ namespace Colors
         public static void SaveCurrentColorsWithProfileName(string profileName)
         {
             // only save colors along with profiles if the current color set has been changed from default
-            bool hasNewColors = !ColorProfileDataHandler.ColorProfileIsDefault(CurrentColorProfile, BuiltInPresets);
+            var hasNewColors = !ColorProfileDataHandler.ColorProfileIsDefault(CurrentColorProfile, BuiltInPresets);
             if (!hasNewColors)
                 return;
 
@@ -95,7 +96,7 @@ namespace Colors
 
         public static void SetColorsFromPreset(ColorProfile preset)
         {
-            foreach (ColorType t in (ColorType[])Enum.GetValues(typeof(ColorType)))
+            foreach (var t in (ColorType[])Enum.GetValues(typeof(ColorType)))
             {
                 CurrentColorProfile.SetColor(t, preset.GetColor(t));
             }

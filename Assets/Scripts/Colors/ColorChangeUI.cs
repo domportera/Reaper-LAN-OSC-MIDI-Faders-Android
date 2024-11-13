@@ -10,44 +10,45 @@ namespace Colors
 {
     public class ColorChangeUI : MonoBehaviour
     {
-        [SerializeField] ColorPresetUI _presetUI;
-        [SerializeField] BuiltInColorPresets _builtInColorPresets;
+        [SerializeField] private ColorPresetUI _presetUI;
+        [SerializeField] private BuiltInColorPresets _builtInColorPresets;
         
-        [SerializeField] Slider _hueSlider;
-        [SerializeField] Slider _saturationSlider;
-        [SerializeField] Slider _valueSlider;
+        [SerializeField] private Slider _hueSlider;
+        [SerializeField] private Slider _saturationSlider;
+        [SerializeField] private Slider _valueSlider;
  
-        [SerializeField] GameObject _panel;
-        [SerializeField] Button _openButton;
-        [SerializeField] Button _closeButton;
+        [SerializeField] private GameObject _panel;
+        [SerializeField] private Button _openButton;
+        [SerializeField] private Button _closeButton;
  
-        [SerializeField] Button _saveButton;
-        [SerializeField] Button _revertButton;
-        [SerializeField] Button _setAsDefaultButton;
+        [SerializeField] private Button _saveButton;
+        [SerializeField] private Button _revertButton;
+        [SerializeField] private Button _setAsDefaultButton;
 
         [Header("Color Change Buttons")]
-        [SerializeField] ColorButton[] _colorTypeButtons;
+        [SerializeField]
+        private ColorButton[] _colorTypeButtons;
 
-        Dictionary<ColorType, ColorButton> _colorTypeButtonDict;
-        Dictionary<Button, ColorButton> _colorPreviewButtonDict;
-        ColorType _currentColorType = ColorType.Background;
+        private Dictionary<ColorType, ColorButton> _colorTypeButtonDict;
+        private Dictionary<Button, ColorButton> _colorPreviewButtonDict;
+        private ColorType _currentColorType = ColorType.Background;
         
         [Serializable]
-        struct ColorButton
+        private struct ColorButton
         {
             public ColorType ColorType;
             public Button SelectionButton;
             public Text Label;
         }
 
-        void Awake()
+        private void Awake()
         {
             _colorTypeButtonDict = _colorTypeButtons.ToDictionary(x => x.ColorType, x => x);
             _colorPreviewButtonDict = _colorTypeButtons.ToDictionary(x => x.SelectionButton, x => x);
             
             InitializeUI();
 
-            foreach (ColorButton p in _colorTypeButtons)
+            foreach (var p in _colorTypeButtons)
             {
                 p.SelectionButton.onClick.AddListener(OnColorPreviewButtonPress);
             }
@@ -56,12 +57,12 @@ namespace Colors
         }
 
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
             ColorController.UpdateAppColors();
         }
 
-        void InitializeUI()
+        private void InitializeUI()
         {
             _hueSlider.onValueChanged.AddListener((_) => OnSliderChange());
             _saturationSlider.onValueChanged.AddListener((_) => OnSliderChange());
@@ -77,31 +78,31 @@ namespace Colors
             HighlightSelectedColorType(_currentColorType);
         }
 
-        void ChooseColorWindow()
+        private void ChooseColorWindow()
         {
-            MultiOptionAction customOption = new MultiOptionAction("Color Editing", () => { ToggleColorControlWindow(true); });
-            MultiOptionAction presetOption = new MultiOptionAction("Preset Selection", () => { _presetUI.TogglePresetWindow(true); });
+            var customOption = new MultiOptionAction("Color Editing", () => { ToggleColorControlWindow(true); });
+            var presetOption = new MultiOptionAction("Preset Selection", () => { _presetUI.TogglePresetWindow(true); });
             PopUpController.Instance.MultiOptionWindow("How would you like to select your colors?", customOption, presetOption);
         }
 
-        void ToggleColorControlWindow(bool active)
+        private void ToggleColorControlWindow(bool active)
         {
             _panel.SetActive(active);
         }
 
-        void OnColorPreviewButtonPress()
+        private void OnColorPreviewButtonPress()
         {
-            Button button = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
-            ColorButton preview = _colorPreviewButtonDict[button];
+            var button = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
+            var preview = _colorPreviewButtonDict[button];
 
             _currentColorType = preview.ColorType;
             HighlightSelectedColorType(preview.ColorType);
             SetSlidersToCurrentColor();
         }
 
-        void HighlightSelectedColorType(ColorType colorType)
+        private void HighlightSelectedColorType(ColorType colorType)
         {
-            foreach (ColorButton butt in _colorTypeButtons)
+            foreach (var butt in _colorTypeButtons)
             {
                 butt.Label.fontStyle = butt.ColorType != colorType ? FontStyle.Normal : FontStyle.Bold;
             }
@@ -112,7 +113,7 @@ namespace Colors
             SetSlidersToColor(ColorController.CurrentColorProfile.GetColor(_currentColorType));
         }
 
-        void SetSlidersToColor(Color color)
+        private void SetSlidersToColor(Color color)
         {
             Vector3 hsv;
             Color.RGBToHSV(color, out hsv.x, out hsv.y, out hsv.z);
@@ -125,28 +126,28 @@ namespace Colors
             _saturationSlider.SetValueWithoutNotify(hsv.y);
             _valueSlider.SetValueWithoutNotify(hsv.z);
         }
-        
-        void OnSliderChange()
+
+        private void OnSliderChange()
         {
-            ColorButton preview = _colorTypeButtonDict[_currentColorType];
+            var preview = _colorTypeButtonDict[_currentColorType];
             ColorController.UpdateColorProfile(preview.ColorType, GetColorFromSliders());
             ColorController.UpdateAppColors();
         }
 
-        Color GetColorFromSliders()
+        private Color GetColorFromSliders()
         {
-            float hue = ColorIntToFloat((int)_hueSlider.value);
-            float sat = ColorIntToFloat((int)_saturationSlider.value);
-            float val = ColorIntToFloat((int)_valueSlider.value);
+            var hue = ColorIntToFloat((int)_hueSlider.value);
+            var sat = ColorIntToFloat((int)_saturationSlider.value);
+            var val = ColorIntToFloat((int)_valueSlider.value);
             return Color.HSVToRGB(hue, sat, val);
         }
-        
-        static float ColorIntToFloat(int val)
+
+        private static float ColorIntToFloat(int val)
         {
             return val / 255f;
         }
 
-        static int ColorFloatToInt(float val)
+        private static int ColorFloatToInt(float val)
         {
             return Mathf.RoundToInt(val * 255);
         }

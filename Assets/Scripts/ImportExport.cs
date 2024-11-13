@@ -11,33 +11,33 @@ using CompressionLevel = System.IO.Compression.CompressionLevel;
 public class ImportExport : MonoBehaviour
 {
     [FormerlySerializedAs("toggleBackupButton")] [SerializeField]
-    Button _toggleBackupButton;
+    private Button _toggleBackupButton;
 
     [FormerlySerializedAs("closeButton")] [SerializeField]
-    Button _closeButton;
+    private Button _closeButton;
 
     [FormerlySerializedAs("exportButton")] [SerializeField]
-    Button _exportButton;
+    private Button _exportButton;
 
     [FormerlySerializedAs("importButton")] [SerializeField]
-    Button _importButton;
+    private Button _importButton;
 
     [FormerlySerializedAs("panel")] [SerializeField]
-    GameObject _panel;
+    private GameObject _panel;
 
     [FormerlySerializedAs("runtimeDebugger")]
     [Tooltip(
         "We need this to destroy when reloading the scene after an import - the package marks it as DontDestroyOnLoad which messes up our Log button")]
     [SerializeField]
-    GameObject _runtimeDebugger;
+    private GameObject _runtimeDebugger;
 
-    const string ExportName = "Reaper Faders Backup";
-    const string FileExtension = ".zip";
+    private const string ExportName = "Reaper Faders Backup";
+    private const string FileExtension = ".zip";
 
-    readonly string[] _fileExtensions = { "*/*" };
-    string _exportPath;
+    private readonly string[] _fileExtensions = { "*/*" };
+    private string _exportPath;
 
-    void Awake()
+    private void Awake()
     {
 #if !UNITY_EDITOR
         exportPath =
@@ -61,7 +61,7 @@ public class ImportExport : MonoBehaviour
         _exportButton.onClick.AddListener(TogglePanel);
     }
 
-    void ConfirmImport()
+    private void ConfirmImport()
     {
         RequestPermission();
         PopUpController.Instance.ConfirmationWindow(
@@ -69,12 +69,12 @@ public class ImportExport : MonoBehaviour
             FilePickerToImport, null, "Import anyway");
     }
 
-    void FilePickerToImport()
+    private void FilePickerToImport()
     {
         NativeFilePicker.PickFile(Import, _fileExtensions);
     }
 
-    void Export()
+    private void Export()
     {
         if (!Directory.Exists(_exportPath)) Directory.CreateDirectory(_exportPath);
 
@@ -83,20 +83,20 @@ public class ImportExport : MonoBehaviour
         CreateZipFile(GetExportPath());
     }
 
-    void CreateZipFile(string destinationPath, float delay = 0f)
+    private void CreateZipFile(string destinationPath, float delay = 0f)
     {
         ZipFile.CreateFromDirectory(Application.persistentDataPath, destinationPath, CompressionLevel.Optimal, false);
         PopUpController.Instance.QuickNoticeWindow("Backup created! Check your Downloads folder.");
         Debug.Log($"Exported backup to {destinationPath}");
     }
 
-    string GetExportPath()
+    private string GetExportPath()
     {
         return Path.Combine(_exportPath,
             ExportName + " " + DateTime.Now.ToString("dd-MM-yy HH-mm-ss") + FileExtension);
     }
 
-    void Import(string path)
+    private void Import(string path)
     {
         //import files safely
         try
@@ -115,29 +115,29 @@ public class ImportExport : MonoBehaviour
         PopUpController.Instance.QuickNoticeWindow("Import complete!", ReloadScene);
     }
 
-    void ExtractAndReplaceFiles(string path)
+    private void ExtractAndReplaceFiles(string path)
     {
-        string tempDirectory = Path.Combine(Application.persistentDataPath, "Temp");
+        var tempDirectory = Path.Combine(Application.persistentDataPath, "Temp");
 
         if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true);
 
         ZipFile.ExtractToDirectory(path, tempDirectory);
 
         //Delete old files
-        string[] directories = Directory.GetDirectories(Application.persistentDataPath);
+        var directories = Directory.GetDirectories(Application.persistentDataPath);
 
-        foreach (string dir in directories)
+        foreach (var dir in directories)
             if (dir != tempDirectory)
                 Directory.Delete(dir, true);
 
         //Move imported files to the proper place
         directories = Directory.GetDirectories(tempDirectory);
 
-        foreach (string dir in directories)
+        foreach (var dir in directories)
         {
             var info = new DirectoryInfo(dir);
-            string destinationPath = Path.Combine(Application.persistentDataPath, info.Name);
-            string sourcePath = info.FullName;
+            var destinationPath = Path.Combine(Application.persistentDataPath, info.Name);
+            var sourcePath = info.FullName;
             Directory.Move(sourcePath, destinationPath);
         }
 
@@ -145,13 +145,13 @@ public class ImportExport : MonoBehaviour
         Directory.Delete(tempDirectory, true);
     }
 
-    void ReloadScene()
+    private void ReloadScene()
     {
         Destroy(_runtimeDebugger);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    void RequestPermission()
+    private void RequestPermission()
     {
 #if PLATFORM_ANDROID
         if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
@@ -162,7 +162,7 @@ public class ImportExport : MonoBehaviour
 #endif
     }
 
-    void TogglePanel()
+    private void TogglePanel()
     {
         _panel.SetActive(!_panel.activeSelf);
     }

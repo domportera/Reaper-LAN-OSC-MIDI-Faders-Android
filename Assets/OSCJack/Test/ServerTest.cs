@@ -5,9 +5,9 @@ using UnityEngine;
 using System.Collections;
 using OscJack;
 
-class ServerTest : MonoBehaviour
+internal class ServerTest : MonoBehaviour
 {
-    IEnumerator Start()
+    private IEnumerator Start()
     {
         var server = new OscServer(9000); // Port number
 

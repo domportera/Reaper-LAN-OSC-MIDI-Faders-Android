@@ -7,13 +7,20 @@ namespace PopUpWindows
 {
     public class SliderWindow : MonoBehaviour
     {
-        [FormerlySerializedAs("slider")] [SerializeField] Slider _slider;
-        [FormerlySerializedAs("title")] [SerializeField] Text _title;
-        [FormerlySerializedAs("valueText")] [SerializeField] Text _valueText;
-        [FormerlySerializedAs("descriptionText")] [SerializeField] Text _descriptionText;
-        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton;
-        [FormerlySerializedAs("cancelButton")] [SerializeField] Button _cancelButton;
-        [FormerlySerializedAs("confirmButton")] [SerializeField] Button _confirmButton;
+        [FormerlySerializedAs("slider")] [SerializeField]
+        private Slider _slider;
+        [FormerlySerializedAs("title")] [SerializeField]
+        private Text _title;
+        [FormerlySerializedAs("valueText")] [SerializeField]
+        private Text _valueText;
+        [FormerlySerializedAs("descriptionText")] [SerializeField]
+        private Text _descriptionText;
+        [FormerlySerializedAs("closeButton")] [SerializeField]
+        private Button _closeButton;
+        [FormerlySerializedAs("cancelButton")] [SerializeField]
+        private Button _cancelButton;
+        [FormerlySerializedAs("confirmButton")] [SerializeField]
+        private Button _confirmButton;
 
         public void SetActions(string title, string description, float defaultValue, float min, float max, bool roundToInt, UnityAction<float> onConfirm, UnityAction onCancel = null)
         {
@@ -52,8 +59,7 @@ namespace PopUpWindows
         }
 
 
-
-        void SetValueText(float input, bool roundToInt)
+        private void SetValueText(float input, bool roundToInt)
         {
             if(roundToInt)
             {
@@ -65,7 +71,7 @@ namespace PopUpWindows
             }
         }
 
-        void Close()
+        private void Close()
         {
             Destroy(gameObject);
         }

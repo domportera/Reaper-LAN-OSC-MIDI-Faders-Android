@@ -7,14 +7,19 @@ namespace Colors
 {
     public class ColorPresetSelector : MonoBehaviour
     {
-        [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
-        [FormerlySerializedAs("title")] [SerializeField] Text _title;
-        [FormerlySerializedAs("background")] [SerializeField] Image _background;
-        [FormerlySerializedAs("buttonBorder")] [SerializeField] Image _buttonBorder;
-        [FormerlySerializedAs("paletteImages")] [SerializeField] PresetPaletteImage[] _paletteImages = Array.Empty<PresetPaletteImage>();
+        [FormerlySerializedAs("button")] [SerializeField]
+        private ButtonExtended _button;
+        [FormerlySerializedAs("title")] [SerializeField]
+        private Text _title;
+        [FormerlySerializedAs("background")] [SerializeField]
+        private Image _background;
+        [FormerlySerializedAs("buttonBorder")] [SerializeField]
+        private Image _buttonBorder;
+        [FormerlySerializedAs("paletteImages")] [SerializeField]
+        private PresetPaletteImage[] _paletteImages = Array.Empty<PresetPaletteImage>();
         public bool IsBuiltIn { get; private set; }
 
-        ColorProfile _colorPreset;
+        private ColorProfile _colorPreset;
         public ColorProfile Preset
         {
             get { return _colorPreset; }
@@ -39,9 +44,9 @@ namespace Colors
             Preset = preset;
         }
 
-        void SetPaletteColors(ColorProfile preset)
+        private void SetPaletteColors(ColorProfile preset)
         {
-            foreach (PresetPaletteImage i in _paletteImages)
+            foreach (var i in _paletteImages)
             {
                 i.Image.color = preset.GetColor(i.ColorType);
             }
@@ -50,7 +55,7 @@ namespace Colors
         }
 
         [Serializable]
-        struct PresetPaletteImage
+        private struct PresetPaletteImage
         {
             [FormerlySerializedAs("image")] public Image Image;
             [FormerlySerializedAs("colorType")] public ColorType ColorType;

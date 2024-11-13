@@ -3,19 +3,22 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class OSCCommandButton : MonoBehaviour
+public class OscCommandButton : MonoBehaviour
 {
-    [FormerlySerializedAs("button")] [SerializeField] ButtonExtended _button;
-    [FormerlySerializedAs("title")] [SerializeField] Text _title;
-    [FormerlySerializedAs("messagePreview")] [SerializeField] Text _messagePreview;
+    [FormerlySerializedAs("button")] [SerializeField]
+    private ButtonExtended _button;
+    [FormerlySerializedAs("title")] [SerializeField]
+    private Text _title;
+    [FormerlySerializedAs("messagePreview")] [SerializeField]
+    private Text _messagePreview;
 
-    public void Initialize(Action _buttonAction, Action _longPressAction, string _title, string _messagePreview)
+    public void Initialize(Action buttonAction, Action longPressAction, string title, string messagePreview)
     {
-        _button.OnClick.AddListener(() => { _buttonAction.Invoke(); });
-        _button.OnPointerHeld.AddListener(() => { _longPressAction.Invoke(); });
-        this._title.text = _title;
-        this._messagePreview.text = _messagePreview;
-        name = _title + " OSC button";
+        _button.OnClick.AddListener(() => { buttonAction.Invoke(); });
+        _button.OnPointerHeld.AddListener(() => { longPressAction.Invoke(); });
+        this._title.text = title;
+        this._messagePreview.text = messagePreview;
+        name = title + " OSC button";
     }
 
     public void DestroySelf()

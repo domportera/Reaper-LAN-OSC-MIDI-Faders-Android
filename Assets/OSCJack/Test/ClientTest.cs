@@ -5,9 +5,9 @@ using UnityEngine;
 using System.Collections;
 using OscJack;
 
-class ClientTest : MonoBehaviour
+internal class ClientTest : MonoBehaviour
 {
-    IEnumerator Start()
+    private IEnumerator Start()
     {
         // IP address, port number
         var client = new OscClient("127.0.0.1", 9000);

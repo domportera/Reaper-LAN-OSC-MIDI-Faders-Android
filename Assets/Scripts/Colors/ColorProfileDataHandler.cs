@@ -5,12 +5,12 @@ using UnityEngine;
 namespace Colors
 {
     public static class ColorProfileDataHandler
-    {        
-        static readonly string ProfilesBasePath = Path.Combine(Application.persistentDataPath, ProfileFolder, "Profiles");
+    {
+        private static readonly string ProfilesBasePath = Path.Combine(Application.persistentDataPath, ProfileFolder, "Profiles");
 
-        const string ProfileFolder = "Colors";
-        const string DefaultColorProfileName = ProfilesManager.DefaultSaveName + " Colors";
-        const string FileExtensionProfiles = ".color";
+        private const string ProfileFolder = "Colors";
+        private const string DefaultColorProfileName = ProfilesManager.DefaultSaveName + " Colors";
+        private const string FileExtensionProfiles = ".color";
 
         internal static void SaveDefaultProfile(ColorProfile template)
         {
@@ -24,7 +24,7 @@ namespace Colors
             SaveProfile(profile);
         }
 
-        const string SavedOverDefaultErrorMsg =
+        private const string SavedOverDefaultErrorMsg =
             "Can't save over the Default profile. If you'd like to set the default color palette that will be loaded on " +
             "this and any new profile you create, click \"Set as Default Color Scheme\"";
         public static void SaveProfile(ColorProfile colorProfile, bool savingDefault = false)
@@ -35,7 +35,7 @@ namespace Colors
                 return;
             }
 
-            bool saved = FileHandler.SaveJsonObject(colorProfile, ProfilesBasePath, colorProfile.Name, FileExtensionProfiles);
+            var saved = FileHandler.SaveJsonObject(colorProfile, ProfilesBasePath, colorProfile.Name, FileExtensionProfiles);
 
             if (!saved)
             {
@@ -50,13 +50,13 @@ namespace Colors
 
         internal static bool ColorProfileIsDefault(ColorProfile profile, BuiltInColorPresets presetsBuiltIn)
         {
-            ColorProfile defaultProfile = GetDefaultColorProfile(presetsBuiltIn);
+            var defaultProfile = GetDefaultColorProfile(presetsBuiltIn);
             return ColorProfile.Equals(profile, defaultProfile);
         }
 
-        static ColorProfile GetDefaultColorProfile(BuiltInColorPresets presetsBuiltIn)
+        private static ColorProfile GetDefaultColorProfile(BuiltInColorPresets presetsBuiltIn)
         {
-            ColorProfile defaultProfile = FileHandler.LoadJsonObject<ColorProfile>(
+            var defaultProfile = FileHandler.LoadJsonObject<ColorProfile>(
                 ProfilesBasePath, DefaultColorProfileName, FileExtensionProfiles);
 
             return defaultProfile ?? presetsBuiltIn.Default.ToReferenceType();

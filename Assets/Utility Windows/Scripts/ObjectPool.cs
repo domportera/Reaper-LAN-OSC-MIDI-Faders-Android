@@ -13,7 +13,7 @@ public class ObjectPool
         _prefab = prefab;
         _parent = parent;
 
-        for(int i = 0; i < preSpawnCount; i++)
+        for(var i = 0; i < preSpawnCount; i++)
         {
             AddToPool();
         }
@@ -26,14 +26,14 @@ public class ObjectPool
             AddToPool();
         }
 
-        GameObject obj = _pool.Dequeue();
+        var obj = _pool.Dequeue();
         obj.SetActive(true);
         return obj;
     }
 
-    void AddToPool()
+    private void AddToPool()
     {
-        GameObject obj = UnityEngine.Object.Instantiate(_prefab, _parent);
+        var obj = UnityEngine.Object.Instantiate(_prefab, _parent);
         obj.SetActive(false);
         _pool.Enqueue(obj);
         _objectsSpawnedFromPool.Add(obj);

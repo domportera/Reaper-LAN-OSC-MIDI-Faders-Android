@@ -9,10 +9,10 @@ namespace Colors
 {
     public static class ColorPresetDataHandler
     {
-        const string FileExtensionPresets = ".colorPreset";
-        
-        const string PresetFolder = "Colors";
-        static readonly string PresetsBasePath = Path.Combine(Application.persistentDataPath, PresetFolder, "Presets");
+        private const string FileExtensionPresets = ".colorPreset";
+
+        private const string PresetFolder = "Colors";
+        private static readonly string PresetsBasePath = Path.Combine(Application.persistentDataPath, PresetFolder, "Presets");
 
         internal static string[] GetPresetNames()
         {
@@ -21,9 +21,9 @@ namespace Colors
                 return Array.Empty<string>();
             }
 
-            string[] fileNames = Directory.GetFiles(PresetsBasePath, "*" + FileExtensionPresets);
+            var fileNames = Directory.GetFiles(PresetsBasePath, "*" + FileExtensionPresets);
 
-            for (int i = 0; i < fileNames.Length; i++)
+            for (var i = 0; i < fileNames.Length; i++)
             {
                 fileNames[i] = Path.GetFileNameWithoutExtension(fileNames[i]);
             }
@@ -31,11 +31,11 @@ namespace Colors
             return fileNames;
         }
 
-        static bool DoesPresetExist(string presetName)
+        private static bool DoesPresetExist(string presetName)
         {
-            string[] fileNames = GetPresetNames();
+            var fileNames = GetPresetNames();
 
-            foreach (string s in fileNames)
+            foreach (var s in fileNames)
             {
                 if (s == presetName)
                 {
@@ -48,7 +48,7 @@ namespace Colors
 
         internal static ColorProfile LoadPreset(string presetName)
         {
-            ColorProfile preset = FileHandler.LoadJsonObject<ColorProfile>(PresetsBasePath, presetName, FileExtensionPresets);
+            var preset = FileHandler.LoadJsonObject<ColorProfile>(PresetsBasePath, presetName, FileExtensionPresets);
 
             if (preset != null)
             {
@@ -69,7 +69,7 @@ namespace Colors
                 return;
             }
 
-            List<char> invalidChars = FileHandler.GetInvalidFileNameCharacters(presetName);
+            var invalidChars = FileHandler.GetInvalidFileNameCharacters(presetName);
             if (invalidChars.Count > 0)
             {
                 PopUpController.Instance.ErrorWindow(invalidChars.Count == 1
@@ -79,7 +79,7 @@ namespace Colors
                 return;
             }
 
-            bool saved = FileHandler.SaveJsonObject(profileToSave, PresetsBasePath, profileToSave.Name, FileExtensionPresets);
+            var saved = FileHandler.SaveJsonObject(profileToSave, PresetsBasePath, profileToSave.Name, FileExtensionPresets);
 
             if (saved)
             {
@@ -94,9 +94,9 @@ namespace Colors
 
         internal static void DeletePreset(ColorPresetSelector selector, Action onDeleted)
         {
-            string presetName = selector.Preset.Name;
+            var presetName = selector.Preset.Name;
 
-            bool deleted = FileHandler.DeleteFile(PresetsBasePath, presetName, FileExtensionPresets);
+            var deleted = FileHandler.DeleteFile(PresetsBasePath, presetName, FileExtensionPresets);
 
             if (deleted)
             {

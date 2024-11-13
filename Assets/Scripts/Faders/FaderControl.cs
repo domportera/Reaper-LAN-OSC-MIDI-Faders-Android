@@ -8,24 +8,29 @@ using UnityEngine.UI;
 [RequireComponent(typeof(OscPropertySender))]
 public class FaderControl : Controller, ISortingMember
 {
-    [FormerlySerializedAs("slider")] [SerializeField] Slider _slider = null;
-    [FormerlySerializedAs("eventTrigger")] [SerializeField] EventTrigger _eventTrigger = null;
-    [FormerlySerializedAs("label")] [SerializeField] Text _label = null;
-    [FormerlySerializedAs("sortLeftButton")] [SerializeField] Button _sortLeftButton;
-    [FormerlySerializedAs("sortRightButton")] [SerializeField] Button _sortRightButton;
+    [FormerlySerializedAs("slider")] [SerializeField]
+    private Slider _slider = null;
+    [FormerlySerializedAs("eventTrigger")] [SerializeField]
+    private EventTrigger _eventTrigger = null;
+    [FormerlySerializedAs("label")] [SerializeField]
+    private Text _label = null;
+    [FormerlySerializedAs("sortLeftButton")] [SerializeField]
+    private Button _sortLeftButton;
+    [FormerlySerializedAs("sortRightButton")] [SerializeField]
+    private Button _sortRightButton;
 
-    public override void Initialize(ControllerData _controller, int whichIndex = 0)
+    public override void Initialize(ControllerData controller, int whichIndex = 0)
     {
-        Type controllerType = _controller.GetType();
+        var controllerType = controller.GetType();
         if(controllerType != ControlsManager.ControllerClassesByControl[this.GetType()])
         {
             Debug.LogError($"Gave wrong controller data type {controllerType} to {this.GetType()}", this);
             return;
         }
 
-        base.Initialize(_controller);
-        _label.text = _controller.GetName();
-        name = _controller.GetName() + " Fader";
+        base.Initialize(controller);
+        _label.text = controller.GetName();
+        name = controller.GetName() + " Fader";
         InitializeFaderInteraction();
         InitializeSorting();
     }
@@ -36,30 +41,30 @@ public class FaderControl : Controller, ISortingMember
         _slider.SetValueWithoutNotify(SmoothValue);
     }
 
-    void InitializeFaderInteraction()
+    private void InitializeFaderInteraction()
     {
         _slider.maxValue = MaxControllerValue;
         _slider.minValue = MinControllerValue;
         _slider.onValueChanged.AddListener(SetValue);
 
-        EventTrigger.Entry startEntry = new EventTrigger.Entry();
+        var startEntry = new EventTrigger.Entry();
         startEntry.eventID = EventTriggerType.PointerDown;
         startEntry.callback.AddListener((data) => { StartSliding(); });
         _eventTrigger.triggers.Add(startEntry);
 
-        EventTrigger.Entry endEntry = new EventTrigger.Entry();
+        var endEntry = new EventTrigger.Entry();
         endEntry.eventID = EventTriggerType.PointerUp;
         endEntry.callback.AddListener((data) => { EndSliding(); });
         _eventTrigger.triggers.Add(endEntry);
     }
 
 
-    void StartSliding()
+    private void StartSliding()
     {
 
     }
 
-    void EndSliding()
+    private void EndSliding()
     {
         ReturnToCenter();
     }
@@ -72,16 +77,16 @@ public class FaderControl : Controller, ISortingMember
         SetSortButtonVisibility(false);
     }
 
-    public void SetSortButtonVisibility(bool _visible)
+    public void SetSortButtonVisibility(bool visible)
     {
-        _sortLeftButton.gameObject.SetActive(_visible);
-        _sortRightButton.gameObject.SetActive(_visible);
+        _sortLeftButton.gameObject.SetActive(visible);
+        _sortRightButton.gameObject.SetActive(visible);
 
-        Image[] sliderImages = _slider.GetComponentsInChildren<Image>();
+        var sliderImages = _slider.GetComponentsInChildren<Image>();
 
-        foreach (Image i in sliderImages)
+        foreach (var i in sliderImages)
         {
-            i.enabled = !_visible;
+            i.enabled = !visible;
         }
     }
 
@@ -95,9 +100,9 @@ public class FaderControl : Controller, ISortingMember
         SortPosition(true);
     }
 
-    public void SortPosition(bool _right)
+    public void SortPosition(bool right)
     {
-        transform.SetSiblingIndex(_right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
+        transform.SetSiblingIndex(right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
     }
     #endregion Sorting
 }

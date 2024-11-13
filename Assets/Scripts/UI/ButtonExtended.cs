@@ -6,15 +6,15 @@ using UnityEngine.UI;
 
 public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
 {
-    float _pressTime = 0f;
+    private float _pressTime = 0f;
 
-    const float DefaultPressTime = float.MaxValue;
+    private const float DefaultPressTime = float.MaxValue;
 
-    const float HoldTime = 0.8f;
-    
-    bool _ignoreClick;
-    bool _isDragging;
-    bool _couldBeHolding;
+    private const float HoldTime = 0.8f;
+
+    private bool _ignoreClick;
+    private bool _isDragging;
+    private bool _couldBeHolding;
 
     //hiding the original event so we can allow the button color to change states as normal, even if we ignore calling the onClick stuff in OnPointerUp
     [FormerlySerializedAs("onClick")] public ButtonClickedEvent OnClick = new (); 
@@ -24,7 +24,7 @@ public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
     //needed to make a separate class since the UnityEvent class's functions are not virtual
     public class ButtonExtendedEvent
     {
-        readonly UnityEvent _myEvent = new ();
+        private readonly UnityEvent _myEvent = new ();
         public int SubscriptionCount { get; private set; }
 
         public void AddListener(UnityAction action)
@@ -96,17 +96,17 @@ public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
         _pressTime = DefaultPressTime;
     }
 
-    void Update()
+    private void Update()
     {
         ButtonLongPressCheck();
     }
 
-    void ButtonLongPressCheck()
+    private void ButtonLongPressCheck()
     {
         if(!_couldBeHolding)
             return;
 
-        bool held = Time.time - _pressTime > HoldTime;
+        var held = Time.time - _pressTime > HoldTime;
         
         if (!held)
             return;

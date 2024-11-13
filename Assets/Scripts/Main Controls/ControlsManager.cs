@@ -10,29 +10,30 @@ using PopUpWindows;
 public class ControlsManager : MonoBehaviour
 {
     //this class needs to create our wheel controls
-    [SerializeField] ProfilesManager _profilesManager;
-    [SerializeField] RectTransform _controllerParent;
-    [SerializeField] ControllerPrefabs[] _controllerPrefabs;
+    [SerializeField] private ProfilesManager _profilesManager;
+    [SerializeField] private RectTransform _controllerParent;
+    [SerializeField] private ControllerPrefabs[] _controllerPrefabs;
 
-    List<ControllerData> _controllers = new();
+    private List<ControllerData> _controllers = new();
     public ReadOnlyCollection<ControllerData> Controllers { get { return _controllers.AsReadOnly(); } }
 
-    readonly Dictionary<ControllerData, GameObject> _controllerObjects = new();
+    private readonly Dictionary<ControllerData, GameObject> _controllerObjects = new();
     private readonly Queue<Action> _actionQueue = new Queue<Action>();
 
     #region Default Controller Values
-    static readonly Dictionary<BuiltInOscPreset, OSCControllerSettings> DefaultOscSettings = new Dictionary<BuiltInOscPreset, OSCControllerSettings>()
+
+    private static readonly Dictionary<BuiltInOscPreset, OscControllerSettings> DefaultOscSettings = new Dictionary<BuiltInOscPreset, OscControllerSettings>()
     {
-        {BuiltInOscPreset.Pitch,            OSCControllerSettings.DefaultOscTemplates[OscAddressType.MidiPitch] },
-        {BuiltInOscPreset.Mod,              OSCControllerSettings.DefaultOscTemplates[OscAddressType.MidiCc] },
-        {BuiltInOscPreset.Aftertouch,       OSCControllerSettings.DefaultOscTemplates[OscAddressType.MidiAftertouch] },
-        {BuiltInOscPreset.FootPedal,        new OSCControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       4) },
-        {BuiltInOscPreset.Expression,       new OSCControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       11) },
-        {BuiltInOscPreset.BreathControl,    new OSCControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       2) },
-        {BuiltInOscPreset.Volume,           new OSCControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       7) },
+        {BuiltInOscPreset.Pitch,            OscControllerSettings.DefaultOscTemplates[OscAddressType.MidiPitch] },
+        {BuiltInOscPreset.Mod,              OscControllerSettings.DefaultOscTemplates[OscAddressType.MidiCc] },
+        {BuiltInOscPreset.Aftertouch,       OscControllerSettings.DefaultOscTemplates[OscAddressType.MidiAftertouch] },
+        {BuiltInOscPreset.FootPedal,        new OscControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       4) },
+        {BuiltInOscPreset.Expression,       new OscControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       11) },
+        {BuiltInOscPreset.BreathControl,    new OscControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       2) },
+        {BuiltInOscPreset.Volume,           new OscControllerSettings(OscAddressType.MidiCc,            MidiChannel.All, ValueRange.SevenBit,       7) },
     };
 
-    static readonly List<ControllerData> DefaultControllers = new List<ControllerData>
+    private static readonly List<ControllerData> DefaultControllers = new List<ControllerData>
     {
         new FaderData("Pitch",          new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.PitchWheel,    DefaultOscSettings[BuiltInOscPreset.Pitch],         DefaultValueType.Mid, CurveType.Linear)),
         new FaderData("Mod",            new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        DefaultOscSettings[BuiltInOscPreset.Mod],           DefaultValueType.Mid, CurveType.Linear)),
@@ -43,30 +44,30 @@ public class ControlsManager : MonoBehaviour
         new FaderData("Volume",         new ControllerSettings(InputMethod.Touch,    ReleaseBehaviorType.Normal,        DefaultOscSettings[BuiltInOscPreset.Volume],        DefaultValueType.Mid, CurveType.Linear))
     };
 
-    enum BuiltInOscPreset
+    private enum BuiltInOscPreset
     {
         Pitch, Mod, FootPedal, Expression, BreathControl, Aftertouch, Volume
     };
 
-    const string NewFaderName = "New Fader";
-    const string NewController2DName = "New 2D Controller";
+    private const string NewFaderName = "New Fader";
+    private const string NewController2DName = "New 2D Controller";
 
-    static readonly Dictionary<ControllerType, string> NewControllerNames = new Dictionary<ControllerType, string>()
+    private static readonly Dictionary<ControllerType, string> NewControllerNames = new Dictionary<ControllerType, string>()
     {
         { ControllerType.Fader, NewFaderName },
         { ControllerType.Controller2D, NewController2DName }
     };
 
-    public static string GetDefaultControllerName(ControllerData _controller)
+    public static string GetDefaultControllerName(ControllerData controller)
     {
-        ControllerType type = ControllerTypes[_controller.GetType()];
+        var type = ControllerTypes[controller.GetType()];
         return NewControllerNames[type];
     }
 
-    readonly FaderData _defaultFader = new FaderData(NewFaderName,
+    private readonly FaderData _defaultFader = new FaderData(NewFaderName,
         new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, DefaultOscSettings[BuiltInOscPreset.Mod],         DefaultValueType.Min, CurveType.Linear));
 
-    readonly Controller2DData _defaultController2D = new Controller2DData(NewController2DName,
+    private readonly Controller2DData _defaultController2D = new Controller2DData(NewController2DName,
         new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, DefaultOscSettings[BuiltInOscPreset.Mod],         DefaultValueType.Min, CurveType.Linear),
         new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, DefaultOscSettings[BuiltInOscPreset.Expression],  DefaultValueType.Min, CurveType.Linear));
     #endregion Default Controller Values
@@ -92,10 +93,10 @@ public class ControlsManager : MonoBehaviour
         {typeof(Controller2DData), typeof(Controller2D) }
     };
 
-    public void SetActiveProfile(ProfileLoader _profile)
+    public void SetActiveProfile(ProfileLoader profile)
     {
         NukeControllers();
-        LoadControllers(_profile.GetName());
+        LoadControllers(profile.GetName());
     }
 
     #region Saving and Loading
@@ -106,7 +107,7 @@ public class ControlsManager : MonoBehaviour
 
         if (profileName != ProfilesManager.DefaultSaveName)
         {
-            ProfilesManager.ProfileSaveData loadedData = _profilesManager.LoadControlsFile(profileName);
+            var loadedData = _profilesManager.LoadControlsFile(profileName);
 
             NukeControllers();
 
@@ -136,14 +137,14 @@ public class ControlsManager : MonoBehaviour
         ColorController.LoadAndSetColorProfile(profileName);
     }
 
-    void SpawnDefaultControllers()
+    private void SpawnDefaultControllers()
     {
         Debug.Log("Spawning Defaults", this);
         NukeControllers();
 
-        for (int i = 0; i < DefaultControllers.Count; i++)
+        for (var i = 0; i < DefaultControllers.Count; i++)
         {
-            ControllerData c = DefaultControllers[i];
+            var c = DefaultControllers[i];
             switch (c)
             {
                 case FaderData fader:
@@ -163,9 +164,9 @@ public class ControlsManager : MonoBehaviour
         SpawnControllers(_controllers, true);
     }
 
-    void NukeControllers()
+    private void NukeControllers()
     {
-        foreach(ControllerData c in Controllers)
+        foreach(var c in Controllers)
         {
             UIManager.Instance.DestroyControllerGroup(c);
         }
@@ -176,14 +177,14 @@ public class ControlsManager : MonoBehaviour
 
     #endregion Saving and Loading
 
-    void SpawnControllers(List<ControllerData> controllers, bool isDefault = false)
+    private void SpawnControllers(List<ControllerData> controllers, bool isDefault = false)
     {
         if (!isDefault)
         {
             controllers.Sort((s1, s2) => s1.GetPosition().CompareTo(s2.GetPosition()));
         }
 
-        foreach (ControllerData set in controllers)
+        foreach (var set in controllers)
         {
             SpawnController(set);
         }
@@ -191,14 +192,14 @@ public class ControlsManager : MonoBehaviour
 
     public void NewController()
     {
-        MultiOptionAction faderAction = new MultiOptionAction("Fader", () => NewController(ControllerType.Fader));
-        MultiOptionAction controller2DAction = new MultiOptionAction("2D Controller", () => NewController(ControllerType.Controller2D));
-        MultiOptionAction buttonAction = new MultiOptionAction("Button", () => throw new NotImplementedException());
-        MultiOptionAction controllerTemplateAction = new MultiOptionAction("From Template", () => throw new NotImplementedException());
+        var faderAction = new MultiOptionAction("Fader", () => NewController(ControllerType.Fader));
+        var controller2DAction = new MultiOptionAction("2D Controller", () => NewController(ControllerType.Controller2D));
+        var buttonAction = new MultiOptionAction("Button", () => throw new NotImplementedException());
+        var controllerTemplateAction = new MultiOptionAction("From Template", () => throw new NotImplementedException());
         PopUpController.Instance.MultiOptionWindow("Select a controller type", faderAction, controller2DAction, buttonAction, controllerTemplateAction);
     }
 
-    void NewController(ControllerType type)
+    private void NewController(ControllerType type)
     {
         ControllerData newControl;
 
@@ -215,7 +216,7 @@ public class ControlsManager : MonoBehaviour
                 return;
         }
 
-        GameObject newController = SpawnController(newControl);
+        var newController = SpawnController(newControl);
         newControl.SetPosition(newController.transform.GetSiblingIndex());
         UIManager.Instance.ShowControllerOptions(newControl);
     }
@@ -228,10 +229,10 @@ public class ControlsManager : MonoBehaviour
 
     public GameObject SpawnController (ControllerData data)
     {
-        GameObject prefab = GetControllerPrefabFromType(data.GetType());
+        var prefab = GetControllerPrefabFromType(data.GetType());
 
         //spawn this type
-        GameObject control = SpawnControllerObject(data, prefab);
+        var control = SpawnControllerObject(data, prefab);
         _controllerObjects.Add(data, control);
 
         if(!data.GetEnabled())
@@ -250,9 +251,9 @@ public class ControlsManager : MonoBehaviour
         return control;
     }
 
-    GameObject SpawnControllerObject(ControllerData config, GameObject controlObject)
+    private GameObject SpawnControllerObject(ControllerData config, GameObject controlObject)
     {
-        GameObject control = Instantiate(controlObject, _controllerParent, false);
+        var control = Instantiate(controlObject, _controllerParent, false);
 
         switch (config)
         {
@@ -272,7 +273,7 @@ public class ControlsManager : MonoBehaviour
     public void RespawnController(ControllerData config)
     {
         DestroyController(config);
-        GameObject control = SpawnController(config);
+        var control = SpawnController(config);
         control.transform.SetSiblingIndex(config.GetPosition()); //there are bound to be issues here with ordering when faders are deleted and stuff
     }
 
@@ -283,16 +284,16 @@ public class ControlsManager : MonoBehaviour
         _controllers.Remove(config);
     }
 
-    GameObject GetControllerPrefabFromType(Type type)
+    private GameObject GetControllerPrefabFromType(Type type)
     {
-        ControllerType controllerType = ControllerTypes[type];
+        var controllerType = ControllerTypes[type];
         return GetControllerPrefabFromType(controllerType);
        
     }
-    
-    GameObject GetControllerPrefabFromType(ControllerType type)
+
+    private GameObject GetControllerPrefabFromType(ControllerType type)
     {
-        foreach (ControllerPrefabs p in _controllerPrefabs)
+        foreach (var p in _controllerPrefabs)
         {
             if (p.ControlType == type)
             {
@@ -311,7 +312,7 @@ public class ControlsManager : MonoBehaviour
 
     //used to pair prefabs with their control type
     [Serializable]
-    struct ControllerPrefabs
+    private struct ControllerPrefabs
     {
         [FormerlySerializedAs("controlType")] public ControllerType ControlType;
         [FormerlySerializedAs("controlPrefab")] public GameObject ControlPrefab;

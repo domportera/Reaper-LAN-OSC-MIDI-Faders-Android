@@ -3,13 +3,14 @@ using UnityEngine.Serialization;
 
 public class FaderOptions : ControllerOptionsPanel
 {
-    [FormerlySerializedAs("optionsMenu")] [SerializeField] ControllerOptionsMenu _optionsMenu;
+    [FormerlySerializedAs("optionsMenu")] [SerializeField]
+    private ControllerOptionsMenu _optionsMenu;
 
-    public void Initialize(FaderData _data, RectTransform _controlObjectTransform, OSCSelectionMenu _oscMenu)
+    public void Initialize(FaderData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
     {
-        _optionsMenu.Initialize(_data.GetController(), this, _oscMenu);
+        _optionsMenu.Initialize(data.GetController(), this, oscMenu);
 
-        BaseInitialize(_data, _controlObjectTransform);
+        BaseInitialize(data, controlObjectTransform);
     }
 
     protected override void Apply()

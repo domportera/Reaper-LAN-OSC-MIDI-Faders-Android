@@ -13,41 +13,40 @@ public class ProfilesManager : MonoBehaviour
 {
     [Header("Profiles Window")]
     [SerializeField]
-    Button _toggleProfileWindowButton, _closeProfileWindowButton;
-    [SerializeField]
-    GameObject _profileWindow;
+    private Button _toggleProfileWindowButton, _closeProfileWindowButton;
+    [SerializeField] private GameObject _profileWindow;
 
     [Header("Title Text")]
     [SerializeField]
-    Text _titleText;
-    [SerializeField]
-    bool _boldTitleText = true;
+    private Text _titleText;
+    [SerializeField] private bool _boldTitleText = true;
 
     [Header("Profiles")]
     [SerializeField]
-    Button _saveButton, _setDefaultButton;
+    private Button _saveButton, _setDefaultButton;
 
     [Header("Save Profiles As")]
     [SerializeField]
-    Button _saveAsButton;
+    private Button _saveAsButton;
     
     [Header("Dynamic UI Elements")]
     [SerializeField]
-    GameObject _profileLoadButtonPrefab;
-    [SerializeField] Transform _profileButtonParent;
+    private GameObject _profileLoadButtonPrefab;
+    [SerializeField] private Transform _profileButtonParent;
 
-    [SerializeField] ControlsManager _controlsManager;
-    Dictionary <string, ProfileLoader> _profileButtons = new();
+    [SerializeField] private ControlsManager _controlsManager;
+
+    private Dictionary <string, ProfileLoader> _profileButtons = new();
     //saving variables
     public const string DefaultSaveName = "Default";
-    const string ProfileNameSaveName = "Profiles"; //name of json file that stores all profile names
-    ProfilesMetadata _profileNames = null;
+    private const string ProfileNameSaveName = "Profiles"; //name of json file that stores all profile names
+    private ProfilesMetadata _profileNames = null;
 
-    string _basePath;
-    const string ControlsExtension = ".controls";
-    const string ProfileListExtension = ".profiles";
+    private string _basePath;
+    private const string ControlsExtension = ".controls";
+    private const string ProfileListExtension = ".profiles";
 
-    void Awake()
+    private void Awake()
     {
         _basePath = Path.Combine(Application.persistentDataPath, "Controllers");
 
@@ -56,7 +55,7 @@ public class ProfilesManager : MonoBehaviour
         PopulateProfileButtons(_profileNames.GetNames(), _profileNames.GetDefaultProfileName());
     }
 
-    void InitializeUIElements()
+    private void InitializeUIElements()
     {
         //profiles
         _saveButton.onClick.AddListener(Save);
@@ -74,12 +73,12 @@ public class ProfilesManager : MonoBehaviour
         _titleText.supportRichText = _boldTitleText;
     }
 
-    void DeleteConfirmation(ProfileLoader profile)
+    private void DeleteConfirmation(ProfileLoader profile)
     {
         if (profile.GetName() != DefaultSaveName)
         {
 
-            string activeProfile = GetActiveProfile();
+            var activeProfile = GetActiveProfile();
             string confirmationWindowText;
 
             if(activeProfile == profile.GetName())
@@ -98,16 +97,16 @@ public class ProfilesManager : MonoBehaviour
 		}
     }
 
-    void SaveAsWindow()
+    private void SaveAsWindow()
     {
         PopUpController.Instance.TextInputWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
     }
 
-    void PopulateProfileButtons(List<string> profileNames, string setActiveProfile)
+    private void PopulateProfileButtons(List<string> profileNames, string setActiveProfile)
     {
         AddToProfileButtons(DefaultSaveName);
 
-        foreach (string pname in profileNames)
+        foreach (var pname in profileNames)
         {
             AddToProfileButtons(pname);
         }
@@ -115,10 +114,10 @@ public class ProfilesManager : MonoBehaviour
         SetActiveProfile(_profileButtons[setActiveProfile]);
     }
 
-    void AddToProfileButtons(string profileName)
+    private void AddToProfileButtons(string profileName)
     {
-        GameObject obj = Instantiate(_profileLoadButtonPrefab, _profileButtonParent);
-        ProfileLoader buttonScript = obj.GetComponent<ProfileLoader>();
+        var obj = Instantiate(_profileLoadButtonPrefab, _profileButtonParent);
+        var buttonScript = obj.GetComponent<ProfileLoader>();
         buttonScript.SetText(profileName);
         buttonScript.SetButtonActions(() => SetActiveProfile(_profileButtons[profileName]), () => DeleteConfirmation(buttonScript));
         buttonScript.ToggleHighlight(false);
@@ -127,13 +126,13 @@ public class ProfilesManager : MonoBehaviour
         Debug.Log($"Adding profile button {profileName}", this);
     }
 
-    void SortProfileButtons()
+    private void SortProfileButtons()
     {
         RefreshParenting(_profileButtons[DefaultSaveName].transform, _profileButtonParent);
 
         _profileButtons = _profileButtons.OrderBy(e => e.Key).ToDictionary(x => x.Key, x => x.Value);
         
-        foreach(KeyValuePair<string, ProfileLoader> p in _profileButtons)
+        foreach(var p in _profileButtons)
         {
             if(p.Key != DefaultSaveName)
             {
@@ -142,18 +141,18 @@ public class ProfilesManager : MonoBehaviour
         }
     }
 
-    void RefreshParenting(Transform obj, Transform newParent)
+    private void RefreshParenting(Transform obj, Transform newParent)
     {
         obj.SetParent(null);
         obj.SetParent(newParent);
     }
 
-    void SetActiveProfile(ProfileLoader loader)
+    private void SetActiveProfile(ProfileLoader loader)
     {
         _controlsManager.SetActiveProfile(loader);
 
         //set highlight color and active status
-        foreach(KeyValuePair<string, ProfileLoader> p in _profileButtons)
+        foreach(var p in _profileButtons)
         {
             p.Value.IsActiveProfile = p.Value == loader;
             p.Value.ToggleHighlight(p.Value == loader);
@@ -162,15 +161,15 @@ public class ProfilesManager : MonoBehaviour
         _titleText.text = $"<b>{loader.GetName()}</b>";
     }
 
-    void Save()
+    private void Save()
     {
         _ = SaveProfile(GetActiveProfile());
     }
 
-    void SaveAs(string saveName)
+    private void SaveAs(string saveName)
     {
-        string profileName = saveName;
-        bool canSwitchProfiles = SaveProfileAs(profileName);
+        var profileName = saveName;
+        var canSwitchProfiles = SaveProfileAs(profileName);
 
         if(canSwitchProfiles)
         {
@@ -178,15 +177,15 @@ public class ProfilesManager : MonoBehaviour
         }
     }
 
-    void SetDefaultProfile()
+    private void SetDefaultProfile()
     {
-        string activeProfile = GetActiveProfile();
+        var activeProfile = GetActiveProfile();
         _profileNames.SetDefaultProfile(activeProfile);
         SaveProfileNames();
         PopUpController.Instance.QuickNoticeWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
     }
 
-    void DeleteProfile(ProfileLoader profile)
+    private void DeleteProfile(ProfileLoader profile)
     {
         _profileButtons[profile.GetName()].Annihilate();
         DeleteProfileWithButton(profile);
@@ -194,7 +193,7 @@ public class ProfilesManager : MonoBehaviour
         Debug.Log($"Removing profile button {profile}", this);
     }
 
-    void DeleteProfileWithButton(ProfileLoader button)
+    private void DeleteProfileWithButton(ProfileLoader button)
     {
         if (button.GetName() == DefaultSaveName)
         {
@@ -223,14 +222,14 @@ public class ProfilesManager : MonoBehaviour
         }
     }
 
-    void ToggleProfileWindow()
+    private void ToggleProfileWindow()
     {
         _profileWindow.SetActive(!_profileWindow.activeSelf);
 	}
-    
-    string GetActiveProfile()
+
+    private string GetActiveProfile()
     {
-        foreach(KeyValuePair<string, ProfileLoader> pair in _profileButtons)
+        foreach(var pair in _profileButtons)
         {
             if(pair.Value.IsActiveProfile)
             {
@@ -242,7 +241,7 @@ public class ProfilesManager : MonoBehaviour
         return DefaultSaveName;
     }
 
-    bool SaveProfile(string profileName, List<ControllerData> controllers)
+    private bool SaveProfile(string profileName, List<ControllerData> controllers)
     {
         if (profileName == DefaultSaveName)
         {
@@ -250,8 +249,8 @@ public class ProfilesManager : MonoBehaviour
             return false;
         }
 
-        ProfileSaveData saveData = new ProfileSaveData(controllers, profileName);
-        bool success = FileHandler.SaveJsonObject(saveData, _basePath, saveData.GetName(), ControlsExtension);
+        var saveData = new ProfileSaveData(controllers, profileName);
+        var success = FileHandler.SaveJsonObject(saveData, _basePath, saveData.GetName(), ControlsExtension);
 
         if (success)
         {
@@ -265,14 +264,14 @@ public class ProfilesManager : MonoBehaviour
         return success;
     }
 
-    void LoadDefaultProfile()
+    private void LoadDefaultProfile()
     {
         _controlsManager.LoadControllers(_profileNames.GetNames().Count == 0
             ? DefaultSaveName
             : _profileNames.GetDefaultProfileName());
     }
 
-    bool SaveProfileAs(string profileName)
+    private bool SaveProfileAs(string profileName)
     {
         if (profileName == DefaultSaveName || _profileNames.GetNames().Contains(profileName))
         {
@@ -280,7 +279,7 @@ public class ProfilesManager : MonoBehaviour
             return false;
         }
 
-        List<char> invalidChars = FileHandler.GetInvalidFileNameCharacters(profileName);
+        var invalidChars = FileHandler.GetInvalidFileNameCharacters(profileName);
         if (invalidChars.Count > 0)
         {
             PopUpController.Instance.ErrorWindow(invalidChars.Count == 1
@@ -298,7 +297,7 @@ public class ProfilesManager : MonoBehaviour
             
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
-            bool saved = SaveProfile(profileName);
+            var saved = SaveProfile(profileName);
 
             if (!saved) return false;
 
@@ -311,9 +310,9 @@ public class ProfilesManager : MonoBehaviour
         return false;
     }
 
-    bool SaveProfile(string profileName)
+    private bool SaveProfile(string profileName)
     {
-        List<ControllerData> controllers = _controlsManager.Controllers.OrderBy(control => control.GetName()).ToList();
+        var controllers = _controlsManager.Controllers.OrderBy(control => control.GetName()).ToList();
         controllers.Sort((s1, s2) => String.Compare(s1.GetName(), s2.GetName(), StringComparison.Ordinal));
         return SaveProfile(profileName, controllers);
     }
@@ -323,13 +322,13 @@ public class ProfilesManager : MonoBehaviour
         return FileHandler.LoadJsonObject<ProfileSaveData>(_basePath, fileNameSansExtension, ControlsExtension);
     }
 
-    void LoadProfileNames()
+    private void LoadProfileNames()
     {
-        ProfilesMetadata loaded = FileHandler.LoadJsonObject<ProfilesMetadata>(_basePath, ProfileNameSaveName, ProfileListExtension);
+        var loaded = FileHandler.LoadJsonObject<ProfilesMetadata>(_basePath, ProfileNameSaveName, ProfileListExtension);
         _profileNames = loaded ?? new ProfilesMetadata(new List<string>());
     }
 
-    void SaveProfileNames()
+    private void SaveProfileNames()
     {
         FileHandler.SaveJsonObject(_profileNames, _basePath, ProfileNameSaveName, ProfileListExtension);
     }
@@ -338,17 +337,17 @@ public class ProfilesManager : MonoBehaviour
     public class ProfileSaveData
     {
         [FormerlySerializedAs("_profileName")] [FormerlySerializedAs("name")] [SerializeField]
-        string _name = string.Empty;
+        private string _name = string.Empty;
 
         //each type of control data has to be split into its own type-specific list for JsonUtility to agree with it
         [FormerlySerializedAs("faderData")] [SerializeField]
-        List<FaderData> _faderData = new();
+        private List<FaderData> _faderData = new();
         [FormerlySerializedAs("controller2DData")] [SerializeField]
-        List<Controller2DData> _controller2DData = new();
+        private List<Controller2DData> _controller2DData = new();
 
         public ProfileSaveData(List<ControllerData> controllerData, string name)
         {
-            foreach (ControllerData data in controllerData)
+            foreach (var data in controllerData)
             {
                 switch (data)
                 {
@@ -382,12 +381,10 @@ public class ProfilesManager : MonoBehaviour
     }
 
     [Serializable]
-    class ProfilesMetadata
+    private class ProfilesMetadata
     {
-        [SerializeField]
-        List<string> _profileNames;
-        [SerializeField]
-        string _defaultProfileName;
+        [SerializeField] private List<string> _profileNames;
+        [SerializeField] private string _defaultProfileName;
 
         public ProfilesMetadata(List<string> profileNames)
         {

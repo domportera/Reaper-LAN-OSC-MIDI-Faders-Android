@@ -7,19 +7,21 @@ using PopUpWindows;
 
 public class IPSetter : MonoBehaviour
 {
-    [FormerlySerializedAs("ipAddressField")] [SerializeField] InputField _ipAddressField = null;
-    [FormerlySerializedAs("portField")] [SerializeField] InputField _portField = null;
+    [FormerlySerializedAs("ipAddressField")] [SerializeField]
+    private InputField _ipAddressField = null;
+    [FormerlySerializedAs("portField")] [SerializeField]
+    private InputField _portField = null;
 
-    string _currentIP;
-    int _currentPort = int.MinValue;
+    private string _currentIP;
+    private int _currentPort = int.MinValue;
 
-    const string IPAddressPlayerPref = "IP Address";
-    const string PortPlayerPref = "Port";
+    private const string IPAddressPlayerPref = "IP Address";
+    private const string PortPlayerPref = "Port";
 
     public static IPSetter Instance;
 
     // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -38,33 +40,33 @@ public class IPSetter : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
 
     }
 
-    void Load()
+    private void Load()
     {
         if(PlayerPrefs.HasKey(IPAddressPlayerPref))
         {
-            string ip = PlayerPrefs.GetString(IPAddressPlayerPref);
+            var ip = PlayerPrefs.GetString(IPAddressPlayerPref);
             SetIP(ip);
             _ipAddressField.SetTextWithoutNotify(ip);
         }
 
         if (PlayerPrefs.HasKey(PortPlayerPref))
         {
-            int port = PlayerPrefs.GetInt(PortPlayerPref);
+            var port = PlayerPrefs.GetInt(PortPlayerPref);
             SetPort(port);
             _portField.SetTextWithoutNotify(port.ToString());
         }
     }
 
-    void SetIP(string _ip)
+    private void SetIP(string ipString)
     {
         //validate ip
-        string ipString = _ip.Trim();
-        bool valid = IPAddress.TryParse(ipString, out var ip);
+        ipString = ipString.Trim();
+        var valid = IPAddress.TryParse(ipString, out var ip);
 
         if(valid)
         {
@@ -78,12 +80,12 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    void SetPort(string _port)
+    private void SetPort(string portString)
     {
         //validate ip
-        string portString = _port.Trim();
+        portString = portString.Trim();
         int port;
-        bool valid = int.TryParse(portString, out port);
+        var valid = int.TryParse(portString, out port);
 
         if(valid)
         {
@@ -96,43 +98,43 @@ public class IPSetter : MonoBehaviour
         }
     }
 
-    void SetPort(int _port)
+    private void SetPort(int port)
     {
-        bool valid = true;
-        const int MAX_PORT = 65535;
+        var valid = true;
+        const int maxPort = 65535;
 
-        if (_port > MAX_PORT)
+        if (port > maxPort)
         {
             valid = false;
         }
 
         if (valid)
         {
-            _currentPort = _port;
+            _currentPort = port;
             TryConnectAll();
         }
         else
         {
-            PopUpController.Instance.ErrorWindow($"Invalid Port - must be a positive integer less than {MAX_PORT}.");
+            PopUpController.Instance.ErrorWindow($"Invalid Port - must be a positive integer less than {maxPort}.");
         }
     }
 
     public void TryConnectAll()
     {
-        OscPropertySender[] senders = FindObjectsOfType<OscPropertySender>();
+        var senders = FindObjectsOfType<OscPropertySender>();
 
-        foreach(OscPropertySender sender in senders)
+        foreach(var sender in senders)
         {
             TryConnect(sender);
         }
     }
 
-    public void TryConnect(OscPropertySender _sender)
+    public void TryConnect(OscPropertySender sender)
     {
         //only connect if we have a port and an IP
         if (_currentPort != int.MinValue && _currentIP != null)
         {
-            _sender.ChangeConnection(_currentIP, _currentPort);
+            sender.ChangeConnection(_currentIP, _currentPort);
         }
     }
 

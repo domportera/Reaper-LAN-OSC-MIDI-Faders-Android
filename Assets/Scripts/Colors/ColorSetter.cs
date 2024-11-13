@@ -7,26 +7,26 @@ namespace Colors
 	public class ColorSetter : MonoBehaviour
 	{
 		[FormerlySerializedAs("colorType")] [SerializeField]
-		ColorType _colorType;
+		private ColorType _colorType;
 
-		Image _image;
-		Text _text;
+		private Image _image;
+		private Text _text;
 
-		bool _canColor = true;
-		bool HasComponent => _image != null || _text != null;
-		bool _isImage = false;
+		private bool _canColor = true;
+		private bool HasComponent => _image != null || _text != null;
+		private bool _isImage = false;
 
-		void Awake()
+		private void Awake()
 		{
 			GetColoredComponents();
 		}
 
-		void Start()
+		private void Start()
 		{
 			ColorController.AddToControls(this);
 		}
 
-		void OnDestroy()
+		private void OnDestroy()
 		{
 			ColorController.RemoveFromControls(this);
 		}
@@ -46,7 +46,7 @@ namespace Colors
 			}
 		}
 
-		void GetColoredComponents()
+		private void GetColoredComponents()
 		{
 			if (_text)
 				return;

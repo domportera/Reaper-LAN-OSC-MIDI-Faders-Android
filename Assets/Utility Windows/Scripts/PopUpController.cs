@@ -10,20 +10,30 @@ namespace PopUpWindows
 {
     public class PopUpController : MonoBehaviour
     {
-        [FormerlySerializedAs("windowParent")] [SerializeField] RectTransform _windowParent = null;
-        [FormerlySerializedAs("toastParent")] [SerializeField] RectTransform _toastParent = null;
-        [FormerlySerializedAs("confirmationDisplayTime")] [SerializeField] float _confirmationDisplayTime = 3f;
+        [FormerlySerializedAs("windowParent")] [SerializeField]
+        private RectTransform _windowParent = null;
+        [FormerlySerializedAs("toastParent")] [SerializeField]
+        private RectTransform _toastParent = null;
+        [FormerlySerializedAs("confirmationDisplayTime")] [SerializeField]
+        private float _confirmationDisplayTime = 3f;
 
         [FormerlySerializedAs("confirmationWindowPrefab")]
         [Space(20)]
-        [SerializeField] GameObject _confirmationWindowPrefab = null;
-        [FormerlySerializedAs("multiOptionWindowPrefab")] [SerializeField] GameObject _multiOptionWindowPrefab = null;
-        [FormerlySerializedAs("sliderWindowPrefab")] [SerializeField] GameObject _sliderWindowPrefab = null;
-        [FormerlySerializedAs("errorWindowPrefab")] [SerializeField] GameObject _errorWindowPrefab = null;
-        [FormerlySerializedAs("quickNoticeWindowPrefab")] [SerializeField] GameObject _quickNoticeWindowPrefab = null;
-        [FormerlySerializedAs("toastPrefab")] [SerializeField] GameObject _toastPrefab = null;
+        [SerializeField]
+        private GameObject _confirmationWindowPrefab = null;
+        [FormerlySerializedAs("multiOptionWindowPrefab")] [SerializeField]
+        private GameObject _multiOptionWindowPrefab = null;
+        [FormerlySerializedAs("sliderWindowPrefab")] [SerializeField]
+        private GameObject _sliderWindowPrefab = null;
+        [FormerlySerializedAs("errorWindowPrefab")] [SerializeField]
+        private GameObject _errorWindowPrefab = null;
+        [FormerlySerializedAs("quickNoticeWindowPrefab")] [SerializeField]
+        private GameObject _quickNoticeWindowPrefab = null;
+        [FormerlySerializedAs("toastPrefab")] [SerializeField]
+        private GameObject _toastPrefab = null;
 
-        [FormerlySerializedAs("toastColors")] [SerializeField] ToastColor[] _toastColors = Array.Empty<ToastColor>();
+        [FormerlySerializedAs("toastColors")] [SerializeField]
+        private ToastColor[] _toastColors = Array.Empty<ToastColor>();
         public ObjectPool ToastPool { get; private set; }
 
         [System.Serializable]
@@ -46,7 +56,7 @@ namespace PopUpWindows
 
         public static PopUpController Instance;
 
-        readonly List<Action> _actionsToPerformOnUpdate = new();
+        private readonly List<Action> _actionsToPerformOnUpdate = new();
         [FormerlySerializedAs("toastLifespan")] public float ToastLifespan;
         [FormerlySerializedAs("toastFadeCurve")] public AnimationCurve ToastFadeCurve;
 
@@ -61,7 +71,7 @@ namespace PopUpWindows
 
         private void Update()
         {
-            int count = _actionsToPerformOnUpdate.Count;
+            var count = _actionsToPerformOnUpdate.Count;
             while(_actionsToPerformOnUpdate.Count > 0)
             {
                 _actionsToPerformOnUpdate[0].Invoke();
@@ -76,8 +86,8 @@ namespace PopUpWindows
 
         public void ErrorWindow(string text, UnityAction onClose = null)
         {
-            GameObject window = InstantiateWindow(_errorWindowPrefab);
-            ErrorWindow error = window.GetComponent<ErrorWindow>();
+            var window = InstantiateWindow(_errorWindowPrefab);
+            var error = window.GetComponent<ErrorWindow>();
             error.Initialize(text, onClose);
         }
 
@@ -88,8 +98,8 @@ namespace PopUpWindows
 
         public void QuickNoticeWindow(string text, UnityAction onComplete = null)
         {
-            GameObject window = InstantiateWindow(_quickNoticeWindowPrefab);
-            QuickNoticeWindow confirm = window.GetComponent<QuickNoticeWindow>();
+            var window = InstantiateWindow(_quickNoticeWindowPrefab);
+            var confirm = window.GetComponent<QuickNoticeWindow>();
             confirm.Initialize(text, _confirmationDisplayTime, onComplete);
         }
 
@@ -100,46 +110,46 @@ namespace PopUpWindows
 
         public void Toast(string text, LogType type = LogType.Log, bool log = false)
         {
-            Toast toast = ToastPool.Instantiate().GetComponent<Toast>();
+            var toast = ToastPool.Instantiate().GetComponent<Toast>();
             toast.Initialize(text, type, log);
         }
 
         public void ConfirmationWindow(string text, UnityAction confirm, UnityAction cancel = null, string confirmButtonLabel = null, string cancelButtonLabel = null)
         {
-            GameObject window = InstantiateWindow(_confirmationWindowPrefab);
-            ConfirmationWindow verify = window.GetComponent<ConfirmationWindow>();
+            var window = InstantiateWindow(_confirmationWindowPrefab);
+            var verify = window.GetComponent<ConfirmationWindow>();
             verify.SetActions(text, confirm, cancel, confirmButtonLabel, cancelButtonLabel);
         }
 
         public void TextInputWindow(string inputLabel, UnityAction<string> confirm, UnityAction cancel = null, string confirmButtonLabel = null, string cancelButtonLabel = null, InputField.ContentType contentType = InputField.ContentType.Standard)
         {
-            GameObject window = InstantiateWindow(_confirmationWindowPrefab);
-            ConfirmationWindow verify = window.GetComponent<ConfirmationWindow>();
+            var window = InstantiateWindow(_confirmationWindowPrefab);
+            var verify = window.GetComponent<ConfirmationWindow>();
             verify.SetActionsInputField(inputLabel, confirm, cancel, confirmButtonLabel, cancelButtonLabel);
         }
 
         public void MultiOptionWindow(string text, params MultiOptionAction[] actions)
         {
-            GameObject window = InstantiateWindow(_multiOptionWindowPrefab);
-            MultiOptionWindow multiWindow = window.GetComponent<MultiOptionWindow>();
+            var window = InstantiateWindow(_multiOptionWindowPrefab);
+            var multiWindow = window.GetComponent<MultiOptionWindow>();
             multiWindow.SetActions(text, actions);
         }
 
         public void SliderWindow(string text, string description, float defaultValue, float min, float max, bool roundToInt, UnityAction<float> sliderAction, UnityAction onCancel = null)
         {
-            GameObject window = InstantiateWindow(_sliderWindowPrefab);
-            SliderWindow sliderWindow = window.GetComponent<SliderWindow>();
+            var window = InstantiateWindow(_sliderWindowPrefab);
+            var sliderWindow = window.GetComponent<SliderWindow>();
             sliderWindow.SetActions(text, description, defaultValue, min, max, roundToInt, sliderAction, onCancel);
         }
 
 
-        GameObject InstantiateWindow(GameObject prefab)
+        private GameObject InstantiateWindow(GameObject prefab)
         {
-            GameObject window = Instantiate(prefab, _windowParent);
+            var window = Instantiate(prefab, _windowParent);
             return window;
         }
 
-        void SingletonSetup()
+        private void SingletonSetup()
         {
             if (Instance == null)
             {

@@ -3,15 +3,17 @@ using UnityEngine.Serialization;
 
 public class Controller2DOptions : ControllerOptionsPanel
 {
-    [FormerlySerializedAs("horizontalOptions")] [SerializeField] ControllerOptionsMenu _horizontalOptions;
-    [FormerlySerializedAs("verticalOptions")] [SerializeField] ControllerOptionsMenu _verticalOptions;
+    [FormerlySerializedAs("horizontalOptions")] [SerializeField]
+    private ControllerOptionsMenu _horizontalOptions;
+    [FormerlySerializedAs("verticalOptions")] [SerializeField]
+    private ControllerOptionsMenu _verticalOptions;
 
-    public void Initialize(Controller2DData _data, RectTransform _controlObjectTransform, OSCSelectionMenu _oscMenu)
+    public void Initialize(Controller2DData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
     {
-        _horizontalOptions.Initialize(_data.GetHorizontalController(), this, _oscMenu);
-        _verticalOptions.Initialize(_data.GetVerticalController(), this, _oscMenu);
+        _horizontalOptions.Initialize(data.GetHorizontalController(), this, oscMenu);
+        _verticalOptions.Initialize(data.GetVerticalController(), this, oscMenu);
 
-        BaseInitialize(_data, _controlObjectTransform);
+        BaseInitialize(data, controlObjectTransform);
     }
 
     protected override void Apply()

@@ -19,13 +19,13 @@ public abstract class ControllerData
 
     public struct WidthRange
     {
-        public float min, max, defaultValue;
+        public float Min, Max, DefaultValue;
         
         public WidthRange(float min, float max, float defaultValue)
         {
-            this.min = min;
-            this.max = max;
-            this.defaultValue = defaultValue;
+            this.Min = min;
+            this.Max = max;
+            this.DefaultValue = defaultValue;
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class ControllerData
 
     public float GetWidth()
     {
-        return Width <= NullWidth ? WidthRanges[GetType()].defaultValue : Width;
+        return Width <= NullWidth ? WidthRanges[GetType()].DefaultValue : Width;
     }
 
     public WidthRange GetWidthRange()

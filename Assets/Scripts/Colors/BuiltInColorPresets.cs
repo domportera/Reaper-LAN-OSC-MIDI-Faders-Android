@@ -12,8 +12,8 @@ namespace Colors
         internal ColorProfileStruct[] ColorProfiles { get; private set; }
         internal ColorProfileStruct Default => ColorProfiles[0];
 
-        
-        void Awake()
+
+        private void Awake()
         {
             if (Instance != null)
             {

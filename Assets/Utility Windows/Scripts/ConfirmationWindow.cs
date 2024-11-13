@@ -7,16 +7,25 @@ namespace PopUpWindows
 {
     public class ConfirmationWindow : MonoBehaviour
     {
-        [FormerlySerializedAs("root")] [SerializeField] GameObject _root;
-        [FormerlySerializedAs("confirmButton")] [SerializeField] Button _confirmButton;
-        [FormerlySerializedAs("cancelButton")] [SerializeField] Button _cancelButton;
-        [FormerlySerializedAs("confirmButtonText")] [SerializeField] Text _confirmButtonText;
-        [FormerlySerializedAs("cancelButtonText")] [SerializeField] Text _cancelButtonText;
-        [FormerlySerializedAs("descriptionText")] [SerializeField] Text _descriptionText;
+        [FormerlySerializedAs("root")] [SerializeField]
+        private GameObject _root;
+        [FormerlySerializedAs("confirmButton")] [SerializeField]
+        private Button _confirmButton;
+        [FormerlySerializedAs("cancelButton")] [SerializeField]
+        private Button _cancelButton;
+        [FormerlySerializedAs("confirmButtonText")] [SerializeField]
+        private Text _confirmButtonText;
+        [FormerlySerializedAs("cancelButtonText")] [SerializeField]
+        private Text _cancelButtonText;
+        [FormerlySerializedAs("descriptionText")] [SerializeField]
+        private Text _descriptionText;
 
-        [FormerlySerializedAs("inputText")] [SerializeField] InputField _inputText;
-        [FormerlySerializedAs("inputTitle")] [SerializeField] Text _inputTitle;
-        UnityAction<string> _inputAction;
+        [FormerlySerializedAs("inputText")] [SerializeField]
+        private InputField _inputText;
+        [FormerlySerializedAs("inputTitle")] [SerializeField]
+        private Text _inputTitle;
+
+        private UnityAction<string> _inputAction;
 
         public UnityEvent OnClose = new UnityEvent();
 
@@ -73,19 +82,19 @@ namespace PopUpWindows
             }
         }
 
-        void ConfirmTextEntry()
+        private void ConfirmTextEntry()
         {
             _inputAction(_inputText.text);
         }
 
-        void ActivateInputVersion()
+        private void ActivateInputVersion()
         {
             _inputText.gameObject.SetActive(true);
             _inputTitle.gameObject.SetActive(true);
             _descriptionText.gameObject.SetActive(false);
         }
 
-        void ActivateBasicVersion()
+        private void ActivateBasicVersion()
         {
             _inputText.gameObject.SetActive(false);
             _inputTitle.gameObject.SetActive(false);
@@ -93,7 +102,7 @@ namespace PopUpWindows
         }
 
 
-        void Close()
+        private void Close()
         {
             OnClose.Invoke();
             Destroy(_root);

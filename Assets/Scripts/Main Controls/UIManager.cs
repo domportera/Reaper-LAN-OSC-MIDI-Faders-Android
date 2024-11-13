@@ -9,63 +9,85 @@ using PopUpWindows;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private ControlsManager _controlsManager;
-    [FormerlySerializedAs("optionsPanel")] [SerializeField] GameObject _optionsPanel = null;
-    [FormerlySerializedAs("sliderOptionsButtonLayoutPrefab")] [SerializeField] GameObject _sliderOptionsButtonLayoutPrefab = null;
-    [FormerlySerializedAs("faderOptionsPrefab")] [SerializeField] GameObject _faderOptionsPrefab = null;
-    [FormerlySerializedAs("controller2DOptionsPrefab")] [SerializeField] GameObject _controller2DOptionsPrefab = null;
-    [FormerlySerializedAs("faderOptionsActivationPrefab")] [SerializeField] GameObject _faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
-    [FormerlySerializedAs("sliderButtonVerticalLayoutParent")] [SerializeField] GameObject _sliderButtonVerticalLayoutParent = null;
-    [FormerlySerializedAs("optionsButton")] [SerializeField] Button _optionsButton = null;
-    [FormerlySerializedAs("closeOptionsButton")] [SerializeField] Button _closeOptionsButton = null;
-    [FormerlySerializedAs("newControllerButton")] [SerializeField] Button _newControllerButton = null;
-    [FormerlySerializedAs("oscMenu")] [SerializeField] OSCSelectionMenu _oscMenu;
+    [FormerlySerializedAs("optionsPanel")] [SerializeField]
+    private GameObject _optionsPanel = null;
+    [FormerlySerializedAs("sliderOptionsButtonLayoutPrefab")] [SerializeField]
+    private GameObject _sliderOptionsButtonLayoutPrefab = null;
+    [FormerlySerializedAs("faderOptionsPrefab")] [SerializeField]
+    private GameObject _faderOptionsPrefab = null;
+    [FormerlySerializedAs("controller2DOptionsPrefab")] [SerializeField]
+    private GameObject _controller2DOptionsPrefab = null;
+    [FormerlySerializedAs("faderOptionsActivationPrefab")] [SerializeField]
+    private GameObject _faderOptionsActivationPrefab = null; //the prefab for the button that opens up fader options
+    [FormerlySerializedAs("sliderButtonVerticalLayoutParent")] [SerializeField]
+    private GameObject _sliderButtonVerticalLayoutParent = null;
+    [FormerlySerializedAs("optionsButton")] [SerializeField]
+    private Button _optionsButton = null;
+    [FormerlySerializedAs("closeOptionsButton")] [SerializeField]
+    private Button _closeOptionsButton = null;
+    [FormerlySerializedAs("newControllerButton")] [SerializeField]
+    private Button _newControllerButton = null;
+    [FormerlySerializedAs("oscMenu")] [SerializeField]
+    private OscSelectionMenu _oscMenu;
 
     [FormerlySerializedAs("faderPositionEnableButton")]
     [Space(10)]
-    [SerializeField] Button _faderPositionEnableButton = null;
-    [FormerlySerializedAs("faderPositionExitButton")] [SerializeField] Button _faderPositionExitButton = null;
-    [FormerlySerializedAs("faderLayoutGroup")] [SerializeField] HorizontalLayoutGroup _faderLayoutGroup = null;
-    [FormerlySerializedAs("optionsButtonSortingButton")] [SerializeField] Button _optionsButtonSortingButton = null;
+    [SerializeField]
+    private Button _faderPositionEnableButton = null;
+    [FormerlySerializedAs("faderPositionExitButton")] [SerializeField]
+    private Button _faderPositionExitButton = null;
+    [FormerlySerializedAs("faderLayoutGroup")] [SerializeField]
+    private HorizontalLayoutGroup _faderLayoutGroup = null;
+    [FormerlySerializedAs("optionsButtonSortingButton")] [SerializeField]
+    private Button _optionsButtonSortingButton = null;
 
-    [FormerlySerializedAs("setupButton")] [SerializeField] Button _setupButton;
-    [FormerlySerializedAs("closeSetupButton")] [SerializeField] Button _closeSetupButton;
-    [FormerlySerializedAs("setupPanel")] [SerializeField] GameObject _setupPanel;
+    [FormerlySerializedAs("setupButton")] [SerializeField]
+    private Button _setupButton;
+    [FormerlySerializedAs("closeSetupButton")] [SerializeField]
+    private Button _closeSetupButton;
+    [FormerlySerializedAs("setupPanel")] [SerializeField]
+    private GameObject _setupPanel;
 
     [FormerlySerializedAs("creditsButton")]
     [Header("Credits")]
-    [SerializeField] Button _creditsButton;
-    [FormerlySerializedAs("closeCreditsButton")] [SerializeField] Button _closeCreditsButton;
-    [FormerlySerializedAs("creditsPanel")] [SerializeField] GameObject _creditsPanel;
-    [FormerlySerializedAs("creditsButtons")] [SerializeField] List<CreditsButton> _creditsButtons = new List<CreditsButton>();
-    [FormerlySerializedAs("donationButtons")] [SerializeField] List<DonationButton> _donationButtons = new List<DonationButton>();
+    [SerializeField]
+    private Button _creditsButton;
+    [FormerlySerializedAs("closeCreditsButton")] [SerializeField]
+    private Button _closeCreditsButton;
+    [FormerlySerializedAs("creditsPanel")] [SerializeField]
+    private GameObject _creditsPanel;
+    [FormerlySerializedAs("creditsButtons")] [SerializeField]
+    private List<CreditsButton> _creditsButtons = new List<CreditsButton>();
+    [FormerlySerializedAs("donationButtons")] [SerializeField]
+    private List<DonationButton> _donationButtons = new List<DonationButton>();
 
     [Serializable]
-    struct CreditsButton
+    private struct CreditsButton
     {
         [FormerlySerializedAs("button")] public Button Button;
         [FormerlySerializedAs("link")] public string Link;
     }
 
     [Serializable]
-    struct DonationButton
+    private struct DonationButton
     {
         [FormerlySerializedAs("button")] public Button Button;
         [FormerlySerializedAs("address")] public string Address;
     }
 
-    const int SliderButtonLayoutCapacity = 5;
+    private const int SliderButtonLayoutCapacity = 5;
 
-    List<ControllerUIGroup> _controllerUIs = new List<ControllerUIGroup>();
-    List<LayoutGroupButtonCount> _layoutCounts = new List<LayoutGroupButtonCount>();
+    private List<ControllerUIGroup> _controllerUIs = new List<ControllerUIGroup>();
+    private List<LayoutGroupButtonCount> _layoutCounts = new List<LayoutGroupButtonCount>();
 
-    bool _positionMode = false;
+    private bool _positionMode = false;
 
     public static UIManager Instance;
 
-    bool _sortOptionsByName = false;
+    private bool _sortOptionsByName = false;
 
     // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -103,9 +125,9 @@ public class UIManager : MonoBehaviour
         InitializeDonationButtons();
     }
 
-    private void SwitchOptionsButtonSorting(bool _byName)
+    private void SwitchOptionsButtonSorting(bool byName)
     {
-        _sortOptionsByName = _byName;
+        _sortOptionsByName = byName;
         _optionsButtonSortingButton.GetComponentInChildren<Text>().text = $"Sort Options: {(_sortOptionsByName ? "Name" : "Layout")}";
         SortOptionsButtons();
     }
@@ -117,37 +139,37 @@ public class UIManager : MonoBehaviour
     }
 
     #region Controller Options
-    public void SpawnControllerOptions(ControllerData _config, GameObject _control)
+    public void SpawnControllerOptions(ControllerData config, GameObject control)
     {
         //check if any other controller buttons exist for this, then destroy all its contents
         //make sure to destroy faderOptions as well
-        ControllerUIGroup dupe = GetButtonGroupByConfig(_config);
+        var dupe = GetButtonGroupByConfig(config);
         if (dupe != null)
         {
             DestroyControllerGroup(dupe);
         }
 
-        InitializeControllerOptions(_config, _control);
+        InitializeControllerOptions(config, control);
         SortOptionsButtons();
     }
 
-    void InitializeControllerOptions(ControllerData _config, GameObject _control)
+    private void InitializeControllerOptions(ControllerData config, GameObject control)
     {
         ControllerUIGroup buttonGroup;
 
-        switch (_config)
+        switch (config)
         {
             case FaderData fader:
-                GameObject faderOptions = InitializeFaderOptions(fader, _control);
-                buttonGroup = new ControllerUIGroup(_controlsManager, fader, _faderOptionsActivationPrefab, _control, faderOptions);
+                var faderOptions = InitializeFaderOptions(fader, control);
+                buttonGroup = new ControllerUIGroup(_controlsManager, fader, _faderOptionsActivationPrefab, control, faderOptions);
                 break;
             case Controller2DData control2D:
-                GameObject controlOptions = InitializeController2DOptions(control2D, _control);
-                buttonGroup = new ControllerUIGroup(_controlsManager, control2D, _faderOptionsActivationPrefab, _control, controlOptions);
+                var controlOptions = InitializeController2DOptions(control2D, control);
+                buttonGroup = new ControllerUIGroup(_controlsManager, control2D, _faderOptionsActivationPrefab, control, controlOptions);
                 break;
             default:
                 buttonGroup = null;
-                Debug.LogError($"Unhandled ControllerData type {_config.GetType()}");
+                Debug.LogError($"Unhandled ControllerData type {config.GetType()}");
                 break;
         }
 
@@ -158,34 +180,33 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    GameObject InitializeFaderOptions(FaderData _config, GameObject _controlObj)
+    private GameObject InitializeFaderOptions(FaderData config, GameObject controlObj)
     {
-        GameObject menuObj = Instantiate(_faderOptionsPrefab, _optionsPanel.transform, false);
-        FaderOptions faderOptions = menuObj.GetComponent<FaderOptions>();
-        faderOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>(), _oscMenu);
-        faderOptions.gameObject.name = _config.GetName() + " Options Panel";
+        var menuObj = Instantiate(_faderOptionsPrefab, _optionsPanel.transform, false);
+        var faderOptions = menuObj.GetComponent<FaderOptions>();
+        faderOptions.Initialize(config, controlObj.GetComponent<RectTransform>(), _oscMenu);
+        faderOptions.gameObject.name = config.GetName() + " Options Panel";
         return menuObj;
     }
 
-    GameObject InitializeController2DOptions(Controller2DData _config, GameObject _controlObj)
+    private GameObject InitializeController2DOptions(Controller2DData config, GameObject controlObj)
     {
-        GameObject menuObj = Instantiate(_controller2DOptionsPrefab, _optionsPanel.transform, false);
-        Controller2DOptions controllerOptions = menuObj.GetComponent<Controller2DOptions>();
-        controllerOptions.Initialize(_config, _controlObj.GetComponent<RectTransform>(), _oscMenu);
-        controllerOptions.gameObject.name = _config.GetName() + " Options Panel";
+        var menuObj = Instantiate(_controller2DOptionsPrefab, _optionsPanel.transform, false);
+        var controllerOptions = menuObj.GetComponent<Controller2DOptions>();
+        controllerOptions.Initialize(config, controlObj.GetComponent<RectTransform>(), _oscMenu);
+        controllerOptions.gameObject.name = config.GetName() + " Options Panel";
         return menuObj;
     }
 
 
-
-    void AddOptionsButtonToLayout(GameObject _button)
+    private void AddOptionsButtonToLayout(GameObject button)
     {
-        for (int i = 0; i < _layoutCounts.Count; i++)
+        for (var i = 0; i < _layoutCounts.Count; i++)
         {
             if (_layoutCounts[i].Count < SliderButtonLayoutCapacity)
             {
-                _button.transform.SetParent(_layoutCounts[i].LayoutGroup.transform);
-                _button.transform.SetSiblingIndex(_layoutCounts[i].Count);
+                button.transform.SetParent(_layoutCounts[i].LayoutGroup.transform);
+                button.transform.SetSiblingIndex(_layoutCounts[i].Count);
                 _layoutCounts[i].Count++;
                 return;
             }
@@ -194,12 +215,12 @@ public class UIManager : MonoBehaviour
         //all layouts full, create a new one
 
         AddNewLayoutCount();
-        AddOptionsButtonToLayout(_button);
+        AddOptionsButtonToLayout(button);
     }
 
-    void DestroyEmptyLayouts()
+    private void DestroyEmptyLayouts()
     {
-        for (int i = 0; i < _layoutCounts.Count; i++)
+        for (var i = 0; i < _layoutCounts.Count; i++)
         {
             if (_layoutCounts[i].Count == 0)
             {
@@ -211,17 +232,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void DestroyControllerGroup(ControllerData _config)
+    public void DestroyControllerGroup(ControllerData config)
     {
-        DestroyControllerGroup(GetButtonGroupByConfig(_config));
+        DestroyControllerGroup(GetButtonGroupByConfig(config));
     }
-    void DestroyControllerGroup(ControllerUIGroup _buttonGroup)
+
+    private void DestroyControllerGroup(ControllerUIGroup buttonGroup)
     {
         //destroy all params
-        _buttonGroup.SelfDestruct();
+        buttonGroup.SelfDestruct();
 
         //remove from list
-        _controllerUIs.Remove(_buttonGroup);
+        _controllerUIs.Remove(buttonGroup);
 
         //check for empty layouts, and destroy it
         DestroyEmptyLayouts();
@@ -229,15 +251,15 @@ public class UIManager : MonoBehaviour
         SortOptionsButtons();
     }
 
-    public void DestroyControllerObjects(ControllerData _config)
+    public void DestroyControllerObjects(ControllerData config)
     {
-        ControllerUIGroup buttonGroup = GetButtonGroupByConfig(_config);
+        var buttonGroup = GetButtonGroupByConfig(config);
         DestroyControllerGroup(buttonGroup);
     }
 
-    void RemoveFromLayout(ControllerUIGroup _buttonGroup)
+    private void RemoveFromLayout(ControllerUIGroup buttonGroup)
     {
-        LayoutGroupButtonCount layout = GetLayoutGroupFromObject(_buttonGroup.ActivateControllerOptionsButton.gameObject);
+        var layout = GetLayoutGroupFromObject(buttonGroup.ActivateControllerOptionsButton.gameObject);
 
         if (layout != null)
         {
@@ -249,25 +271,25 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void AddNewLayoutCount()
+    private void AddNewLayoutCount()
     {
-        LayoutGroupButtonCount lay = new LayoutGroupButtonCount();
+        var lay = new LayoutGroupButtonCount();
         lay.LayoutGroup = Instantiate(_sliderOptionsButtonLayoutPrefab);
         lay.LayoutGroup.transform.SetParent(_sliderButtonVerticalLayoutParent.transform);
         _layoutCounts.Add(lay);
     }
 
-    public void ShowControllerOptions(ControllerData _data)
+    public void ShowControllerOptions(ControllerData data)
     {
-        ControllerUIGroup uiGroup = GetButtonGroupByConfig(_data);
+        var uiGroup = GetButtonGroupByConfig(data);
         uiGroup.SetControllerOptionsActive(true);
     }
 
-    ControllerUIGroup GetButtonGroupByConfig(ControllerData _data)
+    private ControllerUIGroup GetButtonGroupByConfig(ControllerData data)
     {
-        foreach (ControllerUIGroup cbg in _controllerUIs)
+        foreach (var cbg in _controllerUIs)
         {
-            if (cbg.ControllerData == _data)
+            if (cbg.ControllerData == data)
             {
                 return cbg;
             }
@@ -275,17 +297,18 @@ public class UIManager : MonoBehaviour
         return null;
     }
     #endregion Controller Options
-    void InitializeCreditsButtons()
+
+    private void InitializeCreditsButtons()
     {
-        foreach(CreditsButton b in _creditsButtons)
+        foreach(var b in _creditsButtons)
         {
             b.Button.onClick.AddListener(() => Application.OpenURL(b.Link));
         }
     }
 
-    void InitializeDonationButtons()
+    private void InitializeDonationButtons()
     {
-        foreach(DonationButton b in _donationButtons)
+        foreach(var b in _donationButtons)
         {
             b.Button.onClick.AddListener(() =>
             {
@@ -304,15 +327,15 @@ public class UIManager : MonoBehaviour
         _faderLayoutGroup.enabled = true;
     }
 
-    LayoutGroupButtonCount GetLayoutGroupFromObject(GameObject _button)
+    private LayoutGroupButtonCount GetLayoutGroupFromObject(GameObject button)
     {
-        foreach(LayoutGroupButtonCount lay in _layoutCounts)
+        foreach(var lay in _layoutCounts)
         {
-            Transform[] children = lay.LayoutGroup.GetComponentsInChildren<Transform>();
+            var children = lay.LayoutGroup.GetComponentsInChildren<Transform>();
 
-            foreach(Transform child in children)
+            foreach(var child in children)
             {
-                if(child.gameObject == _button)
+                if(child.gameObject == button)
                 {
                     return lay;
                 }
@@ -322,16 +345,16 @@ public class UIManager : MonoBehaviour
         return null;
     }
 
-    void SortOptionsButtons()
+    private void SortOptionsButtons()
     {
-        foreach(LayoutGroupButtonCount layCount in _layoutCounts)
+        foreach(var layCount in _layoutCounts)
         {
             layCount.Count = 0;
         }
 
         //get all the unnamed ones out of sorting list
-        List<ControllerUIGroup> unnamedControls = new List<ControllerUIGroup>();
-        for (int i = 0; i < _controllerUIs.Count; i++)
+        var unnamedControls = new List<ControllerUIGroup>();
+        for (var i = 0; i < _controllerUIs.Count; i++)
         {
             if (_controllerUIs[i].ControllerData.GetName() == ControlsManager.GetDefaultControllerName(_controllerUIs[i].ControllerData))
             {
@@ -352,23 +375,23 @@ public class UIManager : MonoBehaviour
         }
 
         //add unnamed ones to the end
-        foreach (ControllerUIGroup c in unnamedControls)
+        foreach (var c in unnamedControls)
         {
             _controllerUIs.Add(c);
         }
 
         //place buttons
-        foreach (ControllerUIGroup c in _controllerUIs)
+        foreach (var c in _controllerUIs)
         {
             AddOptionsButtonToLayout(c.ActivateControllerOptionsButton.gameObject);
         }
     }
 
-    void ToggleEditFaderPositionMode()
+    private void ToggleEditFaderPositionMode()
     {
         _positionMode = !_positionMode;
 
-        foreach(ControllerUIGroup u in _controllerUIs)
+        foreach(var u in _controllerUIs)
         {
             u.SetPostionMode(_positionMode);
             u.SetPosition();
@@ -380,43 +403,43 @@ public class UIManager : MonoBehaviour
         _faderPositionExitButton.gameObject.SetActive(_positionMode);
     }
 
-    class LayoutGroupButtonCount
+    private class LayoutGroupButtonCount
     {
         public GameObject LayoutGroup;
         public int Count = 0;
     }
 
-    class ControllerUIGroup
+    private class ControllerUIGroup
     {
         //should be public get private set
         public ButtonExtended ActivateControllerOptionsButton { get; private set; }
-        Toggle _activationToggle;
-        GameObject _controlObject;
-        RectTransform _controlObjectTransform;
+        private Toggle _activationToggle;
+        private GameObject _controlObject;
+        private RectTransform _controlObjectTransform;
         public ControllerData ControllerData { get; private set; }
-        GameObject _optionsMenu;
-        ControlsManager _controlsManager;
+        private GameObject _optionsMenu;
+        private ControlsManager _controlsManager;
 
-        public ControllerUIGroup(ControlsManager controlsManager, ControllerData _config, GameObject _optionsActivateButtonPrefab, GameObject _controlObject, GameObject _optionsMenu)
+        public ControllerUIGroup(ControlsManager controlsManager, ControllerData config, GameObject optionsActivateButtonPrefab, GameObject controlObject, GameObject optionsMenu)
         {
-            ControllerData = _config;
-            this._optionsMenu = _optionsMenu;
-            this._controlObject = _controlObject;
+            ControllerData = config;
+            this._optionsMenu = optionsMenu;
+            this._controlObject = controlObject;
 
-            ActivateControllerOptionsButton = Instantiate(_optionsActivateButtonPrefab).GetComponent<ButtonExtended>();
-            ActivateControllerOptionsButton.gameObject.name = _config.GetName() + " Options";
-            ActivateControllerOptionsButton.GetComponentInChildren<Text>().text = _config.GetName() + " Options"; // change visible button title
+            ActivateControllerOptionsButton = Instantiate(optionsActivateButtonPrefab).GetComponent<ButtonExtended>();
+            ActivateControllerOptionsButton.gameObject.name = config.GetName() + " Options";
+            ActivateControllerOptionsButton.GetComponentInChildren<Text>().text = config.GetName() + " Options"; // change visible button title
             ActivateControllerOptionsButton.OnClick.AddListener(() => { SetControllerOptionsActive(true); });
             ActivateControllerOptionsButton.OnPointerHeld.AddListener(Delete);
             SetControllerOptionsActive(false);
 
             _activationToggle = ActivateControllerOptionsButton.GetComponentInChildren<Toggle>();
             _activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
-            _activationToggle.SetIsOnWithoutNotify(_config.GetEnabled());
-            _controlObjectTransform = _controlObject.GetComponent<RectTransform>();
+            _activationToggle.SetIsOnWithoutNotify(config.GetEnabled());
+            _controlObjectTransform = controlObject.GetComponent<RectTransform>();
         }
 
-        void Delete()
+        private void Delete()
         {
             UnityAction deleteAction = () =>
             {
@@ -427,17 +450,17 @@ public class UIManager : MonoBehaviour
             PopUpController.Instance.ConfirmationWindow($"Delete controller\n\"{ControllerData.GetName()}\"?", deleteAction, null, "Delete", "Cancel");
         }
 
-        public void SetControllerOptionsActive(bool _active)
+        public void SetControllerOptionsActive(bool active)
         {
-            _optionsMenu.SetActive(_active);
+            _optionsMenu.SetActive(active);
         }
 
-        public void ToggleControlVisibility(bool _b)
+        public void ToggleControlVisibility(bool b)
         {
-            _controlObject.SetActive(_b);
-            ControllerData.SetEnabled(_b);
+            _controlObject.SetActive(b);
+            ControllerData.SetEnabled(b);
 
-            if(!_b)
+            if(!b)
             {
                 _controlObjectTransform.SetAsLastSibling();
             }
@@ -448,17 +471,17 @@ public class UIManager : MonoBehaviour
             ControllerData.SetPosition(_controlObjectTransform.GetSiblingIndex());
         }
 
-        public void SetPostionMode(bool _b)
+        public void SetPostionMode(bool b)
         {
             switch(ControllerData)
             {
                 case FaderData faderData:
-                    FaderControl faderControl = _controlObject.GetComponent<FaderControl>();
-                    faderControl.SetSortButtonVisibility(_b);
+                    var faderControl = _controlObject.GetComponent<FaderControl>();
+                    faderControl.SetSortButtonVisibility(b);
                     break;
                 case Controller2DData control2DData:
-                    Controller2D control2D = _controlObject.GetComponent<Controller2D>();
-                    control2D.SetSortButtonVisibility(_b);
+                    var control2D = _controlObject.GetComponent<Controller2D>();
+                    control2D.SetSortButtonVisibility(b);
                     break;
                 default:
                     Debug.LogError($"{ControllerData.GetType()} not implemented");

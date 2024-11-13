@@ -8,8 +8,10 @@ namespace PopUpWindows
     public class ErrorWindow : MonoBehaviour
     {
 
-        [FormerlySerializedAs("errorText")] [SerializeField] Text _errorText = null;
-        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton = null;
+        [FormerlySerializedAs("errorText")] [SerializeField]
+        private Text _errorText = null;
+        [FormerlySerializedAs("closeButton")] [SerializeField]
+        private Button _closeButton = null;
 
         private void Awake()
         {
@@ -25,7 +27,7 @@ namespace PopUpWindows
             }
         }
 
-        void HideErrorWindow()
+        private void HideErrorWindow()
         {
             Destroy(gameObject);
         }

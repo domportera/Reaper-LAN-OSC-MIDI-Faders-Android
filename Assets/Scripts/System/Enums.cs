@@ -87,8 +87,8 @@ public static class EnumUtility
     
     public static string[] GetControllerBehaviorTypeNameArray()
     {
-        List<string> names = new List<string>();
-        foreach (ReleaseBehaviorType behaviorType in (ReleaseBehaviorType[])Enum.GetValues(typeof(ReleaseBehaviorType)))
+        var names = new List<string>();
+        foreach (var behaviorType in (ReleaseBehaviorType[])Enum.GetValues(typeof(ReleaseBehaviorType)))
         {
             names.Add(behaviorType.GetDescription());
         }
@@ -98,8 +98,8 @@ public static class EnumUtility
 
     public static string[] GetOscAddressTypeNameArray()
     {
-        List<string> names = new List<string>();
-        foreach (OscAddressType address in (OscAddressType[])Enum.GetValues(typeof(OscAddressType)))
+        var names = new List<string>();
+        foreach (var address in (OscAddressType[])Enum.GetValues(typeof(OscAddressType)))
         {
             names.Add(address.GetDescription());
         }
@@ -109,8 +109,8 @@ public static class EnumUtility
 
     public static string[] GetMidiChannelNameArray()
     {
-        List<string> names = new List<string>();
-        foreach (MidiChannel channel in (MidiChannel[])Enum.GetValues(typeof(MidiChannel)))
+        var names = new List<string>();
+        foreach (var channel in (MidiChannel[])Enum.GetValues(typeof(MidiChannel)))
         {
             names.Add(channel.GetDescription());
         }
@@ -120,8 +120,8 @@ public static class EnumUtility
 
     public static string[] GetValueRangeNameArray()
     {
-        List<string> names = new List<string>();
-        foreach (ValueRange range in (ValueRange[])Enum.GetValues(typeof(ValueRange)))
+        var names = new List<string>();
+        foreach (var range in (ValueRange[])Enum.GetValues(typeof(ValueRange)))
         {
             names.Add(range.GetDescription());
         }

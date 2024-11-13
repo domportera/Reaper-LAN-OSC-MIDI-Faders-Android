@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -17,7 +18,7 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
     protected RectTransform ControlObjectTransform;
 
     public const int SliderSteps = 7;
-    int SliderStepsCorrected { get { return SliderSteps - 1; } }
+    private int SliderStepsCorrected { get { return SliderSteps - 1; } }
 
     public UnityEvent OnWake = new();
     public UnityEvent OnSleep = new();
@@ -54,19 +55,19 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         SetWidth(data.GetWidth());
     }
 
-    void RemoveProblemCharactersInNameField(string input)
+    private void RemoveProblemCharactersInNameField(string input)
     {
         input.Replace("\"", "");
         input.Replace("\\", "");
         NameField.SetTextWithoutNotify(input);
     }
 
-    void SetControllerDataMasterVariables()
+    private void SetControllerDataMasterVariables()
     {
-        string controllerName = NameField.text;
+        var controllerName = NameField.text;
         ControlData.SetName(controllerName);
 
-        float width = ConvertSliderValueToWidth((int)WidthSlider.value);
+        var width = ConvertSliderValueToWidth((int)WidthSlider.value);
         ControlData.SetWidth(width);
     }
 
@@ -76,62 +77,52 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         _controlsManager.RespawnController(ControlData);
         PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
-    
-    void Close()
+
+    private void Close()
     {
         gameObject.SetActive(false);
     }
 
     #region Width
-    void InitializeWidthSlider(ControllerData _data)
-    { 
-        var widthRange = _data.GetWidthRange();
-        WidthSlider.wholeNumbers = true;
-        WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.min);
-        WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.max);
 
-        int width = ConvertWidthToSliderValue(_data.GetWidth());
+    private void InitializeWidthSlider(ControllerData data)
+    { 
+        var widthRange = data.GetWidthRange();
+        WidthSlider.wholeNumbers = true;
+        WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.Min);
+        WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.Max);
+
+        var width = ConvertWidthToSliderValue(data.GetWidth());
         WidthSlider.SetValueWithoutNotify(width);
     }
 
-    void SetWidth(float _width)
+    private void SetWidth(float width)
     {
-        ControlObjectTransform.sizeDelta = new Vector2(ControlObjectTransform.sizeDelta.y * _width, ControlObjectTransform.sizeDelta.y);
+        ControlObjectTransform.sizeDelta = new Vector2(ControlObjectTransform.sizeDelta.y * width, ControlObjectTransform.sizeDelta.y);
         UIManager.Instance.RefreshFaderLayoutGroup();
     }
 
     //all this conversion stuff is to achieve the stepping slider with the multiplicative fractional width functionality
-    int ConvertWidthToSliderValue(float _width)
+    private int ConvertWidthToSliderValue(float width)
     {
         var widthRange = ControlData.GetWidthRange();
-        return (int)_width.Map(widthRange.min, widthRange.max, 0, SliderStepsCorrected);
+        return (int)width.Map(widthRange.Min, widthRange.Max, 0, SliderStepsCorrected);
     }
 
-    float ConvertSliderValueToWidth(int _value)
+    private float ConvertSliderValueToWidth(int value)
     {
         var widthRange = ControlData.GetWidthRange();
-        return ((float)_value).Map(0, SliderStepsCorrected, widthRange.min, widthRange.max);
+        return ((float)value).Map(0, SliderStepsCorrected, widthRange.Min, widthRange.Max);
     }
     #endregion Width
 
-    bool VerifyUniqueName(string s)
+    private bool VerifyUniqueName(string s)
     {
-        bool valid = true;
-        ReadOnlyCollection<ControllerData> controllers = _controlsManager.Controllers;
+        var invalid = _controlsManager.Controllers.Any(x => x.GetName() == s);
 
-        foreach (ControllerData set in controllers)
-        {
-            if (set.GetName() != s)
-                continue;
-            
-            valid = false;
-            break;
-        }
-
-        if (valid) return true;
+        if (!invalid) return true;
         
         PopUpController.Instance.ErrorWindow("Name should be unique - no two controllers in the same profile can have the same name.");
         return false;
-
     }
 }

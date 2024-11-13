@@ -5,7 +5,8 @@ using UnityEngine.Serialization;
 
 public abstract class OptionsMenu : MonoBehaviour
 {
-    [FormerlySerializedAs("toggleOptionParent")] [SerializeField] bool _toggleOptionParent;
+    [FormerlySerializedAs("toggleOptionParent")] [SerializeField]
+    private bool _toggleOptionParent;
     protected readonly Dictionary<Dropdown, string[]> DropDownEntryNames = new ();
 
     protected void ToggleUIObject(Selectable selectable, bool on)

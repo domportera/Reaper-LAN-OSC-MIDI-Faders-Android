@@ -7,20 +7,26 @@ using static UnityEngine.UI.Dropdown;
 
 public class ControllerOptionsMenu : OptionsMenu
 {
-    ControllerSettings _controllerConfig;
+    private ControllerSettings _controllerConfig;
 
-    [FormerlySerializedAs("smoothnessField")] [SerializeField] Slider _smoothnessField = null;
-    [FormerlySerializedAs("controlTypeDropdown")] [SerializeField] Dropdown _controlTypeDropdown = null;
-    [FormerlySerializedAs("defaultValueDropdown")] [SerializeField] Dropdown _defaultValueDropdown = null;
-    [FormerlySerializedAs("curveTypeDropdown")] [SerializeField] Dropdown _curveTypeDropdown = null;
-    [FormerlySerializedAs("resetValuesButton")] [SerializeField] Button _resetValuesButton = null;
-    [FormerlySerializedAs("openOSCOptionsButton")] [SerializeField] Button _openOscOptionsButton = null;
+    [FormerlySerializedAs("smoothnessField")] [SerializeField]
+    private Slider _smoothnessField = null;
+    [FormerlySerializedAs("controlTypeDropdown")] [SerializeField]
+    private Dropdown _controlTypeDropdown = null;
+    [FormerlySerializedAs("defaultValueDropdown")] [SerializeField]
+    private Dropdown _defaultValueDropdown = null;
+    [FormerlySerializedAs("curveTypeDropdown")] [SerializeField]
+    private Dropdown _curveTypeDropdown = null;
+    [FormerlySerializedAs("resetValuesButton")] [SerializeField]
+    private Button _resetValuesButton = null;
+    [FormerlySerializedAs("openOSCOptionsButton")] [SerializeField]
+    private Button _openOscOptionsButton = null;
 
-    OSCSelectionMenu _oscSelectionMenu;
-    OSCControllerSettings _oscSettingsPendingApplication;
+    private OscSelectionMenu _oscSelectionMenu;
+    private OscControllerSettings _oscSettingsPendingApplication;
 
-    bool _shouldResetOscMenu = false;
-    bool _initialized;
+    private bool _shouldResetOscMenu = false;
+    private bool _initialized;
 
     private void OnEnable()
     {
@@ -34,7 +40,7 @@ public class ControllerOptionsMenu : OptionsMenu
         _resetValuesButton.onClick.AddListener(ResetValues);
     }
 
-    public void Initialize(ControllerSettings data, ControllerOptionsPanel optionsPanel, OSCSelectionMenu oscMenu)
+    public void Initialize(ControllerSettings data, ControllerOptionsPanel optionsPanel, OscSelectionMenu oscMenu)
     {
         _controllerConfig = data;
         _oscSelectionMenu = oscMenu;
@@ -46,12 +52,12 @@ public class ControllerOptionsMenu : OptionsMenu
         _initialized = true;
     }
 
-    private void InitializeOscSelectionMenu(OSCControllerSettings settings)
+    private void InitializeOscSelectionMenu(OscControllerSettings settings)
     {
         _openOscOptionsButton.onClick.AddListener(() => OpenOscSelectionMenu(settings));
     }
 
-    void OpenOscSelectionMenu(OSCControllerSettings settings)
+    private void OpenOscSelectionMenu(OscControllerSettings settings)
     {
         if(_shouldResetOscMenu)
         {
@@ -66,7 +72,7 @@ public class ControllerOptionsMenu : OptionsMenu
         _oscSelectionMenu.gameObject.SetActive(true);
     }
 
-    void SetFieldsToControllerValues()
+    private void SetFieldsToControllerValues()
     {
         _controlTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.ReleaseBehavior);
         _defaultValueDropdown.SetValueWithoutNotify((int)_controllerConfig.DefaultType);
@@ -78,14 +84,14 @@ public class ControllerOptionsMenu : OptionsMenu
 
     public void SetControllerValuesToFields()
     {
-        ReleaseBehaviorType controlType = (ReleaseBehaviorType)_controlTypeDropdown.value;
-        DefaultValueType defaultValueType = (DefaultValueType)_defaultValueDropdown.value;
-        CurveType curveType = (CurveType)_curveTypeDropdown.value;
-        InputMethod inputType = InputMethod.Touch; //hard-coded for now until other input types are implemented
+        var controlType = (ReleaseBehaviorType)_controlTypeDropdown.value;
+        var defaultValueType = (DefaultValueType)_defaultValueDropdown.value;
+        var curveType = (CurveType)_curveTypeDropdown.value;
+        var inputType = InputMethod.Touch; //hard-coded for now until other input types are implemented
 
-        float smoothTime = _smoothnessField.value;
+        var smoothTime = _smoothnessField.value;
 
-        OSCControllerSettings oscSettings;
+        OscControllerSettings oscSettings;
 
         if(_oscSettingsPendingApplication == null)
         {
@@ -93,33 +99,33 @@ public class ControllerOptionsMenu : OptionsMenu
         }
         else
         {
-            oscSettings = new OSCControllerSettings(_oscSettingsPendingApplication);
+            oscSettings = new OscControllerSettings(_oscSettingsPendingApplication);
         }
 
         _controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
     }
 
-    public void StageOscChangesToApply(OSCControllerSettings settings)
+    public void StageOscChangesToApply(OscControllerSettings settings)
     {
-        _oscSettingsPendingApplication = new OSCControllerSettings(settings);
+        _oscSettingsPendingApplication = new OscControllerSettings(settings);
         UpdateOscPreview(settings);
     }
 
-    void UpdateOscPreview(OSCControllerSettings settings)
+    private void UpdateOscPreview(OscControllerSettings settings)
     {
         _openOscOptionsButton.GetComponentInChildren<Text>().text = $"<b>OSC Options</b>\n{settings.GetAddress()}";
     }
 
-    void PopulateDropdowns()
+    private void PopulateDropdowns()
     {
         DropDownEntryNames.Add(_controlTypeDropdown, EnumUtility.GetControllerBehaviorTypeNameArray());
         DropDownEntryNames.Add(_defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         DropDownEntryNames.Add(_curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
 
-        foreach (KeyValuePair<Dropdown, string[]> pair in DropDownEntryNames)
+        foreach (var pair in DropDownEntryNames)
         {
             pair.Key.ClearOptions();
-            foreach (string s in pair.Value)
+            foreach (var s in pair.Value)
             {
                 pair.Key.options.Add(new OptionData(s));
             }

@@ -87,7 +87,7 @@ namespace Colors
 		//default colors
 		public static ColorProfile NewDefaultColorProfile(string name)
 		{
-			ColorProfile colorProfile = new ColorProfile
+			var colorProfile = new ColorProfile
 			{
 				ProfileName = name
 			};
@@ -96,7 +96,7 @@ namespace Colors
 
 		public static string DebugColorProfile(ColorProfile profile, bool debugLog = false)
 		{
-			string s = "";
+			var s = "";
 			s += "Name: " + profile.ProfileName;
 			s += "\nBackground: " + profile.Background;
 			s += "\nPrimary: " + profile.Primary;
@@ -111,14 +111,14 @@ namespace Colors
 			return s;
 		}
 
-		public static bool Equals(ColorProfile _a, ColorProfile _b)
+		public static bool Equals(ColorProfile a, ColorProfile b)
 		{
 			return
 				!(
-					(_a.GetColor(ColorType.Background) != _b.GetColor(ColorType.Background)) ||
-					(_a.GetColor(ColorType.Primary) != _b.GetColor(ColorType.Primary))		 ||
-					(_a.GetColor(ColorType.Secondary) != _b.GetColor(ColorType.Secondary))	 ||
-					(_a.GetColor(ColorType.Tertiary) != _b.GetColor(ColorType.Tertiary))
+					(a.GetColor(ColorType.Background) != b.GetColor(ColorType.Background)) ||
+					(a.GetColor(ColorType.Primary) != b.GetColor(ColorType.Primary))		 ||
+					(a.GetColor(ColorType.Secondary) != b.GetColor(ColorType.Secondary))	 ||
+					(a.GetColor(ColorType.Tertiary) != b.GetColor(ColorType.Tertiary))
 				);
 		}
 

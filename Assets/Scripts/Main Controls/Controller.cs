@@ -6,12 +6,13 @@ using UnityEngine.Serialization;
 
 public class Controller : MonoBehaviour
 {
-    [FormerlySerializedAs("oscSender")] [SerializeField] OscPropertySender _oscSender;
+    [FormerlySerializedAs("oscSender")] [SerializeField]
+    private OscPropertySender _oscSender;
     private ControllerSettings _controllerSettings;
-    private OSCControllerSettings OscSettings { get { return _controllerSettings.OscSettings; } }
+    private OscControllerSettings OscSettings { get { return _controllerSettings.OscSettings; } }
 
-    float _targetControllerValue;
-    float _defaultValue;
+    private float _targetControllerValue;
+    private float _defaultValue;
 
     /// <summary>
     /// returns moving mod value as it approaches target value
@@ -21,9 +22,9 @@ public class Controller : MonoBehaviour
     public const float MinControllerValue = 0f;
     public const float MaxControllerValue = 1f;
 
-    const int NumberOfFinalMessages = 1;
+    private const int NumberOfFinalMessages = 1;
 
-    Coroutine _updateModValueCoroutine = null;
+    private Coroutine _updateModValueCoroutine = null;
 
     protected virtual void Start()
     {
@@ -55,7 +56,7 @@ public class Controller : MonoBehaviour
         }
     }
 
-    float GetDefault(DefaultValueType defaultValueType)
+    private float GetDefault(DefaultValueType defaultValueType)
     {
         switch(defaultValueType)
         {
@@ -74,7 +75,7 @@ public class Controller : MonoBehaviour
     /// <summary>
     /// This exists to allow this base class to have an "update" loop that always has to be run and can never be overridden by child class
     /// </summary>
-    IEnumerator UpdateModValueLoop()
+    private IEnumerator UpdateModValueLoop()
     {
         while(true)
         {
@@ -89,13 +90,13 @@ public class Controller : MonoBehaviour
         _targetControllerValue = val;
     }
 
-    float MapValueToCurve(float value, bool inverse)
+    private float MapValueToCurve(float value, bool inverse)
     {
         if (_controllerSettings.Curve != CurveType.Linear)
         {
-            float range = MaxControllerValue - MinControllerValue;
-            float tempVal = value - MinControllerValue;
-            float ratio = tempVal / range;
+            var range = MaxControllerValue - MinControllerValue;
+            var tempVal = value - MinControllerValue;
+            var ratio = tempVal / range;
             float mappedRatio;
 
             if (inverse)
@@ -115,22 +116,23 @@ public class Controller : MonoBehaviour
         }
     }
 
-    bool ModValueCaughtUpToTarget => SmoothValue == _targetControllerValue;
-    void UpdateModValue()
+    private bool ModValueCaughtUpToTarget => SmoothValue == _targetControllerValue;
+
+    private void UpdateModValue()
     {
         if (ModValueCaughtUpToTarget)
         {
             return;
         }
 
-        bool shouldSmooth = _controllerSettings.SmoothTime > 0;
+        var shouldSmooth = _controllerSettings.SmoothTime > 0;
         if (!shouldSmooth)
         {
             SmoothValue = _targetControllerValue;
         }
         else
         {
-            float difference = (MaxControllerValue - MinControllerValue) * Time.deltaTime / _controllerSettings.SmoothTime;
+            var difference = (MaxControllerValue - MinControllerValue) * Time.deltaTime / _controllerSettings.SmoothTime;
 
             //set to idle if close enough to zero
             if (Mathf.Abs(SmoothValue - _targetControllerValue) < difference)
@@ -173,12 +175,12 @@ public class Controller : MonoBehaviour
 
     #region OSC Communication
 
-    void SendModValue()
+    private void SendModValue()
     {
-        float curveMappedValue = MapValueToCurve(SmoothValue, false);
+        var curveMappedValue = MapValueToCurve(SmoothValue, false);
         float valueToSend;
 
-        bool isFloat = OscSettings.Range is ValueRange.CustomFloat or ValueRange.Float;
+        var isFloat = OscSettings.Range is ValueRange.CustomFloat or ValueRange.Float;
         if(isFloat)
         {
             valueToSend = OscSettings.GetValueFloat(curveMappedValue);
@@ -191,9 +193,9 @@ public class Controller : MonoBehaviour
         _oscSender.Send(valueToSend);
     }
 
-    IEnumerator SendModValueMultipleTimes(int numberOfTimes)
+    private IEnumerator SendModValueMultipleTimes(int numberOfTimes)
     {
-        for(int i = 0; i < numberOfTimes; i++)
+        for(var i = 0; i < numberOfTimes; i++)
         {
             SendModValue();
             yield return null;
@@ -203,7 +205,7 @@ public class Controller : MonoBehaviour
     #endregion OSC Communication
 }
 
-interface ISortingMember
+internal interface ISortingMember
 {
     void InitializeSorting();
     void SetSortButtonVisibility(bool visible);

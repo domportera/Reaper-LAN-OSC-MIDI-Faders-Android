@@ -8,13 +8,15 @@ namespace PopUpWindows
 {
     public class QuickNoticeWindow : MonoBehaviour
     {
-        [FormerlySerializedAs("confirmationText")] [SerializeField] Text _confirmationText = null;
-        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton = null;
+        [FormerlySerializedAs("confirmationText")] [SerializeField]
+        private Text _confirmationText = null;
+        [FormerlySerializedAs("closeButton")] [SerializeField]
+        private Button _closeButton = null;
 
-        UnityAction _onHide = null;
+        private UnityAction _onHide = null;
 
         // Start is called before the first frame update
-        void Awake()
+        private void Awake()
         {
             _closeButton.onClick.AddListener(HideConfirmationWindow);
         }
@@ -26,13 +28,13 @@ namespace PopUpWindows
             StartCoroutine(HideConfirmationWindowAfterDelay(hideDelay));
         }
 
-        IEnumerator HideConfirmationWindowAfterDelay(float hideDelay)
+        private IEnumerator HideConfirmationWindowAfterDelay(float hideDelay)
         {
             yield return new WaitForSeconds(hideDelay);
             HideConfirmationWindow();
         }
 
-        void HideConfirmationWindow()
+        private void HideConfirmationWindow()
         {
             _onHide?.Invoke();
             Destroy(gameObject);

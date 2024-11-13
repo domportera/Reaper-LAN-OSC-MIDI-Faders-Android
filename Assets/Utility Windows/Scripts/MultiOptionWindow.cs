@@ -7,10 +7,14 @@ namespace PopUpWindows
 {
     public class MultiOptionWindow : MonoBehaviour
     {
-        [FormerlySerializedAs("buttonPrefab")] [SerializeField] GameObject _buttonPrefab;
-        [FormerlySerializedAs("buttonParent")] [SerializeField] Transform _buttonParent;
-        [FormerlySerializedAs("text")] [SerializeField] Text _text;
-        [FormerlySerializedAs("closeButton")] [SerializeField] Button _closeButton;
+        [FormerlySerializedAs("buttonPrefab")] [SerializeField]
+        private GameObject _buttonPrefab;
+        [FormerlySerializedAs("buttonParent")] [SerializeField]
+        private Transform _buttonParent;
+        [FormerlySerializedAs("text")] [SerializeField]
+        private Text _text;
+        [FormerlySerializedAs("closeButton")] [SerializeField]
+        private Button _closeButton;
 
         private void Awake()
         {
@@ -21,18 +25,18 @@ namespace PopUpWindows
         {
             this._text.text = text;
 
-            foreach(MultiOptionAction a in actions)
+            foreach(var a in actions)
             {
-                GameObject newButtonObj = Instantiate(_buttonPrefab, _buttonParent);
+                var newButtonObj = Instantiate(_buttonPrefab, _buttonParent);
                 newButtonObj.SetActive(true);
-                Button button = newButtonObj.GetComponent<Button>();
+                var button = newButtonObj.GetComponent<Button>();
                 button.GetComponentInChildren<Text>().text = a.Name;
                 button.onClick.AddListener(() => { a.Action.Invoke(); });
                 button.onClick.AddListener(CloseWindow);
             }
         }
 
-        void CloseWindow()
+        private void CloseWindow()
         {
             Destroy(gameObject);
         }
