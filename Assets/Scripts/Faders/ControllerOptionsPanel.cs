@@ -10,6 +10,7 @@ using PopUpWindows;
 
 public abstract class ControllerOptionsPanel : MonoBehaviourExtended
 {
+    [SerializeField] private ControlsManager _controlsManager;
     [FormerlySerializedAs("nameField")] [SerializeField] protected InputField NameField;
     [FormerlySerializedAs("applyButton")] [SerializeField] protected Button ApplyButton;
     [FormerlySerializedAs("closeButton")] [SerializeField] protected Button CloseButton;
@@ -75,7 +76,7 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     protected virtual void Apply()
     {
         SetControllerDataMasterVariables();
-        ControlsManager.Instance.RespawnController(ControlData);
+        _controlsManager.RespawnController(ControlData);
         PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
     
@@ -119,7 +120,7 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     bool VerifyUniqueName(string s)
     {
         bool valid = true;
-        ReadOnlyCollection<ControllerData> controllers = ControlsManager.Instance.Controllers;
+        ReadOnlyCollection<ControllerData> controllers = _controlsManager.Controllers;
 
         foreach (ControllerData set in controllers)
         {

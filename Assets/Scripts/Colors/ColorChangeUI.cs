@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime;
 using DomsUnityHelper;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using PopUpWindows;
 
@@ -56,7 +53,7 @@ namespace Colors
                 p.SelectionButton.onClick.AddListener(OnColorPreviewButtonPress);
             }
             
-            ColorController.ColorsLoaded.AddListener(SetSlidersToCurrentColor);
+            ColorController.ColorsLoaded += SetSlidersToCurrentColor;
         }
 
         // Start is called before the first frame update

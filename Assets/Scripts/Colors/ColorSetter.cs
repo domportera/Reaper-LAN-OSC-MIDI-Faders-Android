@@ -33,6 +33,7 @@ namespace Colors
 
 		internal void SetColors(ColorProfile colors)
 		{
+			GetColoredComponents();
 			if (!_canColor || !HasComponent) return;
 
 			if (!_isImage)
@@ -47,6 +48,9 @@ namespace Colors
 
 		void GetColoredComponents()
 		{
+			if (_text)
+				return;
+			
 			_text = GetComponent<Text>();
 			if (_text == null)
 			{

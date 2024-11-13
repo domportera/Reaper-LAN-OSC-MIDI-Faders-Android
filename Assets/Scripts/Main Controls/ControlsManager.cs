@@ -95,21 +95,6 @@ public class ControlsManager : MonoBehaviourExtended
         {typeof(Controller2DData), typeof(Controller2D) }
     };
 
-    public static ControlsManager Instance;
-
-    void Awake()
-    {
-        if(Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Debug.LogError($"There is a second ControlsManager in the scene!", this);
-            Debug.LogError($"This is the first one", Instance);
-        }
-    }
-
     public void SetActiveProfile(ProfileLoader _profile)
     {
         NukeControllers();

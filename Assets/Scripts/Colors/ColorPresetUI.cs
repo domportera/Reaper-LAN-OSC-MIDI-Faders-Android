@@ -17,6 +17,7 @@ namespace Colors
         [SerializeField] GameObject _presetWindow;
         [SerializeField] Button _savePresetButton;
         [SerializeField] ColorPresetSelectorSorter _userPresetSorter;
+        [SerializeField] private BuiltInColorPresets _builtInColorPresets;
 
         [Header("Other UI References")] [SerializeField]
         ColorChangeUI _colorChangeUI;
@@ -25,6 +26,11 @@ namespace Colors
         
         // Start is called before the first frame update
         void Awake()
+        {
+            InitializePresetUI();
+        }
+
+        void Start()
         {
             InitializePresetUI();
         }
@@ -45,7 +51,7 @@ namespace Colors
         void PopulatePresetSelectors()
         {
             //populate built in preset selectors
-            foreach (ColorProfileStruct c in BuiltInColorPresets.Instance.ColorProfiles)
+            foreach (ColorProfileStruct c in _builtInColorPresets.ColorProfiles)
             {
                 ColorProfile preset = c.ToReferenceType();
                 AddPresetSelector(preset, true);

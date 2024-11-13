@@ -11,6 +11,7 @@ using static UnityEngine.UI.Dropdown;
 
 public class UIManager : MonoBehaviourExtended
 {
+    [SerializeField] private ControlsManager _controlsManager;
     [FormerlySerializedAs("optionsPanel")] [SerializeField] GameObject _optionsPanel = null;
     [FormerlySerializedAs("sliderOptionsButtonLayoutPrefab")] [SerializeField] GameObject _sliderOptionsButtonLayoutPrefab = null;
     [FormerlySerializedAs("faderOptionsPrefab")] [SerializeField] GameObject _faderOptionsPrefab = null;
@@ -91,7 +92,7 @@ public class UIManager : MonoBehaviourExtended
         _faderPositionEnableButton.onClick.AddListener(ToggleEditFaderPositionMode);
         _optionsButtonSortingButton.onClick.AddListener(() => SwitchOptionsButtonSorting(!_sortOptionsByName));
         SwitchOptionsButtonSorting(false);
-        _newControllerButton.onClick.AddListener(ControlsManager.Instance.NewController);
+        _newControllerButton.onClick.AddListener(_controlsManager.NewController);
 
         UnityAction toggleSetup = () => _setupPanel.SetActive(!_setupPanel.activeSelf);
         _setupButton.onClick.AddListener(toggleSetup);
@@ -141,11 +142,11 @@ public class UIManager : MonoBehaviourExtended
         {
             case FaderData fader:
                 GameObject faderOptions = InitializeFaderOptions(fader, _control);
-                buttonGroup = new ControllerUIGroup(fader, _faderOptionsActivationPrefab, _control, faderOptions);
+                buttonGroup = new ControllerUIGroup(_controlsManager, fader, _faderOptionsActivationPrefab, _control, faderOptions);
                 break;
             case Controller2DData control2D:
                 GameObject controlOptions = InitializeController2DOptions(control2D, _control);
-                buttonGroup = new ControllerUIGroup(control2D, _faderOptionsActivationPrefab, _control, controlOptions);
+                buttonGroup = new ControllerUIGroup(_controlsManager, control2D, _faderOptionsActivationPrefab, _control, controlOptions);
                 break;
             default:
                 buttonGroup = null;
@@ -397,8 +398,9 @@ public class UIManager : MonoBehaviourExtended
         RectTransform _controlObjectTransform;
         public ControllerData ControllerData { get; private set; }
         GameObject _optionsMenu;
+        ControlsManager _controlsManager;
 
-        public ControllerUIGroup(ControllerData _config, GameObject _optionsActivateButtonPrefab, GameObject _controlObject, GameObject _optionsMenu)
+        public ControllerUIGroup(ControlsManager controlsManager, ControllerData _config, GameObject _optionsActivateButtonPrefab, GameObject _controlObject, GameObject _optionsMenu)
         {
             ControllerData = _config;
             this._optionsMenu = _optionsMenu;
@@ -421,7 +423,7 @@ public class UIManager : MonoBehaviourExtended
         {
             UnityAction deleteAction = () =>
             {
-                ControlsManager.Instance.DestroyController(ControllerData);
+                _controlsManager.DestroyController(ControllerData);
                 UIManager.Instance.DestroyControllerObjects(ControllerData);
             };
 

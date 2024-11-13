@@ -11,7 +11,7 @@ namespace Colors
         static ColorProfile _currentColorProfile;
         static readonly List<ColorSetter> ColorSetters = new();
 
-        public static UnityEvent ColorsLoaded;
+        public static event Action ColorsLoaded;
 
         static BuiltInColorPresets _builtInColorPresets;
 
@@ -20,8 +20,10 @@ namespace Colors
 
         public static ColorProfile CurrentColorProfile
         {
-            get => _currentColorProfile;
+            get => _currentColorProfile ?? throw new NullReferenceException("Current Color Profile is null!");
             set {
+                if(value == null)
+                    throw new NullReferenceException("Current Color Profile cannot be set to null!");
                 _currentColorProfile = value;
                 Debug.Log($"Set Current Color Profile: {_currentColorProfile.Name}");
             }

@@ -36,6 +36,7 @@ public class ProfilesManager : MonoBehaviourExtended
     GameObject _profileLoadButtonPrefab;
     [SerializeField] Transform _profileButtonParent;
 
+    [SerializeField] ControlsManager _controlsManager;
     Dictionary <string, ProfileLoader> _profileButtons = new();
     //saving variables
     public const string DefaultSaveName = "Default";
@@ -52,6 +53,7 @@ public class ProfilesManager : MonoBehaviourExtended
 
         InitializeUIElements();
         LoadProfileNames();
+        PopulateProfileButtons(_profileNames.GetNames(), _profileNames.GetDefaultProfileName());
     }
 
     void InitializeUIElements()
@@ -70,12 +72,6 @@ public class ProfilesManager : MonoBehaviourExtended
         _closeProfileWindowButton.onClick.AddListener(ToggleProfileWindow);
 
         _titleText.supportRichText = _boldTitleText;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        PopulateProfileSelectionMenu();
     }
 
     void DeleteConfirmation(ProfileLoader profile)
@@ -119,11 +115,6 @@ public class ProfilesManager : MonoBehaviourExtended
         SetActiveProfile(_profileButtons[setActiveProfile]);
     }
 
-    void PopulateProfileSelectionMenu()
-    {
-        PopulateProfileButtons(_profileNames.GetNames(), _profileNames.GetDefaultProfileName());
-    }
-
     void AddToProfileButtons(string profileName)
     {
         GameObject obj = Instantiate(_profileLoadButtonPrefab, _profileButtonParent);
@@ -159,7 +150,7 @@ public class ProfilesManager : MonoBehaviourExtended
 
     void SetActiveProfile(ProfileLoader loader)
     {
-        ControlsManager.Instance.SetActiveProfile(loader);
+        _controlsManager.SetActiveProfile(loader);
 
         //set highlight color and active status
         foreach(KeyValuePair<string, ProfileLoader> p in _profileButtons)
@@ -276,7 +267,7 @@ public class ProfilesManager : MonoBehaviourExtended
 
     void LoadDefaultProfile()
     {
-        ControlsManager.Instance.LoadControllers(_profileNames.GetNames().Count == 0
+        _controlsManager.LoadControllers(_profileNames.GetNames().Count == 0
             ? DefaultSaveName
             : _profileNames.GetDefaultProfileName());
     }
@@ -322,7 +313,7 @@ public class ProfilesManager : MonoBehaviourExtended
 
     bool SaveProfile(string profileName)
     {
-        List<ControllerData> controllers = ControlsManager.Instance.Controllers.OrderBy(control => control.GetName()).ToList();
+        List<ControllerData> controllers = _controlsManager.Controllers.OrderBy(control => control.GetName()).ToList();
         controllers.Sort((s1, s2) => String.Compare(s1.GetName(), s2.GetName(), StringComparison.Ordinal));
         return SaveProfile(profileName, controllers);
     }
