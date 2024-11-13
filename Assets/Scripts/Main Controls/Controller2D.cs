@@ -2,8 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using DomsUnityHelper;
-using UnityEngine.Serialization;
 
 public class Controller2D : MonoBehaviour, ISortingMember
 {

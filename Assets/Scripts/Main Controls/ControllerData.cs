@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using DomsUnityHelper;
+
 using UnityEngine.Serialization;
 
 
@@ -17,10 +17,22 @@ public abstract class ControllerData
     protected const int NullPosition = -1;
     protected const int NullWidth = -1;
 
-    public static readonly Dictionary<Type, Range<float>> WidthRanges = new Dictionary<Type, Range<float>>()
+    public struct WidthRange
     {
-        {typeof(Controller2DData), new Range<float>(0.4f, 2f, 1f) },
-        {typeof(FaderData), new Range<float>(0.125f, 1f, 0.25f) }
+        public float min, max, defaultValue;
+        
+        public WidthRange(float min, float max, float defaultValue)
+        {
+            this.min = min;
+            this.max = max;
+            this.defaultValue = defaultValue;
+        }
+    }
+
+    public static readonly Dictionary<Type, WidthRange> WidthRanges = new()
+    {
+        {typeof(Controller2DData), new (0.4f, 2f, 1f) },
+        {typeof(FaderData), new (0.125f, 1f, 0.25f) }
     };
 
     public void SetPosition(int index)
@@ -65,10 +77,10 @@ public abstract class ControllerData
 
     public float GetWidth()
     {
-        return Width == NullWidth ? WidthRanges[GetType()].defaultValue : Width;
+        return Width <= NullWidth ? WidthRanges[GetType()].defaultValue : Width;
     }
 
-    public Range<float> GetWidthRange()
+    public WidthRange GetWidthRange()
     {
         return WidthRanges[GetType()];
     }

@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using OscJack;
-using DomsUnityHelper;
+
 using UnityEngine.Serialization;
 
 /// <summary>

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using DomsUnityHelper;
 using UnityEngine.Serialization;
 using PopUpWindows;
-using static UnityEngine.UI.Dropdown;
 
-public class UIManager : MonoBehaviourExtended
+public class UIManager : MonoBehaviour
 {
     [SerializeField] private ControlsManager _controlsManager;
     [FormerlySerializedAs("optionsPanel")] [SerializeField] GameObject _optionsPanel = null;

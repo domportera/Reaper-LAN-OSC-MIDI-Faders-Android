@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Compression;
 using PopUpWindows;
 using UnityEngine;
-using UnityEngine.Android;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;

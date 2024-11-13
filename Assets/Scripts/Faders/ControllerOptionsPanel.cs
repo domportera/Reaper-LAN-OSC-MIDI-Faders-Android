@@ -1,14 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using DomsUnityHelper;
 using UnityEngine.Serialization;
 using PopUpWindows;
 
-public abstract class ControllerOptionsPanel : MonoBehaviourExtended
+public abstract class ControllerOptionsPanel : MonoBehaviour
 {
     [SerializeField] private ControlsManager _controlsManager;
     [FormerlySerializedAs("nameField")] [SerializeField] protected InputField NameField;
@@ -87,8 +84,8 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
 
     #region Width
     void InitializeWidthSlider(ControllerData _data)
-    {
-        Range<float> widthRange = _data.GetWidthRange();
+    { 
+        var widthRange = _data.GetWidthRange();
         WidthSlider.wholeNumbers = true;
         WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.min);
         WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.max);
@@ -106,13 +103,13 @@ public abstract class ControllerOptionsPanel : MonoBehaviourExtended
     //all this conversion stuff is to achieve the stepping slider with the multiplicative fractional width functionality
     int ConvertWidthToSliderValue(float _width)
     {
-        Range<float> widthRange = ControlData.GetWidthRange();
+        var widthRange = ControlData.GetWidthRange();
         return (int)_width.Map(widthRange.min, widthRange.max, 0, SliderStepsCorrected);
     }
 
     float ConvertSliderValueToWidth(int _value)
     {
-        Range<float> widthRange = ControlData.GetWidthRange();
+        var widthRange = ControlData.GetWidthRange();
         return ((float)_value).Map(0, SliderStepsCorrected, widthRange.min, widthRange.max);
     }
     #endregion Width

@@ -1,9 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using OscJack;
-using UnityEngine.UI;
-using DomsUnityHelper;
+
 using UnityEngine.Serialization;
 
 public class Controller : MonoBehaviour
@@ -64,7 +62,7 @@ public class Controller : MonoBehaviour
             case DefaultValueType.Min:
                 return MinControllerValue;
             case DefaultValueType.Mid:
-                return MathOps.Average(MinControllerValue, MaxControllerValue);
+                return (MinControllerValue + MaxControllerValue) / 2f;
             case DefaultValueType.Max:
                 return MaxControllerValue;
             default:

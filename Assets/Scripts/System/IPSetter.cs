@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using OscJack;
 using System.Net;
 using UnityEngine.UI;
-using System.IO;
 using UnityEngine.Serialization;
 using PopUpWindows;
 

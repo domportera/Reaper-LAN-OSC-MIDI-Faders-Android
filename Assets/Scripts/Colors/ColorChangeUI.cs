@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DomsUnityHelper;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,7 +8,7 @@ using PopUpWindows;
 
 namespace Colors
 {
-    public class ColorChangeUI : MonoBehaviourExtended
+    public class ColorChangeUI : MonoBehaviour
     {
         [SerializeField] ColorPresetUI _presetUI;
         [SerializeField] BuiltInColorPresets _builtInColorPresets;

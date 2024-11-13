@@ -1,11 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DomsUnityHelper;
 using UnityEngine.Serialization;
 
-public abstract class OptionsMenu : MonoBehaviourExtended
+public abstract class OptionsMenu : MonoBehaviour
 {
     [FormerlySerializedAs("toggleOptionParent")] [SerializeField] bool _toggleOptionParent;
     protected readonly Dictionary<Dropdown, string[]> DropDownEntryNames = new ();

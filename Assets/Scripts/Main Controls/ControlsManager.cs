@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using Colors;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
-using DomsUnityHelper;
 using UnityEngine.Serialization;
 using PopUpWindows;
 
-public class ControlsManager : MonoBehaviourExtended
+public class ControlsManager : MonoBehaviour
 {
     //this class needs to create our wheel controls
     [SerializeField] ProfilesManager _profilesManager;
@@ -22,6 +18,7 @@ public class ControlsManager : MonoBehaviourExtended
     public ReadOnlyCollection<ControllerData> Controllers { get { return _controllers.AsReadOnly(); } }
 
     readonly Dictionary<ControllerData, GameObject> _controllerObjects = new();
+    private readonly Queue<Action> _actionQueue = new Queue<Action>();
 
     #region Default Controller Values
     static readonly Dictionary<BuiltInOscPreset, OSCControllerSettings> DefaultOscSettings = new Dictionary<BuiltInOscPreset, OSCControllerSettings>()
@@ -105,7 +102,7 @@ public class ControlsManager : MonoBehaviourExtended
 
     public void LoadControllers(string profileName)
     {
-        Log($"Loading {profileName}", this);
+        Debug.Log($"Loading {profileName}", this);
 
         if (profileName != ProfilesManager.DefaultSaveName)
         {
@@ -130,7 +127,7 @@ public class ControlsManager : MonoBehaviourExtended
         }
         else
         {
-            Log($"Profile was default", this);
+            Debug.Log($"Profile was default", this);
             SpawnDefaultControllers();
             OnProfileLoaded.Invoke(ProfilesManager.DefaultSaveName);
         }
@@ -141,7 +138,7 @@ public class ControlsManager : MonoBehaviourExtended
 
     void SpawnDefaultControllers()
     {
-        Log("Spawning Defaults", this);
+        Debug.Log("Spawning Defaults", this);
         NukeControllers();
 
         for (int i = 0; i < DefaultControllers.Count; i++)
@@ -223,6 +220,12 @@ public class ControlsManager : MonoBehaviourExtended
         UIManager.Instance.ShowControllerOptions(newControl);
     }
 
+    private void Update()
+    {
+        while(_actionQueue.TryDequeue(out var action))
+            action.Invoke();
+    }
+
     public GameObject SpawnController (ControllerData data)
     {
         GameObject prefab = GetControllerPrefabFromType(data.GetType());
@@ -234,7 +237,7 @@ public class ControlsManager : MonoBehaviourExtended
         if(!data.GetEnabled())
         {
             //do this after a frame to allow the controller to run its Start method
-            DoNextFrame(() => control.SetActive(false));
+            _actionQueue.Enqueue(() => control.SetActive(false));
         }
 
         UIManager.Instance.SpawnControllerOptions(data, control);

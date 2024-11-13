@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using DomsUnityHelper;
+
 using UnityEngine.Serialization;
 using PopUpWindows;
 using static UnityEngine.UI.Dropdown;
@@ -40,6 +39,7 @@ public class OSCSelectionMenu : OptionsMenu
 
     const string Subfolder = "OSCSettings";
     const string FileExtension = ".OSCTemplate";
+    private readonly Queue<Action> _actionQueue = new();
 
     private void Awake()
     {
@@ -49,6 +49,17 @@ public class OSCSelectionMenu : OptionsMenu
         PopulateDropdowns();
         _saveAsButton.onClick.AddListener(SaveAsButton);
         _backButton.onClick.AddListener(BackButton);
+    }
+
+    private void Update()
+    {
+        while(_actionQueue.TryDequeue(out var action))
+            action.Invoke();
+    }
+
+    private void DoNextFrame(Action action)
+    {
+        _actionQueue.Enqueue(action);
     }
 
     public void Initialize(OSCControllerSettings oscSettings, ControllerOptionsMenu optionsMenu)
@@ -318,7 +329,7 @@ public class OSCSelectionMenu : OptionsMenu
     {
         MidiChannel channel = (MidiChannel)val;
         OscSettings.SetMidiChannel(channel);
-        Log($"Set MIDI Channel as {channel}", this);
+        Debug.Log($"Set MIDI Channel as {channel}", this);
     }
 
     void ChangeAddressType(int val)
@@ -326,14 +337,14 @@ public class OSCSelectionMenu : OptionsMenu
         OscAddressType type = (OscAddressType)val;
         OscSettings.SetOscAddressType(type);
         AddressTypeMenuChange(OscSettings);
-        Log($"Set Address Type as {type}", this);
+        Debug.Log($"Set Address Type as {type}", this);
     }
 
     void ChangeValueRange(int val)
     {
         ValueRange range = (ValueRange)val;
         OscSettings.SetRange(range);
-        Log($"Set Value Range as {range}", this);
+        Debug.Log($"Set Value Range as {range}", this);
 
         bool enableMinMax = range == ValueRange.CustomFloat || range == ValueRange.CustomInt;
         ToggleMinMaxFields(enableMinMax);
@@ -349,7 +360,7 @@ public class OSCSelectionMenu : OptionsMenu
         ccNum = Mathf.Clamp(ccNum, OSCControllerSettings.MinCc, OSCControllerSettings.MaxCc);
         _ccChannelField.SetTextWithoutNotify(ccNum.ToString());
         OscSettings.SetCcNumber(ccNum);
-        Log($"Set CC Number to {ccNum}", this);
+        Debug.Log($"Set CC Number to {ccNum}", this);
     }
 
     void ChangeMin(string valAsString)
@@ -360,12 +371,12 @@ public class OSCSelectionMenu : OptionsMenu
             int intVal = (int)val;
             OscSettings.SetMin(intVal);
             _minField.SetTextWithoutNotify((intVal).ToString());
-            Log($"Set Min as {intVal}", this);
+            Debug.Log($"Set Min as {intVal}", this);
         }
         else
         {
             OscSettings.SetMin(val);
-            Log($"Set Min as {val}", this);
+            Debug.Log($"Set Min as {val}", this);
         }
 
     }
@@ -378,12 +389,12 @@ public class OSCSelectionMenu : OptionsMenu
             int intVal = (int)val;
             OscSettings.SetMax(intVal);
             _maxField.SetTextWithoutNotify((intVal).ToString());
-            Log($"Set Max as {intVal}", this);
+            Debug.Log($"Set Max as {intVal}", this);
         }
         else
         {
             OscSettings.SetMax(val);
-            Log($"Set Max as {val}", this);
+            Debug.Log($"Set Max as {val}", this);
         }
     }
 

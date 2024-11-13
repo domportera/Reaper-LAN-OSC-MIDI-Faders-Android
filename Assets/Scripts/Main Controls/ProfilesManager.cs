@@ -5,11 +5,11 @@ using System.Linq;
 using Colors;
 using UnityEngine;
 using UnityEngine.UI;
-using DomsUnityHelper;
+
 using UnityEngine.Serialization;
 using PopUpWindows;
 
-public class ProfilesManager : MonoBehaviourExtended
+public class ProfilesManager : MonoBehaviour
 {
     [Header("Profiles Window")]
     [SerializeField]
@@ -124,7 +124,7 @@ public class ProfilesManager : MonoBehaviourExtended
         buttonScript.ToggleHighlight(false);
         _profileButtons.Add(profileName, buttonScript);
 
-        Log($"Adding profile button {profileName}", this);
+        Debug.Log($"Adding profile button {profileName}", this);
     }
 
     void SortProfileButtons()
@@ -191,7 +191,7 @@ public class ProfilesManager : MonoBehaviourExtended
         _profileButtons[profile.GetName()].Annihilate();
         DeleteProfileWithButton(profile);
 
-        Log($"Removing profile button {profile}", this);
+        Debug.Log($"Removing profile button {profile}", this);
     }
 
     void DeleteProfileWithButton(ProfileLoader button)

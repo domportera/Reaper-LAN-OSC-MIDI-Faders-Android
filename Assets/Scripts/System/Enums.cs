@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using DomsUnityHelper;
+using System.Reflection;
 
 
 public enum DefaultValueType { Min, Mid, Max };
@@ -72,6 +72,19 @@ public enum MidiChannel
 
 public static class EnumUtility
 {
+    
+    public static string GetDescription(this Enum value)
+    {
+        var type = value.GetType();
+        var name = Enum.GetName(type, value);
+        if (name == null) return null;
+        
+        var field = type.GetField(name);
+        if (field != null && Attribute.GetCustomAttribute(field, typeof (DescriptionAttribute)) is DescriptionAttribute customAttribute)
+            return customAttribute.Description;
+        return null;
+    }
+    
     public static string[] GetControllerBehaviorTypeNameArray()
     {
         List<string> names = new List<string>();
