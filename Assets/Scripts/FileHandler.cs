@@ -56,24 +56,38 @@ public static class FileHandler
         }
         catch (Exception ex)
         {
-            Debug.LogError(string.Format("Error saving file {0} to {1}:\n{2}", fileName, path, ex));
+            Debug.LogError($"Error saving file {fileName} to {path}:\n{ex}");
             return false;
         }
     }
 
     private static string PrepareFileExtension(string fileExtension, bool log)
     {
-        if (!fileExtension.StartsWith("."))
+
+        //remove whitespace from file extension, from ends and in the middle
+        foreach (var c in WhitespaceChars.Concat(InvalidFileNameChars).Distinct())
         {
-            if (log)
-                Debug.LogWarning("Adding '.' to start of file extension " + fileExtension);
-            fileExtension = "." + fileExtension;
+            fileExtension = fileExtension.Remove(c);
         }
 
-        if (fileExtension.Contains<char>(' '))
+        if (fileExtension.Length == 0 || fileExtension.Length == 1 && !char.IsLetter(fileExtension[0]))
         {
-            Debug.LogError("File extension should not contain whitespace. Removing.");
-            fileExtension.Replace(" ", "");
+            #if DEBUG
+            if(log)
+                Debug.LogError($"Invalid file extension {fileExtension} - it likely won't be useful.");
+            #endif
+        }
+        
+        if (!fileExtension.StartsWith("."))
+        {
+#if DEBUG
+            if (log)
+            {
+                Debug.LogWarning("Adding '.' to start of file extension " + fileExtension);
+            }
+#endif
+
+            fileExtension = "." + fileExtension;
         }
 
         return fileExtension;
@@ -174,7 +188,7 @@ public static class FileHandler
         }
         catch (Exception ex)
         {
-            Debug.LogError(string.Format("File deletion error: {0}", ex));
+            Debug.LogError($"File deletion error: {ex}");
             return false;
         }
     }
@@ -206,17 +220,16 @@ public static class FileHandler
         string name,
         out List<char> invalidCharacters)
     {
-        invalidCharacters = GetInvalidFileNameCharacters(name);
+        invalidCharacters = GetInvalidFileNameCharactersIn(name);
         return invalidCharacters.Count > 0;
     }
 
-    public static List<char> GetInvalidFileNameCharacters(
+    public static List<char> GetInvalidFileNameCharactersIn(
         string name,
         char[] additionalInvalidChars = null)
     {
-        var invalidFileNameChars = Path.GetInvalidFileNameChars();
         var fileNameCharacters = new List<char>();
-        foreach (var ch in invalidFileNameChars)
+        foreach (var ch in InvalidFileNameChars)
         {
             if (name.Contains<char>(ch))
                 fileNameCharacters.Add(ch);
@@ -233,4 +246,9 @@ public static class FileHandler
 
         return fileNameCharacters;
     }
+
+    public static readonly char[] InvalidFileNameChars =
+        Path.GetInvalidPathChars().Concat(Path.GetInvalidFileNameChars()).Distinct().ToArray();
+
+    public static readonly char[] WhitespaceChars = { ' ', '\t', '\n', '\r' };
 }

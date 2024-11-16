@@ -21,10 +21,8 @@ namespace Colors
         public static ColorProfile CurrentColorProfile
         {
             get => _currentColorProfile ?? throw new NullReferenceException("Current Color Profile is null!");
-            set {
-                if(value == null)
-                    throw new NullReferenceException("Current Color Profile cannot be set to null!");
-                _currentColorProfile = value;
+            private set {
+                _currentColorProfile = value ?? throw new NullReferenceException("Current Color Profile cannot be set to null!");
                 Debug.Log($"Set Current Color Profile: {_currentColorProfile.Name}");
             }
         }

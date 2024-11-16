@@ -131,16 +131,4 @@ namespace Colors
 	}
 
 	public enum ColorType { Background, Primary, Secondary, Tertiary }
-
-	[System.Serializable]
-	internal struct ColorProfileStruct
-	{
-		[SerializeField] internal string Name;
-		[SerializeField] internal Color Background;
-		[SerializeField] internal Color Primary;
-		[SerializeField] internal Color Secondary;
-		[SerializeField] internal Color Tertiary;
-
-		internal ColorProfile ToReferenceType() => new(Name, Background, Primary, Secondary, Tertiary);
-	}
 }

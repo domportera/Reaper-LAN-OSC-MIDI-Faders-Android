@@ -10,7 +10,7 @@ namespace Colors
 
         private const string ProfileFolder = "Colors";
         private const string DefaultColorProfileName = ProfilesManager.DefaultSaveName + " Colors";
-        private const string FileExtensionProfiles = ".color";
+        private const string FileExtensionProfiles = ".json";
 
         internal static void SaveDefaultProfile(ColorProfile template)
         {
@@ -59,7 +59,7 @@ namespace Colors
             var defaultProfile = FileHandler.LoadJsonObject<ColorProfile>(
                 ProfilesBasePath, DefaultColorProfileName, FileExtensionProfiles);
 
-            return defaultProfile ?? presetsBuiltIn.Default.ToReferenceType();
+            return defaultProfile ?? presetsBuiltIn.Default;
         }
 
         internal static ColorProfile LoadColorProfile(string profileName, BuiltInColorPresets presetsBuiltIn)

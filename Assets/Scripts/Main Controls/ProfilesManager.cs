@@ -279,7 +279,7 @@ public class ProfilesManager : MonoBehaviour
             return false;
         }
 
-        var invalidChars = FileHandler.GetInvalidFileNameCharacters(profileName);
+        var invalidChars = FileHandler.GetInvalidFileNameCharactersIn(profileName);
         if (invalidChars.Count > 0)
         {
             PopUpController.Instance.ErrorWindow(invalidChars.Count == 1

@@ -6,30 +6,41 @@ namespace Colors
     [ExecuteAlways]
     internal class BuiltInColorPresets : MonoBehaviour
     {
-        internal static BuiltInColorPresets Instance;
+        private static BuiltInColorPresets _instance;
+        internal static BuiltInColorPresets Instance
+        {
+            get
+            {
+                if(_instance == null)
+                    _instance = Resources.FindObjectsOfTypeAll<BuiltInColorPresets>().Single();
+                
+                return _instance;
+            }
+
+            private set
+            {
+                if(value == _instance) return;
+                
+                if (value != null && _instance != null)
+                {
+                    const string message = "Only one instance of BuiltInColorPresets can exist.";
+                    Debug.LogError(message, _instance);
+                    Debug.LogError(message, value);
+                    throw new System.Exception(message);
+                }
+                
+                _instance = value;
+            }
+        }
         
         [field: SerializeField, Header("Built-in Themes")]
-        internal ColorProfileStruct[] ColorProfiles { get; private set; }
-        internal ColorProfileStruct Default => ColorProfiles[0];
+        internal ColorProfile[] ColorProfiles { get; private set; }
+        internal ColorProfile Default => ColorProfiles[0];
 
 
         private void Awake()
         {
-            if (Instance != null)
-            {
-                Debug.LogError($"Only one instance of {GetType()} can exist.");
-                Destroy(this);
-                return;
-            }
             Instance = this;
-        }
-    }
-
-    internal static class BuiltInPresetsExtensions
-    {
-        internal static ColorProfileStruct[] Alphabetical(this ColorProfileStruct[] profileArray)
-        {
-            return profileArray.OrderBy(x => x.Name).ToArray();
         }
     }
 }

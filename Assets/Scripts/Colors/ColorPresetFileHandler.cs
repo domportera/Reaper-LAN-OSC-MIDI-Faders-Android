@@ -9,10 +9,8 @@ namespace Colors
 {
     public static class ColorPresetDataHandler
     {
-        private const string FileExtensionPresets = ".colorPreset";
-
-        private const string PresetFolder = "Colors";
-        private static readonly string PresetsBasePath = Path.Combine(Application.persistentDataPath, PresetFolder, "Presets");
+        private const string FileExtensionPresets = ".json";
+        private static readonly string PresetsBasePath = Path.Combine(Application.persistentDataPath, "Colors", "Presets");
 
         internal static string[] GetPresetNames()
         {
@@ -69,7 +67,7 @@ namespace Colors
                 return;
             }
 
-            var invalidChars = FileHandler.GetInvalidFileNameCharacters(presetName);
+            var invalidChars = FileHandler.GetInvalidFileNameCharactersIn(presetName);
             if (invalidChars.Count > 0)
             {
                 PopUpController.Instance.ErrorWindow(invalidChars.Count == 1

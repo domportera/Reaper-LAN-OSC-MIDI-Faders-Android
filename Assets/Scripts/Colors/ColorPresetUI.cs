@@ -54,8 +54,7 @@ namespace Colors
             //populate built in preset selectors
             foreach (var c in _builtInColorPresets.ColorProfiles)
             {
-                var preset = c.ToReferenceType();
-                AddPresetSelector(preset, true);
+                AddPresetSelector(c, true);
             }
 
             //populate user presets

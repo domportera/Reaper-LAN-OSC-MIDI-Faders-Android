@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Application = UnityEngine.Application;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 public class ImportExport : MonoBehaviour
@@ -40,10 +41,10 @@ public class ImportExport : MonoBehaviour
     private void Awake()
     {
 #if !UNITY_EDITOR
-        exportPath =
+        _exportPath =
  Path.Combine(Application.persistentDataPath.Substring(0, Application.persistentDataPath.IndexOf("Android")),"Download", "Reaper Fader Backups");
         NativeFilePicker.RequestPermission();
-        Debug.Log("Backup export path set: " + exportPath);
+        Debug.Log("Backup export path set: " + _exportPath);
 #else
         //I am using a path other than persistent data path on Windows to prevent previous backups from being zipped up into subsequent backups
         _exportPath = Path.Combine(Environment.ExpandEnvironmentVariables(@"%PROGRAMDATA%"), "Reaper Faders");
@@ -154,11 +155,7 @@ public class ImportExport : MonoBehaviour
     private void RequestPermission()
     {
 #if PLATFORM_ANDROID
-        if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
-            Permission.RequestUserPermission(Permission.ExternalStorageRead);
-
-        if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageWrite))
-            Permission.RequestUserPermission(Permission.ExternalStorageWrite);
+        NativeFilePicker.RequestPermission();
 #endif
     }
 

@@ -5133,7 +5133,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b01eb5b8d0d41ac419bc3cda99514714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
   _profilesManager: {fileID: 876161181}
   _controllerParent: {fileID: 308370035}
   _controllerPrefabs:
@@ -5170,7 +5169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12bd4f2974cf3904294ff92ada7f4446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
   _controlsManager: {fileID: 367776138}
   _optionsPanel: {fileID: 1029842943}
   _sliderOptionsButtonLayoutPrefab: {fileID: 2763013774932209352, guid: d68371dac9b0cbc49812feb1beba257d,
@@ -9551,7 +9549,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d86edc0d9d425de439b62f77e8069e87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
   _toggleProfileWindowButton: {fileID: 1340599851}
   _closeProfileWindowButton: {fileID: 693319446}
   _profileWindow: {fileID: 1122121492}
@@ -14291,7 +14288,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f4bc75c4e14434eb38b632cc2538cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
   _presetUI: {fileID: 1221475021}
   _builtInColorPresets: {fileID: 1221475022}
   _hueSlider: {fileID: 285033869}
@@ -14367,70 +14363,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <ColorProfiles>k__BackingField:
-  - Name: "Coal\r"
+  - ProfileName: "Coal\r"
     Background: {r: 0.13995524, g: 0.12871972, b: 0.1764706, a: 1}
+    Secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
     Primary: {r: 0.58431375, g: 0.4147482, b: 0.4147482, a: 1}
-    Secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
     Tertiary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
-  - Name: "Modern\r"
+  - ProfileName: "Modern\r"
     Background: {r: 0.16980802, g: 0.12841214, b: 0.19607843, a: 1}
-    Primary: {r: 0.69411767, g: 0.27492502, b: 0.29465184, a: 1}
     Secondary: {r: 0.46666667, g: 0.69411767, b: 0.6862745, a: 1}
+    Primary: {r: 0.69411767, g: 0.27492502, b: 0.29465184, a: 1}
     Tertiary: {r: 0.414568, g: 0.67300004, b: 0.6640886, a: 1}
-  - Name: "Ghost\r"
+  - ProfileName: "Ghost\r"
     Background: {r: 0.046013072, g: 0.04885505, b: 0.08627451, a: 1}
-    Primary: {r: 0.16, g: 0.15, b: 0.34, a: 1}
     Secondary: {r: 0.43, g: 0.45, b: 0.87, a: 1}
+    Primary: {r: 0.16, g: 0.15, b: 0.34, a: 1}
     Tertiary: {r: 0.43, g: 0.45, b: 0.87, a: 1}
-  - Name: "Bisa\r"
+  - ProfileName: "Bisa\r"
     Background: {r: 1, g: 0.989481, b: 0.9843137, a: 1}
-    Primary: {r: 1, g: 0.83557093, b: 0.827451, a: 1}
     Secondary: {r: 0.7719628, g: 0.62675893, b: 0.81960785, a: 1}
+    Primary: {r: 1, g: 0.83557093, b: 0.827451, a: 1}
     Tertiary: {r: 0.8235294, g: 0.68235296, b: 0.87058824, a: 1}
-  - Name: "Red\r"
+  - ProfileName: "Red\r"
     Background: {r: 0.20392157, g: 0, b: 0, a: 1}
-    Primary: {r: 0.69411767, g: 0.27492502, b: 0.27492502, a: 1}
     Secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
+    Primary: {r: 0.69411767, g: 0.27492502, b: 0.27492502, a: 1}
     Tertiary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
-  - Name: "Sky Blue\r"
+  - ProfileName: "Sky Blue\r"
     Background: {r: 0.6088581, g: 0.8078013, b: 0.9764706, a: 1}
-    Primary: {r: 0.21548633, g: 0.3110586, b: 0.4862745, a: 1}
     Secondary: {r: 0.48066127, g: 0.68814707, b: 0.92156863, a: 1}
+    Primary: {r: 0.21548633, g: 0.3110586, b: 0.4862745, a: 1}
     Tertiary: {r: 0.33254904, g: 0.40101492, b: 0.62352943, a: 1}
-  - Name: "Joy\r"
+  - ProfileName: "Joy\r"
     Background: {r: 0.9607843, g: 0.93964046, b: 0.361707, a: 1}
-    Primary: {r: 0.76442933, g: 0.12941176, b: 1, a: 1}
     Secondary: {r: 0.11918492, g: 0.98039216, b: 0.76762325, a: 1}
+    Primary: {r: 0.76442933, g: 0.12941176, b: 1, a: 1}
     Tertiary: {r: 0.009826989, g: 0.8352941, b: 0.63135517, a: 1}
-  - Name: "Rose\r"
+  - ProfileName: "Rose\r"
     Background: {r: 0.13725491, g: 0.011075379, b: 0.0048442907, a: 1}
-    Primary: {r: 0.34117648, g: 0.1337947, b: 0.2460248, a: 1}
     Secondary: {r: 0.9098039, g: 0.59583235, b: 0.8765598, a: 1}
+    Primary: {r: 0.34117648, g: 0.1337947, b: 0.2460248, a: 1}
     Tertiary: {r: 0.8392157, g: 0.4475817, b: 0.79774845, a: 1}
-  - Name: "Cloudburst\r"
+  - ProfileName: "Cloudburst\r"
     Background: {r: 1, g: 1, b: 1, a: 1}
-    Primary: {r: 0.7418685, g: 0.91069406, b: 0.9411765, a: 1}
     Secondary: {r: 0, g: 0.61453265, b: 0.87058824, a: 1}
+    Primary: {r: 0.7418685, g: 0.91069406, b: 0.9411765, a: 1}
     Tertiary: {r: 0, g: 0.47095722, b: 0.6901961, a: 1}
-  - Name: "Woodland\r"
+  - ProfileName: "Woodland\r"
     Background: {r: 0.043137256, g: 0.33333334, b: 0.16862746, a: 1}
-    Primary: {r: 0.19607843, g: 0.6745098, b: 0.44313726, a: 1}
     Secondary: {r: 0.6836023, g: 0.8773585, b: 0.45109472, a: 1}
+    Primary: {r: 0.19607843, g: 0.6745098, b: 0.44313726, a: 1}
     Tertiary: {r: 0.68235296, g: 0.8352941, b: 0.5019608, a: 1}
-  - Name: "Dusk\r"
+  - ProfileName: "Dusk\r"
     Background: {r: 0.18431373, g: 0.105882354, b: 0.25490198, a: 1}
-    Primary: {r: 0.5294118, g: 0.13725491, b: 0.25490198, a: 1}
     Secondary: {r: 0.9411765, g: 0.34901962, b: 0.25490198, a: 1}
+    Primary: {r: 0.5294118, g: 0.13725491, b: 0.25490198, a: 1}
     Tertiary: {r: 0.74509805, g: 0.19215687, b: 0.26666668, a: 1}
-  - Name: "Arid\r"
+  - ProfileName: "Arid\r"
     Background: {r: 0.9019608, g: 0.8085813, b: 0.6614379, a: 1}
-    Primary: {r: 0.9372549, g: 0.3529412, b: 0.3529412, a: 1}
     Secondary: {r: 1, g: 0.81720376, b: 0.427451, a: 1}
+    Primary: {r: 0.9372549, g: 0.3529412, b: 0.3529412, a: 1}
     Tertiary: {r: 0.92549, g: 0.4157981, b: 0.29760858, a: 1}
-  - Name: "OLED Green\r"
+  - ProfileName: "OLED Green\r"
     Background: {r: 0, g: 0, b: 0, a: 1}
-    Primary: {r: 0.17997748, g: 0.34117648, b: 0.16322953, a: 1}
     Secondary: {r: 0.41079584, g: 0.83137256, b: 0.4602755, a: 1}
+    Primary: {r: 0.17997748, g: 0.34117648, b: 0.16322953, a: 1}
     Tertiary: {r: 0.5961246, g: 0.85882354, b: 0.6084869, a: 1}
 --- !u!1001 &1224961134
 PrefabInstance:
