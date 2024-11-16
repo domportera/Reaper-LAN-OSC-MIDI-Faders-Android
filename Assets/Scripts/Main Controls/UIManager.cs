@@ -192,7 +192,7 @@ public class UIManager : MonoBehaviour
     private GameObject InitializeController2DOptions(Controller2DData config, GameObject controlObj)
     {
         var menuObj = Instantiate(_controller2DOptionsPrefab, _optionsPanel.transform, false);
-        var controllerOptions = menuObj.GetComponent<Controller2DOptions>();
+        var controllerOptions = menuObj.GetComponent<Controller2DOptionsPanel>();
         controllerOptions.Initialize(config, controlObj.GetComponent<RectTransform>(), _oscMenu);
         controllerOptions.gameObject.name = config.GetName() + " Options Panel";
         return menuObj;
@@ -476,11 +476,11 @@ public class UIManager : MonoBehaviour
             switch(ControllerData)
             {
                 case FaderData faderData:
-                    var faderControl = _controlObject.GetComponent<FaderControl>();
+                    var faderControl = _controlObject.GetComponent<FaderControlUi>();
                     faderControl.SetSortButtonVisibility(b);
                     break;
                 case Controller2DData control2DData:
-                    var control2D = _controlObject.GetComponent<Controller2D>();
+                    var control2D = _controlObject.GetComponent<Controller2DUi>();
                     control2D.SetSortButtonVisibility(b);
                     break;
                 default:

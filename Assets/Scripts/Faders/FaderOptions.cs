@@ -8,7 +8,7 @@ public class FaderOptions : ControllerOptionsPanel
 
     public void Initialize(FaderData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
     {
-        _optionsMenu.Initialize(data.GetController(), this, oscMenu);
+        _optionsMenu.Initialize(data.GetSettings(), this, oscMenu);
 
         BaseInitialize(data, controlObjectTransform);
     }

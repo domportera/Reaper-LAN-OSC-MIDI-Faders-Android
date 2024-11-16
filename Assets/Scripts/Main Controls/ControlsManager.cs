@@ -81,16 +81,10 @@ public class ControlsManager : MonoBehaviour
         {typeof(Controller2DData), ControllerType.Controller2D }
     };
 
-    public static readonly Dictionary<Type, Type> ControllerClassesByControl = new()
-    {
-        {typeof(FaderControl), typeof(FaderData) },
-        {typeof(Controller2D), typeof(Controller2DData) }
-    };
-
     public static readonly Dictionary<Type, Type> ControllerClassesByData = new()
     {
-        {typeof(FaderData), typeof(FaderControl) },
-        {typeof(Controller2DData), typeof(Controller2D) }
+        {typeof(FaderData), typeof(FaderControlUi) },
+        {typeof(Controller2DData), typeof(Controller2DUi) }
     };
 
     public void SetActiveProfile(ProfileLoader profile)
@@ -258,10 +252,10 @@ public class ControlsManager : MonoBehaviour
         switch (config)
         {
             case FaderData fader:
-                control.GetComponentInChildren<FaderControl>().Initialize(fader);
+                control.GetComponentInChildren<FaderControlUi>().Initialize(fader);
                 break;
             case Controller2DData control2D:
-                control.GetComponentInChildren<Controller2D>().Initialize(control2D);
+                control.GetComponentInChildren<Controller2DUi>().Initialize(control2D);
                 break;
             default:
                 Debug.Log($"No way to spawn {config.GetType()}", this);

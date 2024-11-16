@@ -8,31 +8,33 @@ using UnityEngine.Serialization;
 [Serializable]
 public abstract class ControllerData
 {
-    [FormerlySerializedAs("name")] [SerializeField] protected string Name;
-    [FormerlySerializedAs("controllers")] [SerializeField] protected List<ControllerSettings> Controllers = new List<ControllerSettings>();
-    [FormerlySerializedAs("position")] [SerializeField] protected int Position = NullPosition;
-    [FormerlySerializedAs("enabled")] [SerializeField] protected bool Enabled = true;
-    [FormerlySerializedAs("width")] [SerializeField] protected float Width = NullWidth;
+    [SerializeField] protected string Name;
+    [SerializeField] protected List<ControllerSettings> Controllers = new();
+    [SerializeField] protected int Position = NullPosition;
+    [SerializeField] protected bool Enabled = true;
+    [SerializeField] protected float Width = NullWidth;
 
     protected const int NullPosition = -1;
     protected const int NullWidth = -1;
 
     public struct WidthRange
     {
-        public float Min, Max, DefaultValue;
-        
+        public readonly float Min;
+        public readonly float Max;
+        public readonly float DefaultValue;
+
         public WidthRange(float min, float max, float defaultValue)
         {
-            this.Min = min;
-            this.Max = max;
-            this.DefaultValue = defaultValue;
+            Min = min;
+            Max = max;
+            DefaultValue = defaultValue;
         }
     }
 
     public static readonly Dictionary<Type, WidthRange> WidthRanges = new()
     {
-        {typeof(Controller2DData), new (0.4f, 2f, 1f) },
-        {typeof(FaderData), new (0.125f, 1f, 0.25f) }
+        {typeof(Controller2DData), new WidthRange(0.4f, 2f, 1f) },
+        {typeof(FaderData), new WidthRange(0.125f, 1f, 0.25f) }
     };
 
     public void SetPosition(int index)
@@ -45,7 +47,7 @@ public abstract class ControllerData
         return Position;
     }
 
-    public ControllerSettings GetController()
+    public ControllerSettings GetSettings()
     {
         return Controllers.Count > 0 ? Controllers[0] : null;
     }
@@ -96,12 +98,18 @@ public class FaderData : ControllerData
 {
     public FaderData(string name, ControllerSettings config)
     {
+        if(config == null)
+            throw new ArgumentNullException(nameof(config));
+        
         Controllers.Add(config);
         this.Name = name;
     }
 
     public FaderData(FaderData data)
     {
+        if(data == null)
+            throw new ArgumentNullException(nameof(data));
+        
         Name = data.Name;
         Controllers = data.Controllers;
         Position = data.GetPosition();
@@ -113,6 +121,12 @@ public class Controller2DData : ControllerData
 {
     public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
     {
+        if(horizontalConfig == null)
+            throw new ArgumentNullException(nameof(horizontalConfig));
+        
+        if(verticalConfig == null)
+            throw new ArgumentNullException(nameof(verticalConfig));
+        
         Controllers.Add(horizontalConfig);
         Controllers.Add(verticalConfig);
         this.Name = name;
@@ -124,14 +138,9 @@ public class Controller2DData : ControllerData
         Position = data.GetPosition();
     }
 
-    public ControllerSettings GetHorizontalController()
-    {
-        return Controllers[0];
-    }
-    public ControllerSettings GetVerticalController()
-    {
-        return Controllers[1];
-    }
+    public ControllerSettings HorizontalController => Controllers[0];
+
+    public ControllerSettings VerticalController => Controllers[1];
 }
 
 

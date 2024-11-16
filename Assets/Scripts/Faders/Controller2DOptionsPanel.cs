@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
 
-public class Controller2DOptions : ControllerOptionsPanel
+public class Controller2DOptionsPanel : ControllerOptionsPanel
 {
     [FormerlySerializedAs("horizontalOptions")] [SerializeField]
     private ControllerOptionsMenu _horizontalOptions;
@@ -10,8 +10,8 @@ public class Controller2DOptions : ControllerOptionsPanel
 
     public void Initialize(Controller2DData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
     {
-        _horizontalOptions.Initialize(data.GetHorizontalController(), this, oscMenu);
-        _verticalOptions.Initialize(data.GetVerticalController(), this, oscMenu);
+        _horizontalOptions.Initialize(data.HorizontalController, this, oscMenu);
+        _verticalOptions.Initialize(data.VerticalController, this, oscMenu);
 
         BaseInitialize(data, controlObjectTransform);
     }

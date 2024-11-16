@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using OscJack;
+﻿using System;
+using UnityEngine;
 using System.Net;
 using UnityEngine.UI;
 using UnityEngine.Serialization;
@@ -11,9 +11,6 @@ public class IPSetter : MonoBehaviour
     private InputField _ipAddressField = null;
     [FormerlySerializedAs("portField")] [SerializeField]
     private InputField _portField = null;
-
-    private string _currentIP;
-    private int _currentPort = int.MinValue;
 
     private const string IPAddressPlayerPref = "IP Address";
     private const string PortPlayerPref = "Port";
@@ -37,12 +34,6 @@ public class IPSetter : MonoBehaviour
         _portField.onEndEdit.AddListener(SetPort);
 
         Load();
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-
     }
 
     private void Load()
@@ -70,9 +61,8 @@ public class IPSetter : MonoBehaviour
 
         if(valid)
         {
-            _currentIP = ipString;
-            PlayerPrefs.SetString(IPAddressPlayerPref, _currentIP.ToString());
-            TryConnectAll();
+            OSCSystem.SetIp(ip);
+            PlayerPrefs.SetString(IPAddressPlayerPref, ipString);
         }
         else
         {
@@ -90,7 +80,7 @@ public class IPSetter : MonoBehaviour
         if(valid)
         {
             SetPort(port);
-            PlayerPrefs.SetInt(PortPlayerPref, _currentPort);
+            PlayerPrefs.SetInt(PortPlayerPref, port);
         }
         else
         {
@@ -101,7 +91,7 @@ public class IPSetter : MonoBehaviour
     private void SetPort(int port)
     {
         var valid = true;
-        const int maxPort = 65535;
+        const int maxPort = ushort.MaxValue;
 
         if (port > maxPort)
         {
@@ -110,32 +100,11 @@ public class IPSetter : MonoBehaviour
 
         if (valid)
         {
-            _currentPort = port;
-            TryConnectAll();
+            OSCSystem.SetPort(port);
         }
         else
         {
             PopUpController.Instance.ErrorWindow($"Invalid Port - must be a positive integer less than {maxPort}.");
         }
     }
-
-    public void TryConnectAll()
-    {
-        var senders = FindObjectsOfType<OscPropertySender>();
-
-        foreach(var sender in senders)
-        {
-            TryConnect(sender);
-        }
-    }
-
-    public void TryConnect(OscPropertySender sender)
-    {
-        //only connect if we have a port and an IP
-        if (_currentPort != int.MinValue && _currentIP != null)
-        {
-            sender.ChangeConnection(_currentIP, _currentPort);
-        }
-    }
-
 }

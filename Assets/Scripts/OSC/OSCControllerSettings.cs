@@ -196,7 +196,7 @@ public class OscControllerSettings
 
     public float GetValueFloat(float value)
     {
-        return Mathf.Clamp(value.Map(Controller.MinControllerValue, Controller.MaxControllerValue, _min, _max), Min, Max);
+        return Mathf.Clamp(value.Map(RangeController.MinControllerValue, RangeController.MaxControllerValue, _min, _max), Min, Max);
     }
 
     private bool AddressTypeIsMidi(OscAddressType addressType)
