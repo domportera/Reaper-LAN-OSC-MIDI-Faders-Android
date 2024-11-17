@@ -139,19 +139,18 @@ public sealed class RangeController
     private void SendCurrentValue()
     {
         var curveMappedValue = MapValueToCurve(SmoothValue, false);
-        float valueToSend;
 
         var isFloat = OscSettings.Range is ValueRange.CustomFloat or ValueRange.Float;
-        if(isFloat)
+        var oscSettings = _controllerSettings.OscSettings;
+        var address = oscSettings.GetAddress();
+        if (isFloat)
         {
-            valueToSend = OscSettings.GetValueFloat(curveMappedValue);
+            OSCSystem.Send(address, oscSettings.GetValueFloat(curveMappedValue));
         }
         else
         {
-            valueToSend = OscSettings.GetValueInt(curveMappedValue);
+            OSCSystem.Send(address, oscSettings.GetValueInt(curveMappedValue));
         }
-
-        OSCSystem.Send(_controllerSettings.OscSettings.GetAddress(), valueToSend);
     }
 
     private IEnumerator SendModValueMultipleTimes(int numberOfTimes)

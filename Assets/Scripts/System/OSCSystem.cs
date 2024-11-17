@@ -8,6 +8,11 @@ namespace System
         private static OscClient _client;
         private static IPAddress _ip = IPAddress.Parse("127.0.0.1");
         private static int _port = 9000;
+
+        static OSCSystem()
+        {
+            RecreateClient();
+        }
         
         public static void SetPort(int port)
         {
@@ -28,6 +33,11 @@ namespace System
         }
 
         public static void Send(string address, float valueToSend)
+        {
+            _client.Send(address, valueToSend);
+        }
+
+        public static void Send(string address, int valueToSend)
         {
             _client.Send(address, valueToSend);
         }
