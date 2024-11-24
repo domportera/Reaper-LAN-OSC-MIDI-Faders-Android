@@ -611,7 +611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorType: 0
+  _colorType: 3
 --- !u!1 &6263833542792719290
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,8 +919,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6263833543670662928}
   m_HandleRect: {fileID: 6263833543670662930}
   m_Direction: 2
-  m_Value: 0.99999624
-  m_Size: 0.79005986
+  m_Value: 0.9999968
+  m_Size: 0.79006
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1869,7 +1869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorType: 0
+  _colorType: 3
 --- !u!1 &6263833543940669630
 GameObject:
   m_ObjectHideFlags: 0
@@ -2247,7 +2247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04765153256920544abe4f01b5465c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _colorType: 0
+  _colorType: 3
 --- !u!1 &6263833544314746345
 GameObject:
   m_ObjectHideFlags: 0
@@ -2613,7 +2613,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6263833544615660649}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.99999994
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3560,11 +3560,6 @@ PrefabInstance:
       propertyPath: m_Text
       value: Address Type
       objectReference: {fileID: 0}
-    - target: {fileID: 3159014168201184696, guid: 8bf47e53875252642a3d219104764f67,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.99993896
-      objectReference: {fileID: 0}
     - target: {fileID: 4049758891319293609, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}
       propertyPath: m_Pivot.x
@@ -3710,11 +3705,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Text
       value: Value Range
-      objectReference: {fileID: 0}
-    - target: {fileID: 3159014168201184696, guid: 8bf47e53875252642a3d219104764f67,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.99993896
       objectReference: {fileID: 0}
     - target: {fileID: 4049758891319293609, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}
@@ -3866,11 +3856,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Text
       value: MIDI Channel
-      objectReference: {fileID: 0}
-    - target: {fileID: 3159014168201184696, guid: 8bf47e53875252642a3d219104764f67,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.99993896
       objectReference: {fileID: 0}
     - target: {fileID: 4049758891319293609, guid: 8bf47e53875252642a3d219104764f67,
         type: 3}

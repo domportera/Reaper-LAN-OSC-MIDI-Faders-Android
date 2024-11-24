@@ -197,12 +197,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24559497deff7f41aee8e741c4085e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _slider: {fileID: 0}
+  _slider: {fileID: 5243596284680362161}
   _title: {fileID: 7401717003389013528}
   _valueText: {fileID: 0}
   _descriptionText: {fileID: 0}
   _closeButton: {fileID: 7401717003739859789}
-  _cancelButton: {fileID: 0}
+  _cancelButton: {fileID: 7401717003739859789}
   _confirmButton: {fileID: 0}
 --- !u!1 &7401717003496019694
 GameObject:
@@ -871,6 +871,18 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 7401717003219083760}
   m_SourcePrefab: {fileID: 100100000, guid: 4bb426d7a31d6d94a94a198d4d09d115, type: 3}
+--- !u!114 &5243596284680362161 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2035241484982052534, guid: 4bb426d7a31d6d94a94a198d4d09d115,
+    type: 3}
+  m_PrefabInstance: {fileID: 6123310353763810823}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6916101874750609257 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 792827400239737198, guid: 4bb426d7a31d6d94a94a198d4d09d115,

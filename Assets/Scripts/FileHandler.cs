@@ -67,7 +67,7 @@ public static class FileHandler
         //remove whitespace from file extension, from ends and in the middle
         foreach (var c in WhitespaceChars.Concat(InvalidFileNameChars).Distinct())
         {
-            fileExtension = fileExtension.Remove(c);
+            fileExtension = fileExtension.Replace($"{c}", "");
         }
 
         if (fileExtension.Length == 0 || fileExtension.Length == 1 && !char.IsLetter(fileExtension[0]))
