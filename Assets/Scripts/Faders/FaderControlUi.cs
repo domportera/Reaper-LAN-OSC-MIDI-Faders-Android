@@ -24,7 +24,8 @@ public sealed class FaderControlUi : MonoBehaviour, ISortingMember
         InitializeFaderInteraction();
         InitializeSorting();
         
-        rectTransform.sizeDelta = new Vector2(initialSizeDelta.y * controlData.GetWidth(), initialSizeDelta.y);
+        var width = controlData.GetWidth();
+        rectTransform.sizeDelta = new Vector2(initialSizeDelta.x * width, initialSizeDelta.y);
     }
 
     // Update is called once per frame

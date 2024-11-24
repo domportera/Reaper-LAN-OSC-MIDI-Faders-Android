@@ -6,7 +6,7 @@ namespace Colors
 {
 	public class ColorSetter : MonoBehaviour
 	{
-		[FormerlySerializedAs("colorType")] [SerializeField]
+		[SerializeField, FormerlySerializedAs("colorType")]
 		private ColorType _colorType;
 
 		private MaskableGraphic _textOrImage;

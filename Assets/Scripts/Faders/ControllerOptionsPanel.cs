@@ -6,22 +6,21 @@ using PopUpWindows;
 
 public abstract class ControllerOptionsPanel : MonoBehaviour
 {
-    [SerializeField] private ControlsManager _controlsManager;
-    [SerializeField] private CanvasGroup _canvasGroup;
+    private static ControlsManager _controlsManager;
     [SerializeField] protected InputField NameField;
     [SerializeField] protected Button ApplyButton;
     [SerializeField] protected Button CloseButton;
     [SerializeField] protected Slider WidthSlider;
 
-    private ControllerData ControlData;
+    private ControllerData _controlData;
 
-    public const int SliderSteps = 7;
-    private static int SliderStepsCorrected => SliderSteps - 1;
+    private const int WidthSliderSteps = 7;
+    private const int WidthSliderStepsMax = WidthSliderSteps - 1;
 
     public event Action OnWake;
     public event Action OnSleep;
     
-    private bool IsInitialized => ControlData != null;
+    private bool IsInitialized => _controlData != null;
 
     protected void Awake()
     {
@@ -37,14 +36,16 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         }
         NameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         ApplyButton.onClick.AddListener(Apply);
-        CloseButton.onClick.AddListener(Close);
+        CloseButton.onClick.AddListener(() => gameObject.SetActive(false));
     }
 
     protected void OnEnable()
     {
         OnWake?.Invoke();
         if (IsInitialized)
-            SetWidthSliderToControllerWidth();
+        {
+            ResetUiFields();
+        }
     }
 
     protected void OnDisable()
@@ -52,72 +53,70 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         OnSleep?.Invoke();
     }
 
+    public void ResetUiFields()
+    {
+        var width = ConvertWidthToSliderValue(_controlData.GetWidth());
+        WidthSlider.SetValueWithoutNotify(width);
+        NameField.SetTextWithoutNotify(_controlData.GetName());
+    }
+
     protected void BaseInitialize(ControllerData data)
     {
-        ControlData = data;
-        NameField.SetTextWithoutNotify(ControlData.GetName());
+        _controlData = data;
         InitializeWidthSlider();
+        NameField.characterValidation = InputField.CharacterValidation.None;
+        ResetUiFields();
     }
 
     private void RemoveProblemCharactersInNameField(string input)
     {
-        input.Replace("\"", "");
-        input.Replace("\\", "");
+        input = input.Replace("\"", "").Replace("\\", "");
         NameField.SetTextWithoutNotify(input);
     }
 
-
     protected virtual void Apply()
     {
+        if (!VerifyUniqueName(NameField.text))
+            return;
         var controllerName = NameField.text;
-        ControlData.SetName(controllerName);
+        _controlData.SetName(controllerName);
 
         var width = ConvertSliderValueToWidth((int)WidthSlider.value);
-        ControlData.SetWidth(width);
+        _controlData.SetWidth(width);
         UIManager.Instance.RefreshFaderLayoutGroup();
-        _controlsManager.RespawnController(ControlData);
+        _controlsManager.RespawnController(_controlData);
         PopUpController.Instance.QuickNoticeWindow("Settings applied!");
-    }
-
-    private void Close()
-    {
-        gameObject.SetActive(false);
     }
 
     #region Width
 
     private void InitializeWidthSlider()
     { 
-        var widthRange = ControlData.GetWidthRange();
+        var widthRange = _controlData.GetWidthRange();
         WidthSlider.wholeNumbers = true;
         WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.Min);
         WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.Max);
-        SetWidthSliderToControllerWidth();
-    }
-
-    protected void SetWidthSliderToControllerWidth()
-    {
-        var width = ConvertWidthToSliderValue(ControlData.GetWidth());
-        WidthSlider.SetValueWithoutNotify(width);
     }
 
     //all this conversion stuff is to achieve the stepping slider with the multiplicative fractional width functionality
     private int ConvertWidthToSliderValue(float width)
     {
-        var widthRange = ControlData.GetWidthRange();
-        return (int)width.Map(widthRange.Min, widthRange.Max, 0, SliderStepsCorrected);
+        var widthRange = _controlData.GetWidthRange();
+        return (int)width.Map(widthRange.Min, widthRange.Max, 0, WidthSliderStepsMax);
     }
 
     private float ConvertSliderValueToWidth(int value)
     {
-        var widthRange = ControlData.GetWidthRange();
-        return ((float)value).Map(0, SliderStepsCorrected, widthRange.Min, widthRange.Max);
+        var widthRange = _controlData.GetWidthRange();
+        return ((float)value).Map(0, WidthSliderStepsMax, widthRange.Min, widthRange.Max);
     }
     #endregion Width
 
     private bool VerifyUniqueName(string s)
     {
-        var invalid = _controlsManager.Controllers.Any(x => x.GetName() == s);
+        var invalid = _controlsManager.Controllers
+            .Where(x => x != _controlData)
+            .Any(x => x.GetName() == s);
 
         if (!invalid) return true;
         

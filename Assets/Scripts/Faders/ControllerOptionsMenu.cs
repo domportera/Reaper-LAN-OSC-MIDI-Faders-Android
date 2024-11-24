@@ -1,15 +1,13 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Serialization;
-using static UnityEngine.UI.Dropdown;
 
 public class ControllerOptionsMenu : OptionsMenu
 {
     private ControllerSettings _controllerConfig;
 
     [SerializeField] private Slider _smoothnessField;
-    [FormerlySerializedAs("_controlTypeDropdown")] [SerializeField] private Dropdown _releaseBehaviourButton;
+    [SerializeField] private Dropdown _releaseBehaviourButton;
     [SerializeField] private Dropdown _defaultValueDropdown;
     [SerializeField] private Dropdown _curveTypeDropdown;
     [SerializeField] private Button _resetValuesButton;
@@ -20,6 +18,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
     private bool _shouldResetOscMenu;
     private bool _initialized;
+    private ControllerOptionsPanel _optionsPanel;
 
     private void OnEnable()
     {
@@ -37,6 +36,7 @@ public class ControllerOptionsMenu : OptionsMenu
     {
         _controllerConfig = data;
         _oscSelectionMenu = oscMenu;
+        _optionsPanel = optionsPanel;
         optionsPanel.OnWake += () => _shouldResetOscMenu = true;
         optionsPanel.OnWake += () => _oscSettingsPendingApplication = null;
         InitializeUI();
@@ -110,7 +110,7 @@ public class ControllerOptionsMenu : OptionsMenu
             pair.Key.ClearOptions();
             foreach (var s in pair.Value)
             {
-                pair.Key.options.Add(new OptionData(s));
+                pair.Key.options.Add(new Dropdown.OptionData(s));
             }
         }
     }
@@ -123,6 +123,7 @@ public class ControllerOptionsMenu : OptionsMenu
         _curveTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.Curve);
 
         _smoothnessField.SetValueWithoutNotify(_controllerConfig.SmoothTime);
+        _optionsPanel.ResetUiFields();
         UpdateOscPreview(_controllerConfig.OscSettings);
     }
 }

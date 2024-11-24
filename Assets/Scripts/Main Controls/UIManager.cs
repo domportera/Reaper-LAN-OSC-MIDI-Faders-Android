@@ -10,7 +10,6 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private ControlsManager _controlsManager;
     [SerializeField] private GameObject _optionsPanel;
-    [SerializeField] private GameObject _sliderOptionsButtonLayoutPrefab;
     [SerializeField] private GameObject _faderOptionsPrefab;
     [SerializeField] private GameObject _controller2DOptionsPrefab;
 
@@ -18,7 +17,7 @@ public class UIManager : MonoBehaviour
     private GameObject _faderOptionsActivationPrefab; //the prefab for the button that opens up fader options
     [SerializeField] private OscSelectionMenu _oscMenu;
 
-    [SerializeField] private GameObject _sliderButtonVerticalLayoutParent;
+    [SerializeField] private GridLayoutGroup _sliderOptionsButtonLayout;
     [SerializeField] private Button _optionsButton;
     [SerializeField] private Button _closeOptionsButton;
     [SerializeField] private Button _newControllerButton;
@@ -54,7 +53,6 @@ public class UIManager : MonoBehaviour
     private const int SliderButtonLayoutCapacity = 5;
 
     private List<ControllerUIGroup> _controllerUIs = new List<ControllerUIGroup>();
-    private List<LayoutGroupButtonCount> _layoutCounts = new List<LayoutGroupButtonCount>();
 
     private bool _positionMode;
 
@@ -97,6 +95,8 @@ public class UIManager : MonoBehaviour
         _creditsButton.onClick.AddListener(toggleCredits);
         _closeCreditsButton.onClick.AddListener(toggleCredits);
 
+        _sliderOptionsButtonLayout.cellSize = _faderOptionsActivationPrefab.GetComponent<RectTransform>().rect.size;
+
         InitializeCreditsButtons();
         InitializeDonationButtons();
     }
@@ -133,15 +133,17 @@ public class UIManager : MonoBehaviour
     {
         ControllerUIGroup buttonGroup;
 
+        var parent = (RectTransform)_sliderOptionsButtonLayout.transform;
+
         switch (config)
         {
             case FaderData fader:
                 var faderOptions = InitializeFaderOptions(fader, control);
-                buttonGroup = new ControllerUIGroup(_controlsManager, fader, _faderOptionsActivationPrefab, control, faderOptions);
+                buttonGroup = new ControllerUIGroup(_controlsManager, fader, _faderOptionsActivationPrefab, parent, control, faderOptions);
                 break;
             case Controller2DData control2D:
                 var controlOptions = InitializeController2DOptions(control2D, control);
-                buttonGroup = new ControllerUIGroup(_controlsManager, control2D, _faderOptionsActivationPrefab, control, controlOptions);
+                buttonGroup = new ControllerUIGroup(_controlsManager, control2D, _faderOptionsActivationPrefab, parent, control, controlOptions);
                 break;
             default:
                 buttonGroup = null;
@@ -174,40 +176,6 @@ public class UIManager : MonoBehaviour
         return menuObj;
     }
 
-
-    private void AddOptionsButtonToLayout(RectTransform button)
-    {
-        for (var i = 0; i < _layoutCounts.Count; i++)
-        {
-            if (_layoutCounts[i].Count < SliderButtonLayoutCapacity)
-            {
-                button.transform.SetParent(_layoutCounts[i].LayoutGroup.transform, false);
-                button.transform.SetSiblingIndex(_layoutCounts[i].Count);
-                _layoutCounts[i].Count++;
-                return;
-            }
-        }
-
-        //all layouts full, create a new one
-
-        AddNewLayoutCount();
-        AddOptionsButtonToLayout(button);
-    }
-
-    private void DestroyEmptyLayouts()
-    {
-        for (var i = 0; i < _layoutCounts.Count; i++)
-        {
-            if (_layoutCounts[i].Count == 0)
-            {
-                //destroy
-                Destroy(_layoutCounts[i].LayoutGroup);
-                _layoutCounts.RemoveAt(i);
-                i--;
-            }
-        }
-    }
-
     public void DestroyControllerGroup(ControllerData config)
     {
         DestroyControllerGroup(GetButtonGroupByConfig(config));
@@ -221,9 +189,6 @@ public class UIManager : MonoBehaviour
         //remove from list
         _controllerUIs.Remove(buttonGroup);
 
-        //check for empty layouts, and destroy it
-        DestroyEmptyLayouts();
-
         SortOptionsButtons();
     }
 
@@ -231,28 +196,6 @@ public class UIManager : MonoBehaviour
     {
         var buttonGroup = GetButtonGroupByConfig(config);
         DestroyControllerGroup(buttonGroup);
-    }
-
-    private void RemoveFromLayout(ControllerUIGroup buttonGroup)
-    {
-        var layout = GetLayoutGroupFromObject(buttonGroup.ActivateControllerOptionsButton.gameObject);
-
-        if (layout != null)
-        {
-            layout.Count--;
-        }
-        else
-        {
-            Debug.LogError("Null layout! button didn't find its parent.");
-        }
-    }
-
-    private void AddNewLayoutCount()
-    {
-        var lay = new LayoutGroupButtonCount();
-        lay.LayoutGroup = Instantiate(_sliderOptionsButtonLayoutPrefab);
-        lay.LayoutGroup.transform.SetParent(_sliderButtonVerticalLayoutParent.transform);
-        _layoutCounts.Add(lay);
     }
 
     public void ShowControllerOptions(ControllerData data)
@@ -303,30 +246,8 @@ public class UIManager : MonoBehaviour
         _faderLayoutGroup.enabled = true;
     }
 
-    private LayoutGroupButtonCount GetLayoutGroupFromObject(GameObject button)
-    {
-        foreach(var lay in _layoutCounts)
-        {
-            var children = lay.LayoutGroup.GetComponentsInChildren<Transform>();
-
-            foreach(var child in children)
-            {
-                if(child.gameObject == button)
-                {
-                    return lay;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private void SortOptionsButtons()
     {
-        foreach(var layCount in _layoutCounts)
-        {
-            layCount.Count = 0;
-        }
 
         //get all the unnamed ones out of sorting list
         var unnamedControls = new List<ControllerUIGroup>();
@@ -355,12 +276,6 @@ public class UIManager : MonoBehaviour
         {
             _controllerUIs.Add(c);
         }
-
-        //place buttons
-        foreach (var c in _controllerUIs)
-        {
-            AddOptionsButtonToLayout(c.ActivateControllerOptionsButton.RectTransform);
-        }
     }
 
     private void ToggleEditFaderPositionMode()
@@ -379,12 +294,6 @@ public class UIManager : MonoBehaviour
         _faderPositionExitButton.gameObject.SetActive(_positionMode);
     }
 
-    private class LayoutGroupButtonCount
-    {
-        public GameObject LayoutGroup;
-        public int Count;
-    }
-
     private class ControllerUIGroup
     {
         //should be public get private set
@@ -395,21 +304,22 @@ public class UIManager : MonoBehaviour
         private readonly GameObject _optionsMenu;
         private readonly ControlsManager _controlsManager;
 
-        public ControllerUIGroup(ControlsManager controlsManager, ControllerData config, GameObject optionsActivateButtonPrefab, GameObject controlObject, GameObject optionsMenu)
+        public ControllerUIGroup(ControlsManager controlsManager, ControllerData config, GameObject optionsActivateButtonPrefab, RectTransform optionsButtonParent, GameObject controlObject, GameObject optionsMenu)
         {
             ControllerData = config;
             _controlsManager = controlsManager;
-            this._optionsMenu = optionsMenu;
-            this._controlObject = controlObject;
+            _optionsMenu = optionsMenu;
+            _controlObject = controlObject;
 
-            ActivateControllerOptionsButton = Instantiate(optionsActivateButtonPrefab).GetComponent<ButtonExtended>();
+            var buttonObj = Instantiate(optionsActivateButtonPrefab, optionsButtonParent, false);
+            ActivateControllerOptionsButton = buttonObj.GetComponentInChildren<ButtonExtended>();
             ActivateControllerOptionsButton.gameObject.name = config.GetName() + " Options Button";
             ActivateControllerOptionsButton.GetComponentInChildren<Text>().text = config.GetName(); // change visible button title
             ActivateControllerOptionsButton.OnClick.AddListener(() => { SetControllerOptionsActive(true); });
             ActivateControllerOptionsButton.OnPointerHeld.AddListener(Delete);
             SetControllerOptionsActive(false);
 
-            var activationToggle = ActivateControllerOptionsButton.GetComponentInChildren<Toggle>();
+            var activationToggle = buttonObj.GetComponentInChildren<Toggle>();
             activationToggle.onValueChanged.AddListener(ToggleControlVisibility);
             activationToggle.SetIsOnWithoutNotify(config.GetEnabled());
             _controlObjectTransform = controlObject.GetComponent<RectTransform>();

@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-using UnityEngine.Serialization;
-
-
 [Serializable]
 public abstract class ControllerData
 {
@@ -34,7 +31,7 @@ public abstract class ControllerData
     public static readonly Dictionary<Type, WidthRange> WidthRanges = new()
     {
         {typeof(Controller2DData), new WidthRange(0.4f, 2f, 1f) },
-        {typeof(FaderData), new WidthRange(0.125f, 1f, 0.25f) }
+        {typeof(FaderData), new WidthRange(0.4f, 2f, 1f) }
     };
 
     public void SetPosition(int index) => Position = index;

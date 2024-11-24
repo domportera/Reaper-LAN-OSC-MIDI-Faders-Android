@@ -1,22 +1,14 @@
 ﻿using UnityEngine;
-using UnityEngine.Serialization;
 
 [System.Serializable]
 public class ControllerSettings
 {
-    [FormerlySerializedAs("releaseBehavior")] [SerializeField]
-    private ReleaseBehaviorType _releaseBehavior;
-    [FormerlySerializedAs("inputType")] [SerializeField]
-    private InputMethod _inputType;
-    [FormerlySerializedAs("defaultType")] [SerializeField]
-    private DefaultValueType _defaultType;
-    [FormerlySerializedAs("smoothTime")] [SerializeField]
-    private float _smoothTime;
-    [FormerlySerializedAs("curveType")] [SerializeField]
-    private CurveType _curveType;
-    [FormerlySerializedAs("oscSettings")] [SerializeField]
-    private OscControllerSettings _oscSettings;
-
+    [SerializeField] private ReleaseBehaviorType _releaseBehavior;
+    [SerializeField] private InputMethod _inputType;
+    [SerializeField] private DefaultValueType _defaultType;
+    [SerializeField] private float _smoothTime;
+    [SerializeField] private CurveType _curveType;
+    [SerializeField] private OscControllerSettings _oscSettings;
 
     public ReleaseBehaviorType ReleaseBehavior => _releaseBehavior;
     public InputMethod InputType => _inputType;
