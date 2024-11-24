@@ -8,3 +8,4 @@ obj/
 to do.txt
 .vsconfig
 UserSettings
+*.log

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
 {
-    private float _pressTime = 0f;
+    private float _pressTime;
 
     private const float DefaultPressTime = float.MaxValue;
 
@@ -15,6 +15,8 @@ public class ButtonExtended : Button, IBeginDragHandler, IEndDragHandler
     private bool _ignoreClick;
     private bool _isDragging;
     private bool _couldBeHolding;
+
+    public RectTransform RectTransform => (RectTransform)transform;
 
     //hiding the original event so we can allow the button color to change states as normal, even if we ignore calling the onClick stuff in OnPointerUp
     [FormerlySerializedAs("onClick")] public ButtonClickedEvent OnClick = new (); 

@@ -37,60 +37,27 @@ public abstract class ControllerData
         {typeof(FaderData), new WidthRange(0.125f, 1f, 0.25f) }
     };
 
-    public void SetPosition(int index)
-    {
-        Position = index;
-    }
+    public void SetPosition(int index) => Position = index;
 
-    public int GetPosition()
-    {
-        return Position;
-    }
+    public int GetPosition() => Position;
 
-    public ControllerSettings GetSettings()
-    {
-        return Controllers.Count > 0 ? Controllers[0] : null;
-    }
+    public ControllerSettings GetSettings() => Controllers.Count > 0 ? Controllers[0] : null;
 
-    public List<ControllerSettings> GetControllers()
-    {
-        return Controllers;
-    }
+    public List<ControllerSettings> GetControllers() => Controllers;
 
-    public string GetName()
-    {
-        return Name;
-    }
+    public string GetName() => Name;
 
-    public void SetName(string name)
-    {
-        Name = name;
-    }
+    public void SetName(string name) => Name = name;
 
-    public bool GetEnabled()
-    {
-        return Enabled;
-    }
+    public bool GetEnabled() => Enabled;
 
-    public void SetWidth(float width)
-    {
-        Width = width;
-    }
+    public void SetWidth(float width) => Width = width;
 
-    public float GetWidth()
-    {
-        return Width <= NullWidth ? WidthRanges[GetType()].DefaultValue : Width;
-    }
+    public float GetWidth() => Width <= NullWidth ? WidthRanges[GetType()].DefaultValue : Width;
 
-    public WidthRange GetWidthRange()
-    {
-        return WidthRanges[GetType()];
-    }
+    public WidthRange GetWidthRange() => WidthRanges[GetType()];
 
-    public void SetEnabled(bool enabled)
-    {
-        Enabled = enabled;
-    }
+    public void SetEnabled(bool enabled) => Enabled = enabled;
 }
 
 [Serializable]

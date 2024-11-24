@@ -1,58 +1,62 @@
-using System.Collections.ObjectModel;
+using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
-using UnityEngine.Serialization;
 using PopUpWindows;
 
 public abstract class ControllerOptionsPanel : MonoBehaviour
 {
     [SerializeField] private ControlsManager _controlsManager;
-    [FormerlySerializedAs("nameField")] [SerializeField] protected InputField NameField;
-    [FormerlySerializedAs("applyButton")] [SerializeField] protected Button ApplyButton;
-    [FormerlySerializedAs("closeButton")] [SerializeField] protected Button CloseButton;
-    [FormerlySerializedAs("widthSlider")] [SerializeField] protected Slider WidthSlider;
+    [SerializeField] private CanvasGroup _canvasGroup;
+    [SerializeField] protected InputField NameField;
+    [SerializeField] protected Button ApplyButton;
+    [SerializeField] protected Button CloseButton;
+    [SerializeField] protected Slider WidthSlider;
 
-    protected ControllerData ControlData;
-    protected RectTransform ControlObjectTransform;
+    private ControllerData ControlData;
 
     public const int SliderSteps = 7;
-    private int SliderStepsCorrected { get { return SliderSteps - 1; } }
+    private static int SliderStepsCorrected => SliderSteps - 1;
 
-    public UnityEvent OnWake = new();
-    public UnityEvent OnSleep = new();
+    public event Action OnWake;
+    public event Action OnSleep;
+    
+    private bool IsInitialized => ControlData != null;
 
     protected void Awake()
     {
+        if (!_controlsManager)
+        {
+            _controlsManager = FindFirstObjectByType<ControlsManager>();
+            if (!_controlsManager)
+            {
+                enabled = false;
+                Debug.LogError("ControlsManager not found");
+                return;
+            }
+        }
         NameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         ApplyButton.onClick.AddListener(Apply);
         CloseButton.onClick.AddListener(Close);
-        AwakeExtended();
     }
 
     protected void OnEnable()
     {
-        OnWake.Invoke();
+        OnWake?.Invoke();
+        if (IsInitialized)
+            SetWidthSliderToControllerWidth();
     }
 
     protected void OnDisable()
     {
-        OnSleep.Invoke();
+        OnSleep?.Invoke();
     }
 
-    /// <summary>
-    /// Provides ability to add functionality to the Awake method without being allowed to override it
-    /// </summary>
-    protected virtual void AwakeExtended(){}
-
-    protected void BaseInitialize(ControllerData data, RectTransform controlObjectTransform)
+    protected void BaseInitialize(ControllerData data)
     {
-        ControlObjectTransform = controlObjectTransform;
         ControlData = data;
         NameField.SetTextWithoutNotify(ControlData.GetName());
-        InitializeWidthSlider(data);
-        SetWidth(data.GetWidth());
+        InitializeWidthSlider();
     }
 
     private void RemoveProblemCharactersInNameField(string input)
@@ -62,18 +66,15 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         NameField.SetTextWithoutNotify(input);
     }
 
-    private void SetControllerDataMasterVariables()
+
+    protected virtual void Apply()
     {
         var controllerName = NameField.text;
         ControlData.SetName(controllerName);
 
         var width = ConvertSliderValueToWidth((int)WidthSlider.value);
         ControlData.SetWidth(width);
-    }
-
-    protected virtual void Apply()
-    {
-        SetControllerDataMasterVariables();
+        UIManager.Instance.RefreshFaderLayoutGroup();
         _controlsManager.RespawnController(ControlData);
         PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
@@ -85,21 +86,19 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
 
     #region Width
 
-    private void InitializeWidthSlider(ControllerData data)
+    private void InitializeWidthSlider()
     { 
-        var widthRange = data.GetWidthRange();
+        var widthRange = ControlData.GetWidthRange();
         WidthSlider.wholeNumbers = true;
         WidthSlider.minValue = ConvertWidthToSliderValue(widthRange.Min);
         WidthSlider.maxValue = ConvertWidthToSliderValue(widthRange.Max);
-
-        var width = ConvertWidthToSliderValue(data.GetWidth());
-        WidthSlider.SetValueWithoutNotify(width);
+        SetWidthSliderToControllerWidth();
     }
 
-    private void SetWidth(float width)
+    protected void SetWidthSliderToControllerWidth()
     {
-        ControlObjectTransform.sizeDelta = new Vector2(ControlObjectTransform.sizeDelta.y * width, ControlObjectTransform.sizeDelta.y);
-        UIManager.Instance.RefreshFaderLayoutGroup();
+        var width = ConvertWidthToSliderValue(ControlData.GetWidth());
+        WidthSlider.SetValueWithoutNotify(width);
     }
 
     //all this conversion stuff is to achieve the stepping slider with the multiplicative fractional width functionality

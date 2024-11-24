@@ -40,7 +40,7 @@ public class ProfilesManager : MonoBehaviour
     //saving variables
     public const string DefaultSaveName = "Default";
     private const string ProfileNameSaveName = "Profiles"; //name of json file that stores all profile names
-    private ProfilesMetadata _profileNames = null;
+    private ProfilesMetadata _profileNames;
 
     private string _basePath;
     private const string ControlsExtension = ".controls";

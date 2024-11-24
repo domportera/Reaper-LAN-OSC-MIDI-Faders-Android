@@ -11,26 +11,26 @@ namespace PopUpWindows
     public class PopUpController : MonoBehaviour
     {
         [FormerlySerializedAs("windowParent")] [SerializeField]
-        private RectTransform _windowParent = null;
+        private RectTransform _windowParent;
         [FormerlySerializedAs("toastParent")] [SerializeField]
-        private RectTransform _toastParent = null;
+        private RectTransform _toastParent;
         [FormerlySerializedAs("confirmationDisplayTime")] [SerializeField]
         private float _confirmationDisplayTime = 3f;
 
         [FormerlySerializedAs("confirmationWindowPrefab")]
         [Space(20)]
         [SerializeField]
-        private GameObject _confirmationWindowPrefab = null;
+        private GameObject _confirmationWindowPrefab;
         [FormerlySerializedAs("multiOptionWindowPrefab")] [SerializeField]
-        private GameObject _multiOptionWindowPrefab = null;
+        private GameObject _multiOptionWindowPrefab;
         [FormerlySerializedAs("sliderWindowPrefab")] [SerializeField]
-        private GameObject _sliderWindowPrefab = null;
+        private GameObject _sliderWindowPrefab;
         [FormerlySerializedAs("errorWindowPrefab")] [SerializeField]
-        private GameObject _errorWindowPrefab = null;
+        private GameObject _errorWindowPrefab;
         [FormerlySerializedAs("quickNoticeWindowPrefab")] [SerializeField]
-        private GameObject _quickNoticeWindowPrefab = null;
+        private GameObject _quickNoticeWindowPrefab;
         [FormerlySerializedAs("toastPrefab")] [SerializeField]
-        private GameObject _toastPrefab = null;
+        private GameObject _toastPrefab;
 
         [FormerlySerializedAs("toastColors")] [SerializeField]
         private ToastColor[] _toastColors = Array.Empty<ToastColor>();

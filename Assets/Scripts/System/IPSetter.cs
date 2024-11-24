@@ -8,9 +8,9 @@ using PopUpWindows;
 public class IPSetter : MonoBehaviour
 {
     [FormerlySerializedAs("ipAddressField")] [SerializeField]
-    private InputField _ipAddressField = null;
+    private InputField _ipAddressField;
     [FormerlySerializedAs("portField")] [SerializeField]
-    private InputField _portField = null;
+    private InputField _portField;
 
     private const string IPAddressPlayerPref = "IP Address";
     private const string PortPlayerPref = "Port";

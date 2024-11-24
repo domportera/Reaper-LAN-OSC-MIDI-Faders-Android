@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Serialization;
@@ -9,29 +8,23 @@ public class ControllerOptionsMenu : OptionsMenu
 {
     private ControllerSettings _controllerConfig;
 
-    [FormerlySerializedAs("smoothnessField")] [SerializeField]
-    private Slider _smoothnessField = null;
-    [FormerlySerializedAs("controlTypeDropdown")] [SerializeField]
-    private Dropdown _controlTypeDropdown = null;
-    [FormerlySerializedAs("defaultValueDropdown")] [SerializeField]
-    private Dropdown _defaultValueDropdown = null;
-    [FormerlySerializedAs("curveTypeDropdown")] [SerializeField]
-    private Dropdown _curveTypeDropdown = null;
-    [FormerlySerializedAs("resetValuesButton")] [SerializeField]
-    private Button _resetValuesButton = null;
-    [FormerlySerializedAs("openOSCOptionsButton")] [SerializeField]
-    private Button _openOscOptionsButton = null;
+    [SerializeField] private Slider _smoothnessField;
+    [FormerlySerializedAs("_controlTypeDropdown")] [SerializeField] private Dropdown _releaseBehaviourButton;
+    [SerializeField] private Dropdown _defaultValueDropdown;
+    [SerializeField] private Dropdown _curveTypeDropdown;
+    [SerializeField] private Button _resetValuesButton;
+    [SerializeField] private Button _openOscOptionsButton;
 
     private OscSelectionMenu _oscSelectionMenu;
     private OscControllerSettings _oscSettingsPendingApplication;
 
-    private bool _shouldResetOscMenu = false;
+    private bool _shouldResetOscMenu;
     private bool _initialized;
 
     private void OnEnable()
     {
         if (!_initialized) return;
-        SetFieldsToControllerValues();
+        ResetValues();
     }
 
     private void InitializeUI()
@@ -44,11 +37,11 @@ public class ControllerOptionsMenu : OptionsMenu
     {
         _controllerConfig = data;
         _oscSelectionMenu = oscMenu;
-        optionsPanel.OnWake.AddListener(() => _shouldResetOscMenu = true);
-        optionsPanel.OnWake.AddListener(() => _oscSettingsPendingApplication = null);
+        optionsPanel.OnWake += () => _shouldResetOscMenu = true;
+        optionsPanel.OnWake += () => _oscSettingsPendingApplication = null;
         InitializeUI();
         InitializeOscSelectionMenu(data.OscSettings);
-        SetFieldsToControllerValues();
+        ResetValues();
         _initialized = true;
     }
 
@@ -72,19 +65,9 @@ public class ControllerOptionsMenu : OptionsMenu
         _oscSelectionMenu.gameObject.SetActive(true);
     }
 
-    private void SetFieldsToControllerValues()
-    {
-        _controlTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.ReleaseBehavior);
-        _defaultValueDropdown.SetValueWithoutNotify((int)_controllerConfig.DefaultType);
-        _curveTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.Curve);
-
-        _smoothnessField.SetValueWithoutNotify(_controllerConfig.SmoothTime);
-        UpdateOscPreview(_controllerConfig.OscSettings);
-    }
-
     public void SetControllerValuesToFields()
     {
-        var controlType = (ReleaseBehaviorType)_controlTypeDropdown.value;
+        var controlType = (ReleaseBehaviorType)_releaseBehaviourButton.value;
         var defaultValueType = (DefaultValueType)_defaultValueDropdown.value;
         var curveType = (CurveType)_curveTypeDropdown.value;
         var inputType = InputMethod.Touch; //hard-coded for now until other input types are implemented
@@ -118,7 +101,7 @@ public class ControllerOptionsMenu : OptionsMenu
 
     private void PopulateDropdowns()
     {
-        DropDownEntryNames.Add(_controlTypeDropdown, EnumUtility.GetControllerBehaviorTypeNameArray());
+        DropDownEntryNames.Add(_releaseBehaviourButton, EnumUtility.GetControllerBehaviorTypeNameArray());
         DropDownEntryNames.Add(_defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
         DropDownEntryNames.Add(_curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
 
@@ -135,6 +118,11 @@ public class ControllerOptionsMenu : OptionsMenu
     public void ResetValues()
     {
         _oscSelectionMenu.Initialize(_controllerConfig.OscSettings, this);
-        SetFieldsToControllerValues();
+        _releaseBehaviourButton.SetValueWithoutNotify((int)_controllerConfig.ReleaseBehavior);
+        _defaultValueDropdown.SetValueWithoutNotify((int)_controllerConfig.DefaultType);
+        _curveTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.Curve);
+
+        _smoothnessField.SetValueWithoutNotify(_controllerConfig.SmoothTime);
+        UpdateOscPreview(_controllerConfig.OscSettings);
     }
 }

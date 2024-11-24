@@ -9,11 +9,11 @@ namespace PopUpWindows
     public class QuickNoticeWindow : MonoBehaviour
     {
         [FormerlySerializedAs("confirmationText")] [SerializeField]
-        private Text _confirmationText = null;
+        private Text _confirmationText;
         [FormerlySerializedAs("closeButton")] [SerializeField]
-        private Button _closeButton = null;
+        private Button _closeButton;
 
-        private UnityAction _onHide = null;
+        private UnityAction _onHide;
 
         // Start is called before the first frame update
         private void Awake()

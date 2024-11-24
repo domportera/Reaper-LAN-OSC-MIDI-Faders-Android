@@ -1,32 +1,30 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(RectTransform))]
 public sealed class FaderControlUi : MonoBehaviour, ISortingMember
 {
     private RangeController _rangeController;
-    [FormerlySerializedAs("slider")] [SerializeField]
-    private Slider _slider = null;
-    [FormerlySerializedAs("eventTrigger")] [SerializeField]
-    private EventTrigger _eventTrigger = null;
-    [FormerlySerializedAs("label")] [SerializeField]
-    private Text _label = null;
-    [FormerlySerializedAs("sortLeftButton")] [SerializeField]
-    private Button _sortLeftButton;
-    [FormerlySerializedAs("sortRightButton")] [SerializeField]
-    private Button _sortRightButton;
+    [SerializeField] private Slider _slider;
+    [SerializeField] private EventTrigger _eventTrigger;
+    [SerializeField] private Text _label;
+    [SerializeField] private Button _sortLeftButton;
+    [SerializeField] private Button _sortRightButton;
 
     public void Initialize(FaderData controlData)
     {
         _rangeController = new RangeController(controlData.GetSettings());
+        var rectTransform = GetComponent<RectTransform>();
+        var initialSizeDelta = rectTransform.sizeDelta;
 
         var displayName = controlData.GetName();
         _label.text = displayName;
         name = displayName + " Fader";
         InitializeFaderInteraction();
         InitializeSorting();
+        
+        rectTransform.sizeDelta = new Vector2(initialSizeDelta.y * controlData.GetWidth(), initialSizeDelta.y);
     }
 
     // Update is called once per frame

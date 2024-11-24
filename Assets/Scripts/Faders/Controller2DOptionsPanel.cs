@@ -8,12 +8,17 @@ public class Controller2DOptionsPanel : ControllerOptionsPanel
     [FormerlySerializedAs("verticalOptions")] [SerializeField]
     private ControllerOptionsMenu _verticalOptions;
 
-    public void Initialize(Controller2DData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
+    public void Initialize(Controller2DData data, OscSelectionMenu oscMenu)
     {
+        BaseInitialize(data);
         _horizontalOptions.Initialize(data.HorizontalController, this, oscMenu);
         _verticalOptions.Initialize(data.VerticalController, this, oscMenu);
 
-        BaseInitialize(data, controlObjectTransform);
+        OnWake += () =>
+        {
+            _horizontalOptions.ResetValues();
+            _verticalOptions.ResetValues();
+        };
     }
 
     protected override void Apply()

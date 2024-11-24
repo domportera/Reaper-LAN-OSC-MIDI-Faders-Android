@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -27,7 +28,7 @@ namespace PopUpWindows
 
         private UnityAction<string> _inputAction;
 
-        public UnityEvent OnClose = new UnityEvent();
+        public event Action OnClose;
 
         public void SetActions(string text, UnityAction confirm, UnityAction cancel = null, string confirmButtonLabel = null, string cancelButtonLabel = null)
         {
@@ -104,7 +105,7 @@ namespace PopUpWindows
 
         private void Close()
         {
-            OnClose.Invoke();
+            OnClose?.Invoke();
             Destroy(_root);
         }
     }

@@ -72,8 +72,7 @@ public class ControlsManager : MonoBehaviour
         new ControllerSettings(InputMethod.Touch, ReleaseBehaviorType.Normal, DefaultOscSettings[BuiltInOscPreset.Expression],  DefaultValueType.Min, CurveType.Linear));
     #endregion Default Controller Values
 
-    public class ProfileEvent : UnityEvent<string> { }
-    public ProfileEvent OnProfileLoaded = new();
+    public event Action<string> OnProfileLoaded;
 
     public static readonly Dictionary<Type, ControllerType> ControllerTypes = new()
     {
@@ -110,13 +109,13 @@ public class ControlsManager : MonoBehaviour
                 _controllers = loadedData.GetControllers();
                 
                 SpawnControllers(_controllers);
-                OnProfileLoaded.Invoke(profileName);
+                OnProfileLoaded?.Invoke(profileName);
             }
             else
             {
                 //spawn defaults if no save data
                 SpawnDefaultControllers();
-                OnProfileLoaded.Invoke(ProfilesManager.DefaultSaveName);
+                OnProfileLoaded?.Invoke(ProfilesManager.DefaultSaveName);
                 Debug.LogError($"Saved data for {profileName} was empty");
             }
         }
@@ -124,7 +123,7 @@ public class ControlsManager : MonoBehaviour
         {
             Debug.Log($"Profile was default", this);
             SpawnDefaultControllers();
-            OnProfileLoaded.Invoke(ProfilesManager.DefaultSaveName);
+            OnProfileLoaded?.Invoke(ProfilesManager.DefaultSaveName);
         }
 
 

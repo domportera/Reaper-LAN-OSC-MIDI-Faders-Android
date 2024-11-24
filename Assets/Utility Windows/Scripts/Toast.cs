@@ -8,9 +8,9 @@ namespace PopUpWindows
 {
     public class Toast : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _txt = null;
-        [SerializeField] private Image _image = null;
-        [SerializeField] private LayoutGroup[] _layoutGroups = null;
+        [SerializeField] private TMP_Text _txt;
+        [SerializeField] private Image _image;
+        [SerializeField] private LayoutGroup[] _layoutGroups;
 
         private static float Lifespan => PopUpController.Instance.ToastLifespan;
         private static AnimationCurve FadeCurve => PopUpController.Instance.ToastFadeCurve;

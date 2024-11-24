@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(RectTransform))]
 public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 {
     [Header("Visuals")]
@@ -81,6 +81,9 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         _verticalRangeController = new RangeController(data.VerticalController);
         _horizontalRangeController = new RangeController(data.HorizontalController);
         _title.text = data.GetName();
+        var rectTransform = GetComponent<RectTransform>();
+        var initialSizeDelta = rectTransform.sizeDelta;
+        rectTransform.sizeDelta = new Vector2(initialSizeDelta.x * data.GetWidth(), initialSizeDelta.y);
         InitializeSorting();
     }
 

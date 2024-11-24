@@ -9,9 +9,9 @@ namespace PopUpWindows
     {
 
         [FormerlySerializedAs("errorText")] [SerializeField]
-        private Text _errorText = null;
+        private Text _errorText;
         [FormerlySerializedAs("closeButton")] [SerializeField]
-        private Button _closeButton = null;
+        private Button _closeButton;
 
         private void Awake()
         {

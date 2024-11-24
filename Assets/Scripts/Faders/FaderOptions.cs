@@ -1,16 +1,16 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class FaderOptions : ControllerOptionsPanel
 {
-    [FormerlySerializedAs("optionsMenu")] [SerializeField]
+   [SerializeField]
     private ControllerOptionsMenu _optionsMenu;
 
-    public void Initialize(FaderData data, RectTransform controlObjectTransform, OscSelectionMenu oscMenu)
+    public void Initialize(FaderData data, OscSelectionMenu oscMenu)
     {
+        BaseInitialize(data);
         _optionsMenu.Initialize(data.GetSettings(), this, oscMenu);
 
-        BaseInitialize(data, controlObjectTransform);
+        OnWake += () => _optionsMenu.ResetValues();
     }
 
     protected override void Apply()

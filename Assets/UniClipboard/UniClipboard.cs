@@ -36,7 +36,7 @@ internal interface IBoard{
 }
 
 internal class StandardBoard : IBoard {
-    private static PropertyInfo m_systemCopyBufferProperty = null;
+    private static PropertyInfo m_systemCopyBufferProperty;
     private static PropertyInfo GetSystemCopyBufferProperty() {
         if (m_systemCopyBufferProperty == null) {
             var T = typeof(GUIUtility);
