@@ -67,6 +67,18 @@ namespace Colors
             _hueSlider.onValueChanged.AddListener((_) => OnSliderChange());
             _saturationSlider.onValueChanged.AddListener((_) => OnSliderChange());
             _valueSlider.onValueChanged.AddListener((_) => OnSliderChange());
+            
+            _hueSlider.minValue = 0;
+            _saturationSlider.minValue = 0;
+            _valueSlider.minValue = 0;
+            
+            _hueSlider.maxValue = 255;
+            _saturationSlider.maxValue = 255;
+            _valueSlider.maxValue = 255;
+            
+            _hueSlider.wholeNumbers = true;
+            _saturationSlider.wholeNumbers = true;
+            _valueSlider.wholeNumbers = true;
 
             _openButton.onClick.AddListener(ChooseColorWindow);
             _closeButton.onClick.AddListener(() => { ToggleColorControlWindow(false); });
