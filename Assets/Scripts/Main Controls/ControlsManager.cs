@@ -219,7 +219,7 @@ public class ControlsManager : MonoBehaviour
             action.Invoke();
     }
 
-    public GameObject SpawnController (ControllerData data)
+    private GameObject SpawnController (ControllerData data)
     {
         var prefab = GetControllerPrefabFromType(data.GetType());
 

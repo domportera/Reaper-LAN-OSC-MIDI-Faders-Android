@@ -55,10 +55,9 @@ public class UIManager : MonoBehaviour
     private List<ControllerUIGroup> _controllerUIs = new List<ControllerUIGroup>();
 
     private bool _positionMode;
+    private bool _sortOptionsByName;
 
     public static UIManager Instance;
-
-    private bool _sortOptionsByName;
 
     // Start is called before the first frame update
     private void Awake()
@@ -104,8 +103,49 @@ public class UIManager : MonoBehaviour
     private void SwitchOptionsButtonSorting(bool byName)
     {
         _sortOptionsByName = byName;
-        _optionsButtonSortingButton.GetComponentInChildren<Text>().text = $"Sort Options: {(_sortOptionsByName ? "Name" : "Layout")}";
-        SortOptionsButtons();
+        _optionsButtonSortingButton.GetComponentInChildren<Text>().text =
+            $"Sort Options: {(byName ? "Name" : "Layout")}";
+        SortOptionsButtons(byName, _controllerUIs);
+        return;
+
+        static void SortOptionsButtons(bool sortOptionsByName, List<ControllerUIGroup> controllerUIs)
+        {
+            //get all the unnamed ones out of sorting list
+            var unnamedControls = new List<ControllerUIGroup>();
+            for (var i = 0; i < controllerUIs.Count; i++)
+            {
+                if (controllerUIs[i].ControllerData.GetName() ==
+                    ControlsManager.GetDefaultControllerName(controllerUIs[i].ControllerData))
+                {
+                    unnamedControls.Add(controllerUIs[i]);
+                    controllerUIs.Remove(controllerUIs[i]);
+                    i--;
+                }
+            }
+
+            //sort buttons
+            if (sortOptionsByName)
+            {
+                controllerUIs.Sort((s1, s2) => 
+                    string.Compare(s1.ControllerData.GetName(), s2.ControllerData.GetName(), StringComparison.Ordinal));
+            }
+            else
+            {
+                controllerUIs.Sort((s1, s2) =>
+                    s1.ControllerData.GetPosition().CompareTo(s2.ControllerData.GetPosition()));
+            }
+            
+            //add unnamed ones to the end
+            foreach (var c in unnamedControls)
+            {
+                controllerUIs.Add(c);
+            }
+            
+            for (var i = 0; i < controllerUIs.Count; i++)
+            {
+                controllerUIs[i].OptionButtonTransform.SetSiblingIndex(i);
+            }
+        }
     }
 
     //used by options button in scene
@@ -126,7 +166,7 @@ public class UIManager : MonoBehaviour
         }
 
         InitializeControllerOptions(config, control);
-        SortOptionsButtons();
+        SwitchOptionsButtonSorting(_sortOptionsByName);
     }
 
     private void InitializeControllerOptions(ControllerData config, GameObject control)
@@ -188,8 +228,6 @@ public class UIManager : MonoBehaviour
 
         //remove from list
         _controllerUIs.Remove(buttonGroup);
-
-        SortOptionsButtons();
     }
 
     public void DestroyControllerObjects(ControllerData config)
@@ -246,38 +284,6 @@ public class UIManager : MonoBehaviour
         _faderLayoutGroup.enabled = true;
     }
 
-    private void SortOptionsButtons()
-    {
-
-        //get all the unnamed ones out of sorting list
-        var unnamedControls = new List<ControllerUIGroup>();
-        for (var i = 0; i < _controllerUIs.Count; i++)
-        {
-            if (_controllerUIs[i].ControllerData.GetName() == ControlsManager.GetDefaultControllerName(_controllerUIs[i].ControllerData))
-            {
-                unnamedControls.Add(_controllerUIs[i]);
-                _controllerUIs.Remove(_controllerUIs[i]);
-                i--;
-            }
-        }
-
-        //sort buttons
-        if (_sortOptionsByName)
-        {
-            _controllerUIs.Sort((s1, s2) => s1.ControllerData.GetName().CompareTo(s2.ControllerData.GetName()));
-        }
-        else
-        {
-            _controllerUIs.Sort((s1, s2) => s1.ControllerData.GetPosition().CompareTo(s2.ControllerData.GetPosition()));
-        }
-
-        //add unnamed ones to the end
-        foreach (var c in unnamedControls)
-        {
-            _controllerUIs.Add(c);
-        }
-    }
-
     private void ToggleEditFaderPositionMode()
     {
         _positionMode = !_positionMode;
@@ -297,7 +303,8 @@ public class UIManager : MonoBehaviour
     private class ControllerUIGroup
     {
         //should be public get private set
-        public ButtonExtended ActivateControllerOptionsButton { get; private set; }
+        public RectTransform OptionButtonTransform { get; }
+        public ButtonExtended ActivateOptionsButton { get; private set; }
         private readonly GameObject _controlObject;
         private readonly RectTransform _controlObjectTransform;
         public ControllerData ControllerData { get; private set; }
@@ -312,11 +319,12 @@ public class UIManager : MonoBehaviour
             _controlObject = controlObject;
 
             var buttonObj = Instantiate(optionsActivateButtonPrefab, optionsButtonParent, false);
-            ActivateControllerOptionsButton = buttonObj.GetComponentInChildren<ButtonExtended>();
-            ActivateControllerOptionsButton.gameObject.name = config.GetName() + " Options Button";
-            ActivateControllerOptionsButton.GetComponentInChildren<Text>().text = config.GetName(); // change visible button title
-            ActivateControllerOptionsButton.OnClick.AddListener(() => { SetControllerOptionsActive(true); });
-            ActivateControllerOptionsButton.OnPointerHeld.AddListener(Delete);
+            OptionButtonTransform = (RectTransform)buttonObj.transform;
+            ActivateOptionsButton = buttonObj.GetComponentInChildren<ButtonExtended>();
+            ActivateOptionsButton.gameObject.name = config.GetName() + " Options Button";
+            ActivateOptionsButton.GetComponentInChildren<Text>().text = config.GetName(); // change visible button title
+            ActivateOptionsButton.OnClick.AddListener(() => { SetControllerOptionsActive(true); });
+            ActivateOptionsButton.OnPointerHeld.AddListener(Delete);
             SetControllerOptionsActive(false);
 
             var activationToggle = buttonObj.GetComponentInChildren<Toggle>();
@@ -378,7 +386,7 @@ public class UIManager : MonoBehaviour
         public void SelfDestruct()
         {
             Destroy(_optionsMenu);
-            Destroy(ActivateControllerOptionsButton.gameObject);
+            Destroy(ActivateOptionsButton.gameObject);
             Destroy(_controlObject);
         }
     }
