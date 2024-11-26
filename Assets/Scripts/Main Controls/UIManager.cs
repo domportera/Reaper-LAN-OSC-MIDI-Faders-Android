@@ -386,7 +386,7 @@ public class UIManager : MonoBehaviour
         public void SelfDestruct()
         {
             Destroy(_optionsMenu);
-            Destroy(ActivateOptionsButton.gameObject);
+            Destroy(OptionButtonTransform.gameObject);
             Destroy(_controlObject);
         }
     }
