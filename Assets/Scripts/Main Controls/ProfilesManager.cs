@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Colors;
@@ -34,25 +35,63 @@ public class ProfilesManager : MonoBehaviour
     private GameObject _profileLoadButtonPrefab;
     [SerializeField] private Transform _profileButtonParent;
 
-    [SerializeField] private ControlsManager _controlsManager;
-
-    private Dictionary <string, ProfileLoader> _profileButtons = new();
+    private static Dictionary <ProfileSaveData, ProfileButtonUi> _profileButtons = new();
     //saving variables
     public const string DefaultSaveName = "Default";
     private const string ProfileNameSaveName = "Profiles"; //name of json file that stores all profile names
-    private ProfilesMetadata _profileNames;
+    private static ProfilesMetadata _profileMetadata;
 
-    private string _basePath;
+    private static string _basePath;
     private const string ControlsExtension = ".controls";
-    private const string ProfileListExtension = ".profiles";
+    private const string MetadataExtension = ".profiles";
+
+    private static ProfilesManager _singleInstance;
+    
+    public static event Action<ProfileSaveData> ProfileChanged;
 
     private void Awake()
     {
+        if(_singleInstance != null)
+            throw new Exception("Only one instance of ProfilesManager can exist at a time");
+
+        _singleInstance = this;
+        
         _basePath = Path.Combine(Application.persistentDataPath, "Controllers");
 
         InitializeUIElements();
-        LoadProfileNames();
-        PopulateProfileButtons(_profileNames.GetNames(), _profileNames.GetDefaultProfileName());
+        _profileMetadata = LoadProfileMetadata();
+        var directoryInfo = new DirectoryInfo(_basePath);
+        if (directoryInfo.Exists)
+        {
+            var allSavedProfiles =
+                Directory.EnumerateFiles(_basePath, $"*{ControlsExtension}")
+                    .Select(Path.GetFileNameWithoutExtension)
+                    .Select(fileName => TryLoadProfile(fileName, out var data) ? data : null)
+                    .Where(x => x != null);
+
+            foreach (var profile in allSavedProfiles)
+            {
+                AddToProfileButtons(profile);
+            }
+        }
+        else
+        {
+            directoryInfo.Create();
+        }
+        
+        var defaultProfile = new ProfileSaveData(ControlsManager.DefaultControllers, DefaultSaveName);
+        AddToProfileButtons(defaultProfile);
+
+        SortProfileButtons();
+        SetActiveProfile(GetOrUpdateDefaultProfile());
+    }
+
+    private void OnDestroy()
+    {
+        if(_singleInstance != this)
+            throw new Exception("There should only be one instance of ProfilesManager");
+        
+        _singleInstance = null;
     }
 
     private void InitializeUIElements()
@@ -73,28 +112,28 @@ public class ProfilesManager : MonoBehaviour
         _titleText.supportRichText = _boldTitleText;
     }
 
-    private void DeleteConfirmation(ProfileLoader profile)
+    private void DeleteConfirmation(ProfileSaveData profile)
     {
-        if (profile.GetName() != DefaultSaveName)
-        {
-
-            var activeProfile = GetActiveProfile();
-            string confirmationWindowText;
-
-            if(activeProfile == profile.GetName())
-            {
-                confirmationWindowText = $"Are you sure you want to delete your current profile? This will automatically load the default profile after deletion.";
-            }
-            else
-            {
-                confirmationWindowText = $"Are you sure you want to delete profile {profile.GetName()}?";
-            }
-            PopUpController.Instance.ConfirmationWindow(confirmationWindowText, () => DeleteProfile(profile), null, "Delete", "Cancel");
-        }
-        else
+        if (profile.IsBuiltInDefault)
         {
             PopUpController.Instance.ErrorWindow($"Can't delete default profile");
-		}
+            return;
+        }
+
+        var activeProfile = ControlsManager.ActiveProfile;
+        
+        if(activeProfile == null)
+            throw new Exception("No active profile");
+
+        var confirmationWindowText = activeProfile == profile ?
+        "Are you sure you want to delete your current profile? This will automatically load the default profile after deletion."
+            : $"Are you sure you want to delete profile {profile.Name}?";
+
+        PopUpController.Instance.ConfirmationWindow(text: confirmationWindowText, 
+            confirm: () => DeleteProfileAndUpdateUi(profile),
+            cancel: null, 
+            confirmButtonLabel: "Delete", 
+            cancelButtonLabel: "Cancel");
     }
 
     private void SaveAsWindow()
@@ -102,124 +141,145 @@ public class ProfilesManager : MonoBehaviour
         PopUpController.Instance.TextInputWindow($"Enter a name for your new profile:", SaveAs, null, "Save", "Cancel");
     }
 
-    private void PopulateProfileButtons(List<string> profileNames, string setActiveProfile)
+    private ProfileSaveData GetOrUpdateDefaultProfile()
     {
-        AddToProfileButtons(DefaultSaveName);
+        var defaultProfileName = _profileMetadata.DefaultProfileName;
+        ProfileSaveData defaultProfile = null;
 
-        foreach (var pname in profileNames)
+        foreach(var profile in _profileButtons.Keys)
         {
-            AddToProfileButtons(pname);
+            if(profile.Name == defaultProfileName)
+            {
+                defaultProfile = profile;
+                break;
+            }
         }
-        SortProfileButtons();
-        SetActiveProfile(_profileButtons[setActiveProfile]);
+        
+        if (defaultProfile == null)
+        {
+            defaultProfile = new ProfileSaveData(ControlsManager.DefaultControllers, DefaultSaveName);
+            AddToProfileButtons(defaultProfile);
+            SortProfileButtons();
+        }
+        
+        return defaultProfile;
+        
     }
 
-    private void AddToProfileButtons(string profileName)
+    private void AddToProfileButtons(ProfileSaveData profile)
     {
+        var profileName = profile.Name;
         var obj = Instantiate(_profileLoadButtonPrefab, _profileButtonParent);
-        var buttonScript = obj.GetComponent<ProfileLoader>();
+        var buttonScript = obj.GetComponent<ProfileButtonUi>();
         buttonScript.SetText(profileName);
-        buttonScript.SetButtonActions(() => SetActiveProfile(_profileButtons[profileName]), () => DeleteConfirmation(buttonScript));
+        buttonScript.SetButtonActions(
+            pressAction: () => SetActiveProfile(profile), 
+            holdAction: () => DeleteConfirmation(profile));
+        
         buttonScript.ToggleHighlight(false);
-        _profileButtons.Add(profileName, buttonScript);
+        _profileButtons.Add(profile, buttonScript);
 
         Debug.Log($"Adding profile button {profileName}", this);
     }
 
     private void SortProfileButtons()
     {
-        RefreshParenting(_profileButtons[DefaultSaveName].transform, _profileButtonParent);
-
-        _profileButtons = _profileButtons.OrderBy(e => e.Key).ToDictionary(x => x.Key, x => x.Value);
-        
-        foreach(var p in _profileButtons)
+        foreach(var (profile, ui) in _profileButtons.OrderBy(x => x.Key.Name))
         {
-            if(p.Key != DefaultSaveName)
-            {
-                RefreshParenting(p.Value.transform, _profileButtonParent);
-            }
+            if (profile.IsBuiltInDefault) continue; // keeps default on top
+
+            // hacky way to move to end of list in hierarchy
+            var uiTransform = ui.transform;
+            uiTransform.SetParent(null);
+            uiTransform.SetParent(_profileButtonParent);
         }
     }
 
-    private void RefreshParenting(Transform obj, Transform newParent)
+    private void SetActiveProfile(ProfileSaveData profileData)
     {
-        obj.SetParent(null);
-        obj.SetParent(newParent);
-    }
-
-    private void SetActiveProfile(ProfileLoader loader)
-    {
-        _controlsManager.SetActiveProfile(loader);
-
-        //set highlight color and active status
-        foreach(var p in _profileButtons)
+        ProfileChanged?.Invoke(profileData);
+        foreach (var p in _profileButtons.Values)
         {
-            p.Value.IsActiveProfile = p.Value == loader;
-            p.Value.ToggleHighlight(p.Value == loader);
-		}
+            p.ToggleHighlight(false);
+        }
 
-        _titleText.text = $"<b>{loader.GetName()}</b>";
+        var buttonUi = _profileButtons[profileData];
+        buttonUi.ToggleHighlight(true);
+        _titleText.text = $"<b>{profileData.Name}</b>";
     }
 
     private void Save()
     {
-        _ = SaveProfile(GetActiveProfile());
+        var profile = ControlsManager.ActiveProfile;
+        if (profile == null)
+            return;
+        
+        _ = SaveProfile(profile);
     }
 
     private void SaveAs(string saveName)
     {
         var profileName = saveName;
-        var canSwitchProfiles = SaveProfileAs(profileName);
 
-        if(canSwitchProfiles)
-        {
-            SetActiveProfile(_profileButtons[saveName]);
-        }
+        if (!SaveProfileAs(profileName, out var newProfile)) return;
+        
+        AddToProfileButtons(newProfile);
+        SortProfileButtons();
+        ColorController.SaveCurrentColorsWithProfileName(profileName);
+        SetActiveProfile(newProfile);
     }
 
-    private void SetDefaultProfile()
+    private static void SetDefaultProfile()
     {
-        var activeProfile = GetActiveProfile();
-        _profileNames.SetDefaultProfile(activeProfile);
-        SaveProfileNames();
+        var activeProfile = ControlsManager.ActiveProfile;
+        _profileMetadata.DefaultProfileName = activeProfile.Name;
+        SaveProfilesMetadata();
         PopUpController.Instance.QuickNoticeWindow(activeProfile + " set as default!\nThis will be the patch that loads on startup.");
     }
 
-    private void DeleteProfile(ProfileLoader profile)
+    private void DeleteProfileAndUpdateUi(ProfileSaveData profile)
     {
-        _profileButtons[profile.GetName()].Annihilate();
-        DeleteProfileWithButton(profile);
+        if (!DeleteProfile(profile)) 
+            return;
 
-        Debug.Log($"Removing profile button {profile}", this);
-    }
-
-    private void DeleteProfileWithButton(ProfileLoader button)
-    {
-        if (button.GetName() == DefaultSaveName)
+        if (!_profileButtons.Remove(profile, out var ui))
         {
-            PopUpController.Instance.ErrorWindow("Can't delete default profile");
+            Debug.LogError($"Failed to remove {profile.Name} from profile buttons", this);
             return;
         }
+        
+        ui.Annihilate();
 
-        //remove profile from current list of profiles
-        _profileNames.RemoveProfile(button.GetName());
+        if (ControlsManager.ActiveProfile == profile)
+        {
+            SetActiveProfile(GetOrUpdateDefaultProfile());
+        }
+    }
+
+
+    private bool DeleteProfile(ProfileSaveData profile)
+    {
+        if(profile.IsBuiltInDefault)
+        {
+            PopUpController.Instance.ErrorWindow("Can't delete default profile");
+            return false;
+        }
 
         //delete file
-        FileHandler.DeleteFile(_basePath, button.GetName(), ControlsExtension);
-
-        //Save profiles
-        SaveProfileNames();
-
-        //destroy deleted button
-        _profileButtons.Remove(button.GetName());
-        button.Annihilate();
-
-        //load profile if deleting the currently active one
-        if(button.IsActiveProfile)
+        var success = !FileHandler.DeleteFile(_basePath, profile.Name, ControlsExtension);
+        if(!success)
         {
-            SetActiveProfile(_profileButtons[DefaultSaveName]);
-            LoadDefaultProfile();
+            PopUpController.Instance.ErrorWindow($"Failed to delete {profile.Name}");
         }
+
+        // remove as default regardless of success
+        if (_profileMetadata.DefaultProfileName == profile.Name)
+        {
+            _profileMetadata.DefaultProfileName = DefaultSaveName;
+            SaveProfilesMetadata();
+        }
+
+        return success;
     }
 
     private void ToggleProfileWindow()
@@ -227,34 +287,20 @@ public class ProfilesManager : MonoBehaviour
         _profileWindow.SetActive(!_profileWindow.activeSelf);
 	}
 
-    private string GetActiveProfile()
+    private static bool SaveProfile(ProfileSaveData saveData)
     {
-        foreach(var pair in _profileButtons)
-        {
-            if(pair.Value.IsActiveProfile)
-            {
-                return pair.Key;
-			}
-		}
-
-        Debug.LogError($"No active profile!");
-        return DefaultSaveName;
-    }
-
-    private bool SaveProfile(string profileName, List<ControllerData> controllers)
-    {
-        if (profileName == DefaultSaveName)
+        var profileName = saveData.Name;
+        if (saveData.IsBuiltInDefault)
         {
             PopUpController.Instance.ErrorWindow("Can't overwrite defaults, use Save As instead in the Profiles page.");
             return false;
         }
-
-        var saveData = new ProfileSaveData(controllers, profileName);
-        var success = FileHandler.SaveJsonObject(saveData, _basePath, saveData.GetName(), ControlsExtension);
+        
+        var success = FileHandler.SaveJsonObject(saveData, _basePath, profileName, ControlsExtension);
 
         if (success)
         {
-            PopUpController.Instance.QuickNoticeWindow($"Saved {profileName}");
+            PopUpController.Instance.QuickNoticeWindow($"Saved {profileName} successfully!");
         }
         else
         {
@@ -264,18 +310,12 @@ public class ProfilesManager : MonoBehaviour
         return success;
     }
 
-    private void LoadDefaultProfile()
+    private static bool SaveProfileAs(string profileName, [NotNullWhen(true)] out ProfileSaveData newProfile)
     {
-        _controlsManager.LoadControllers(_profileNames.GetNames().Count == 0
-            ? DefaultSaveName
-            : _profileNames.GetDefaultProfileName());
-    }
-
-    private bool SaveProfileAs(string profileName)
-    {
-        if (profileName == DefaultSaveName || _profileNames.GetNames().Contains(profileName))
+        if (profileName == DefaultSaveName || _profileButtons.Keys.Any(x => x.Name == profileName))
         {
             PopUpController.Instance.ErrorWindow("Profile with this name already exists, please use another.");
+            newProfile = null;
             return false;
         }
 
@@ -285,141 +325,124 @@ public class ProfilesManager : MonoBehaviour
             PopUpController.Instance.ErrorWindow(invalidChars.Count == 1
                 ? $"Chosen profile name contains an invalid character."
                 : $"Chosen profile name contains {invalidChars.Count} invalid characters.");
+            newProfile = null;
             return false;
         }
 
         if (profileName.Length > 0)
         {
-            _profileNames.AddProfile(profileName);
-            SaveProfileNames();
-            AddToProfileButtons(profileName);
-            SortProfileButtons();
-            
             //add this profile to  working profiles in profile selection ui
             //switch to this profile
-            var saved = SaveProfile(profileName);
+            var profile = new ProfileSaveData(ControlsManager.ActiveProfile.AllControllers, profileName);
+            var saved = SaveProfile(profile);
 
-            if (!saved) return false;
-
-            ColorController.SaveCurrentColorsWithProfileName(profileName);
-
+            if (!saved)
+            {
+                newProfile = null;
+                return false;
+            }
+            newProfile = profile;
             return true;
         }
 
         PopUpController.Instance.ErrorWindow("Please enter a name.");
+        newProfile = null;
         return false;
     }
 
-    private bool SaveProfile(string profileName)
+    private bool TryLoadProfile(string fileNameSansExtension, [NotNullWhen(true)] out ProfileSaveData loadedData)
     {
-        var controllers = _controlsManager.Controllers.OrderBy(control => control.GetName()).ToList();
-        controllers.Sort((s1, s2) => String.Compare(s1.GetName(), s2.GetName(), StringComparison.Ordinal));
-        return SaveProfile(profileName, controllers);
-    }
-
-    public ProfileSaveData LoadControlsFile(string fileNameSansExtension)
-    {
-        return FileHandler.LoadJsonObject<ProfileSaveData>(_basePath, fileNameSansExtension, ControlsExtension);
-    }
-
-    private void LoadProfileNames()
-    {
-        var loaded = FileHandler.LoadJsonObject<ProfilesMetadata>(_basePath, ProfileNameSaveName, ProfileListExtension);
-        _profileNames = loaded ?? new ProfilesMetadata(new List<string>());
-    }
-
-    private void SaveProfileNames()
-    {
-        FileHandler.SaveJsonObject(_profileNames, _basePath, ProfileNameSaveName, ProfileListExtension);
-    }
-
-    [Serializable]
-    public class ProfileSaveData
-    {
-        [FormerlySerializedAs("_profileName")] [FormerlySerializedAs("name")] [SerializeField]
-        private string _name = string.Empty;
-
-        //each type of control data has to be split into its own type-specific list for JsonUtility to agree with it
-        [FormerlySerializedAs("faderData")] [SerializeField]
-        private List<FaderData> _faderData = new();
-        [FormerlySerializedAs("controller2DData")] [SerializeField]
-        private List<Controller2DData> _controller2DData = new();
-
-        public ProfileSaveData(List<ControllerData> controllerData, string name)
+        if (fileNameSansExtension == DefaultSaveName)
         {
-            foreach (var data in controllerData)
-            {
-                switch (data)
-                {
-                    case FaderData fader:
-                        _faderData.Add(fader);
-                        break;
-                    case Controller2DData control2D:
-                        _controller2DData.Add(control2D);
-                        break;
-                    default:
-                        Debug.LogError($"Profile save data does not handle controller type {data.GetType()}");
-                        break;
-                }
-            }
-
-            _name = name;
+            loadedData = null;
+            return false;
         }
+        
+        loadedData = FileHandler.LoadJsonObject<ProfileSaveData>(_basePath, fileNameSansExtension, ControlsExtension);
+        return loadedData != null;
+    }
+    
+    private static ProfilesMetadata LoadProfileMetadata()
+    {
+        var loaded = FileHandler.LoadJsonObject<ProfilesMetadata>(_basePath, ProfileNameSaveName, MetadataExtension);
+        return loaded ?? new ProfilesMetadata();
+    }
 
-        public List<ControllerData> GetControllers()
-        {
-            List<ControllerData> controllers = new();
-            controllers.AddRange(_faderData);
-            controllers.AddRange(_controller2DData);
-            return controllers;
-        }
-
-        public string GetName()
-        {
-            return _name;
-        }
+    private static void SaveProfilesMetadata()
+    {
+        FileHandler.SaveJsonObject(_profileMetadata, _basePath, ProfileNameSaveName, MetadataExtension);
     }
 
     [Serializable]
     private class ProfilesMetadata
     {
-        [SerializeField] private List<string> _profileNames;
-        [SerializeField] private string _defaultProfileName;
+        [SerializeField] private string _defaultProfileName = DefaultSaveName;
 
-        public ProfilesMetadata(List<string> profileNames)
+        public string DefaultProfileName
         {
-            _profileNames = profileNames;
-            _defaultProfileName = DefaultSaveName;
+            get => _defaultProfileName;
+            set => _defaultProfileName = value;
+        }
+    }
+}
+
+[Serializable]
+public class ProfileSaveData
+{
+    [FormerlySerializedAs("_profileName")] [FormerlySerializedAs("name")] [SerializeField]
+    private string _name = string.Empty;
+
+    //each type of control data has to be split into its own type-specific list for JsonUtility to agree with it
+    [FormerlySerializedAs("faderData")] [SerializeField]
+    private List<FaderData> _faderData = new();
+    [FormerlySerializedAs("controller2DData")] [SerializeField]
+    private List<Controller2DData> _controller2DData = new();
+        
+    public int ControllerCount => _faderData.Count + _controller2DData.Count;
+        
+    public bool IsBuiltInDefault => _name == ProfilesManager.DefaultSaveName;
+    
+    public ProfileSaveData(IEnumerable<ControllerData> controllerData, string name)
+    {
+        foreach (var data in controllerData)
+        {
+            AddController(data);
         }
 
-        public void AddProfile(string name)
+        _name = name;
+    }
+
+    public void AddController(ControllerData data)
+    {
+        switch (data)
         {
-            _profileNames.Add(name);
+            case FaderData fader:
+                _faderData.Add(fader);
+                break;
+            case Controller2DData control2D:
+                _controller2DData.Add(control2D);
+                break;
+            default:
+                Debug.LogError($"Profile save data does not handle controller type {data.GetType()}");
+                break;
         }
+    }
 
-        public void RemoveProfile(string name)
+    public IEnumerable<ControllerData> AllControllers => _faderData.Cast<ControllerData>().Concat(_controller2DData);
+
+    public string Name => _name;
+
+    public bool RemoveController(ControllerData config)
+    {
+        switch (config)
         {
-            _profileNames.Remove(name);
-
-            if (name == _defaultProfileName)
-            {
-                _defaultProfileName = DefaultSaveName;
-            }
-        }
-
-        public List<string> GetNames()
-        {
-            return _profileNames;
-        }
-
-        public string GetDefaultProfileName()
-        {
-            return _defaultProfileName;
-        }
-
-        public void SetDefaultProfile(string name)
-        {
-            _defaultProfileName = name;
+            case FaderData fader:
+                return _faderData.Remove(fader);
+            case Controller2DData control2D:
+                return _controller2DData.Remove(control2D);
+            default:
+                Debug.LogError($"Profile save data does not handle controller type {config.GetType()}");
+                return false;
         }
     }
 }

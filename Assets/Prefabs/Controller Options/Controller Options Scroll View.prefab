@@ -370,7 +370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5202b334ae6442b46899abac0560e75b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _toggleOptionParent: 1
   _smoothnessField: {fileID: 4643506487624057807}
   _releaseBehaviourButton: {fileID: 5415420200265982841}
   _defaultValueDropdown: {fileID: 6459978487355502970}

@@ -7,14 +7,14 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(RectTransform))]
 public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 {
-    [Header("Visuals")]
+    [Header("Visuals")] [SerializeField] private RectTransform _rootTransform;
     [SerializeField]
     private RectTransform _horizontalLine;
     [SerializeField] private RectTransform _verticalLine;
     [SerializeField] private RectTransform _centerDot;
 
-    private RangeController _horizontalRangeController;
-    private RangeController _verticalRangeController;
+    private AxisController _horizontalAxisController;
+    private AxisController _verticalAxisController;
 
     [Header("Interaction")]
     [SerializeField]
@@ -44,6 +44,9 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
     private void Awake()
     {
+        if(!_rootTransform)
+            _rootTransform = GetComponent<RectTransform>();
+        
         _border.SetActive(_showBorder);
         
         var parent = _buttonTransform.parent;
@@ -61,7 +64,6 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
     private void Start()
     {
-        InitializeButtonInteraction();
     }
 
     private enum RectBounds { Left, Right, Top, Bottom }
@@ -71,19 +73,20 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     {
         SetTargetPosition();
         var dt = Time.deltaTime;
-        _verticalRangeController.Update(dt);
-        _horizontalRangeController.Update(dt);
+        _verticalAxisController.Update(dt);
+        _horizontalAxisController.Update(dt);
         MoveSliders();
     }
 
     public void Initialize(Controller2DData data)
     {
-        _verticalRangeController = new RangeController(data.VerticalController);
-        _horizontalRangeController = new RangeController(data.HorizontalController);
-        _title.text = data.GetName();
+        InitializeButtonInteraction();
+        _verticalAxisController = new AxisController(data.VerticalAxisControl);
+        _horizontalAxisController = new AxisController(data.HorizontalAxisControl);
+        _title.text = data.Name;
         var rectTransform = GetComponent<RectTransform>();
         var initialSizeDelta = rectTransform.sizeDelta;
-        rectTransform.sizeDelta = new Vector2(initialSizeDelta.x * data.GetWidth(), initialSizeDelta.y);
+        rectTransform.sizeDelta = new Vector2(initialSizeDelta.x * data.Width, initialSizeDelta.y);
         InitializeSorting();
     }
 
@@ -125,8 +128,8 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     private void MoveSliders()
     {
         //this inverse lerp is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
-        var xPercent = Mathf.InverseLerp(RangeController.MinControllerValue, RangeController.MaxControllerValue, _horizontalRangeController.SmoothValue);
-        var yPercent = Mathf.InverseLerp(RangeController.MinControllerValue, RangeController.MaxControllerValue, _verticalRangeController.SmoothValue);
+        var xPercent = Mathf.InverseLerp(AxisController.MinControllerValue, AxisController.MaxControllerValue, _horizontalAxisController.SmoothValue);
+        var yPercent = Mathf.InverseLerp(AxisController.MinControllerValue, AxisController.MaxControllerValue, _verticalAxisController.SmoothValue);
 
         var interactionPadding = _interactionPadding;
         
@@ -157,8 +160,8 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
         if (!TryGetExistingTouch(out var touchPos))
         {
-            _horizontalRangeController.Release();
-            _verticalRangeController.Release();
+            _horizontalAxisController.Release();
+            _verticalAxisController.Release();
             return;
         }
 
@@ -167,12 +170,12 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         Vector2 mappedTouchPosition = new()
         {
         //this mapping is technically unnecessary at time of writing, but if for whatever reason the min and max controller value changes from 0-1, this will handle that
-            x = touchPositionAsPercentage.x.Map(0f, 1f, RangeController.MinControllerValue, RangeController.MaxControllerValue),
-            y = touchPositionAsPercentage.y.Map(0f, 1f, RangeController.MinControllerValue, RangeController.MaxControllerValue)
+            x = touchPositionAsPercentage.x.Map(0f, 1f, AxisController.MinControllerValue, AxisController.MaxControllerValue),
+            y = touchPositionAsPercentage.y.Map(0f, 1f, AxisController.MinControllerValue, AxisController.MaxControllerValue)
         };
 
-        _horizontalRangeController.SetValue(mappedTouchPosition.x);
-        _verticalRangeController.SetValue(mappedTouchPosition.y);
+        _horizontalAxisController.SetValue(mappedTouchPosition.x);
+        _verticalAxisController.SetValue(mappedTouchPosition.y);
     }
 
     private bool TryGetExistingTouch(out Vector2 o)
@@ -266,9 +269,14 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     #region Sorting
     public void InitializeSorting()
     {
-        _sortLeftButton.onClick.AddListener(SortLeft);
-        _sortRightButton.onClick.AddListener(SortRight);
-        SetSortButtonVisibility(false);
+        _sortLeftButton.onClick.AddListener(() =>
+        {
+            transform.SetSiblingIndex(transform.GetSiblingIndex() - 1);
+        });
+        _sortRightButton.onClick.AddListener(() =>
+        {
+            transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);
+        });
     }
 
     public void SetSortButtonVisibility(bool visible)
@@ -281,20 +289,13 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         }
     }
 
-    public void SortLeft()
-    {
-        SortPosition(false);
-    }
-
-    public void SortRight()
-    {
-        SortPosition(true);
-    }
-
     public void SortPosition(bool right)
     {
         transform.SetSiblingIndex(right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
     }
+
+    public RectTransform RectTransform => _rootTransform;
+
     #endregion Sorting
 
 }

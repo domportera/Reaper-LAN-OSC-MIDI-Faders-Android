@@ -11,8 +11,8 @@ public class Controller2DOptionsPanel : ControllerOptionsPanel
     public void Initialize(Controller2DData data, OscSelectionMenu oscMenu)
     {
         BaseInitialize(data);
-        _horizontalOptions.Initialize(data.HorizontalController, this, oscMenu);
-        _verticalOptions.Initialize(data.VerticalController, this, oscMenu);
+        _horizontalOptions.Initialize(data.HorizontalAxisControl, this, oscMenu);
+        _verticalOptions.Initialize(data.VerticalAxisControl, this, oscMenu);
 
         OnWake += () =>
         {

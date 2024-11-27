@@ -5,14 +5,24 @@ using System;
 [Serializable]
 public abstract class ControllerData
 {
-    [SerializeField] protected string Name;
-    [SerializeField] protected List<ControllerSettings> Controllers = new();
-    [SerializeField] protected int Position = NullPosition;
-    [SerializeField] protected bool Enabled = true;
-    [SerializeField] protected float Width = NullWidth;
+    [SerializeField] private string _name;
+    [SerializeField] private int _position;
+    [SerializeField] private bool _enabled = true;
+    [SerializeField] private float _width = NullWidth;
+    
+    public abstract ControllerType ControlType { get; }
+    public abstract string DefaultName { get; }
+    public bool IsNamedAsDefault => _name == DefaultName;
 
     protected const int NullPosition = -1;
     protected const int NullWidth = -1;
+
+    protected ControllerData(string name, int position)
+    {
+        // ReSharper disable once VirtualMemberCallInConstructor
+        _name = name ?? DefaultName;
+        _position = position;
+    }
 
     public struct WidthRange
     {
@@ -34,77 +44,87 @@ public abstract class ControllerData
         {typeof(FaderData), new WidthRange(0.4f, 2f, 1f) }
     };
 
-    public void SetPosition(int index) => Position = index;
+    public void SetPosition(int index)
+    {
+        PositionChanged?.Invoke(this, index);
+        _position = index;
+    }
 
-    public int GetPosition() => Position;
+    public int SortPosition => _position;
 
-    public ControllerSettings GetSettings() => Controllers.Count > 0 ? Controllers[0] : null;
+    public string Name => _name;
 
-    public List<ControllerSettings> GetControllers() => Controllers;
+    public void SetName(string name)
+    {
+        _name = name;
+        NameChanged?.Invoke(this, name);
+    }
 
-    public string GetName() => Name;
+    public void SetWidth(float width)
+    {
+        _width = width;
+        WidthChanged?.Invoke(this, width);
+    }
 
-    public void SetName(string name) => Name = name;
-
-    public bool GetEnabled() => Enabled;
-
-    public void SetWidth(float width) => Width = width;
-
-    public float GetWidth() => Width <= NullWidth ? WidthRanges[GetType()].DefaultValue : Width;
+    public float Width => _width <= NullWidth ? WidthRanges[GetType()].DefaultValue : _width;
+    public bool Enabled => _enabled;
 
     public WidthRange GetWidthRange() => WidthRanges[GetType()];
 
-    public void SetEnabled(bool enabled) => Enabled = enabled;
+    public void SetEnabled(bool enabled)
+    {
+        EnabledChanged?.Invoke(this, enabled);
+        _enabled = enabled;
+    }
+
+    public void Dispose()
+    {
+        Disposed?.Invoke(this, EventArgs.Empty);
+    }
+    
+    public event EventHandler Disposed;
+    public event EventHandler<bool> EnabledChanged;
+    public event EventHandler<string> NameChanged;
+    public event EventHandler<int> PositionChanged;
+    public event EventHandler<float> WidthChanged;
+    
+}
+
+
+[Serializable]
+public sealed class FaderData : ControllerData
+{
+    [SerializeField] private AxisControlSettings _settings;
+    
+    public override ControllerType ControlType => ControllerType.Fader;
+    public override string DefaultName => "New Fader";
+    
+    public AxisControlSettings Settings => _settings;
+    public FaderData(AxisControlSettings config, string name = null, int position = NullPosition) : base(name, position)
+    {
+        _settings = config ?? throw new ArgumentNullException(nameof(config));
+    }
 }
 
 [Serializable]
-public class FaderData : ControllerData
+public sealed class Controller2DData : ControllerData
 {
-    public FaderData(string name, ControllerSettings config)
-    {
-        if(config == null)
-            throw new ArgumentNullException(nameof(config));
-        
-        Controllers.Add(config);
-        this.Name = name;
-    }
+    public AxisControlSettings HorizontalAxisControl => _horizontalAxis;
+    public AxisControlSettings VerticalAxisControl => _verticalAxis;
+    
+    public override string DefaultName => "New Controller2D";
 
-    public FaderData(FaderData data)
-    {
-        if(data == null)
-            throw new ArgumentNullException(nameof(data));
-        
-        Name = data.Name;
-        Controllers = data.Controllers;
-        Position = data.GetPosition();
-    }
-}
+    public override ControllerType ControlType => ControllerType.Controller2D;
 
-[Serializable]
-public class Controller2DData : ControllerData
-{
-    public Controller2DData(string name, ControllerSettings horizontalConfig, ControllerSettings verticalConfig)
+    [SerializeField] private AxisControlSettings _horizontalAxis;
+    [SerializeField] private AxisControlSettings _verticalAxis;
+    
+    public Controller2DData(AxisControlSettings horizontalConfig, AxisControlSettings verticalConfig, string name = null,
+        int position = NullPosition) : base(name, position)
     {
-        if(horizontalConfig == null)
-            throw new ArgumentNullException(nameof(horizontalConfig));
-        
-        if(verticalConfig == null)
-            throw new ArgumentNullException(nameof(verticalConfig));
-        
-        Controllers.Add(horizontalConfig);
-        Controllers.Add(verticalConfig);
-        this.Name = name;
+        _horizontalAxis = horizontalConfig ?? throw new ArgumentNullException(nameof(horizontalConfig));
+        _verticalAxis = verticalConfig ?? throw new ArgumentNullException(nameof(verticalConfig));
     }
-    public Controller2DData(Controller2DData data)
-    {
-        Name = data.Name;
-        Controllers = data.Controllers;
-        Position = data.GetPosition();
-    }
-
-    public ControllerSettings HorizontalController => Controllers[0];
-
-    public ControllerSettings VerticalController => Controllers[1];
 }
 
 

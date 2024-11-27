@@ -88,22 +88,22 @@ public class OscControllerSettings
 
     public OscControllerSettings(OscAddressType addressType, MidiChannel channel, ValueRange range, int ccNumber)
     {
-        this._channel = channel;
-        this._range = range;
-        this._ccNumber = ccNumber;
-        this._addressType = addressType;
+        _channel = channel;
+        _range = range;
+        _ccNumber = ccNumber;
+        _addressType = addressType;
         SetRange(range);
     }
 
     public OscControllerSettings(OscControllerSettings template)
     {
-        this._channel = template.MidiChannel;
-        this._addressType = template.AddressType;
-        this._ccNumber = template.CcNumber;
-        this._range = template.Range;
-        this._customAddress = template.CustomAddress;
-        this._min = template.Min;
-        this._max = template.Max;
+        _channel = template.MidiChannel;
+        _addressType = template.AddressType;
+        _ccNumber = template.CcNumber;
+        _range = template.Range;
+        _customAddress = template.CustomAddress;
+        _min = template.Min;
+        _max = template.Max;
     }
 
     public bool IsEqualTo(OscControllerSettings settings)
@@ -114,7 +114,7 @@ public class OscControllerSettings
 
     public void SetOscAddressType(OscAddressType addressType)
     {
-        this._addressType = addressType;
+        _addressType = addressType;
     }
 
     public void SetCcNumber(int cc)
@@ -124,7 +124,7 @@ public class OscControllerSettings
 
     public void SetMidiChannel(MidiChannel channel)
     {
-        this._channel = channel;
+        _channel = channel;
     }
 
     public void SetCustomAddress(string address)
@@ -134,7 +134,7 @@ public class OscControllerSettings
 
     public void SetRange(ValueRange range)
     {
-        this._range = range;
+        _range = range;
         switch(range)
         {
             case ValueRange.SevenBit:
@@ -171,12 +171,12 @@ public class OscControllerSettings
 
     public void SetMin(float min)
     {
-        this._min = min;
+        _min = min;
     }
 
     public void SetMax(float max)
     {
-        this._max = max;
+        _max = max;
     }
 
     public string GetAddress()
@@ -196,7 +196,7 @@ public class OscControllerSettings
 
     public float GetValueFloat(float value)
     {
-        return Mathf.Clamp(value.Map(RangeController.MinControllerValue, RangeController.MaxControllerValue, _min, _max), Min, Max);
+        return Mathf.Clamp(value.Map(AxisController.MinControllerValue, AxisController.MaxControllerValue, _min, _max), Min, Max);
     }
 
     private bool AddressTypeIsMidi(OscAddressType addressType)

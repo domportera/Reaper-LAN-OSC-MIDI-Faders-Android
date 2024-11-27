@@ -5,41 +5,50 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public sealed class FaderControlUi : MonoBehaviour, ISortingMember
 {
-    private RangeController _rangeController;
+    private AxisController _axisController;
+    [SerializeField] private RectTransform _rootTransform;
     [SerializeField] private Slider _slider;
     [SerializeField] private EventTrigger _eventTrigger;
     [SerializeField] private Text _label;
     [SerializeField] private Button _sortLeftButton;
     [SerializeField] private Button _sortRightButton;
 
+    private void Awake()
+    {
+        if(!_rootTransform)
+            _rootTransform = GetComponent<RectTransform>();
+    }
+    
     public void Initialize(FaderData controlData)
     {
-        _rangeController = new RangeController(controlData.GetSettings());
+        if (!_rootTransform)
+            _rootTransform = GetComponent<RectTransform>();
+        _axisController = new AxisController(controlData.Settings);
         var rectTransform = GetComponent<RectTransform>();
         var initialSizeDelta = rectTransform.sizeDelta;
 
-        var displayName = controlData.GetName();
+        var displayName = controlData.Name;
         _label.text = displayName;
         name = displayName + " Fader";
         InitializeFaderInteraction();
-        InitializeSorting();
+        InitializeSortingButtons();
         
-        var width = controlData.GetWidth();
+        var width = controlData.Width;
         rectTransform.sizeDelta = new Vector2(initialSizeDelta.x * width, initialSizeDelta.y);
     }
 
     // Update is called once per frame
     private void Update()
     {
-        _rangeController.Update(Time.deltaTime);
-        _slider.SetValueWithoutNotify(_rangeController.SmoothValue);
+        _axisController.Update(Time.deltaTime);
+        _slider.SetValueWithoutNotify(_axisController.SmoothValue);
     }
 
     private void InitializeFaderInteraction()
     {
-        _slider.maxValue = RangeController.MaxControllerValue;
-        _slider.minValue = RangeController.MinControllerValue;
-        _slider.onValueChanged.AddListener(f => _rangeController.SetValue(f));
+        _slider.maxValue = AxisController.MaxControllerValue;
+        _slider.minValue = AxisController.MinControllerValue;
+        _slider.onValueChanged.AddListener(f => _axisController.SetValue(f));
 
         var startEntry = new EventTrigger.Entry
         {
@@ -64,15 +73,14 @@ public sealed class FaderControlUi : MonoBehaviour, ISortingMember
 
     private void EndSliding()
     {
-        _rangeController.Release();
+        _axisController.Release();
     }
 
     #region Sorting
-    public void InitializeSorting()
+    private void InitializeSortingButtons()
     {
-        _sortLeftButton.onClick.AddListener(SortLeft);
-        _sortRightButton.onClick.AddListener(SortRight);
-        SetSortButtonVisibility(false);
+        _sortLeftButton.onClick.AddListener(() => _rootTransform.SetSiblingIndex(_rootTransform.GetSiblingIndex() - 1));
+        _sortRightButton.onClick.AddListener(() => _rootTransform.SetSiblingIndex(_rootTransform.GetSiblingIndex() + 1));
     }
 
     public void SetSortButtonVisibility(bool visible)
@@ -88,19 +96,7 @@ public sealed class FaderControlUi : MonoBehaviour, ISortingMember
         }
     }
 
-    public void SortLeft()
-    {
-        SortPosition(false);
-    }
+    public RectTransform RectTransform => _rootTransform;
 
-    public void SortRight()
-    {
-        SortPosition(true);
-    }
-
-    public void SortPosition(bool right)
-    {
-        transform.SetSiblingIndex(right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
-    }
     #endregion Sorting
 }

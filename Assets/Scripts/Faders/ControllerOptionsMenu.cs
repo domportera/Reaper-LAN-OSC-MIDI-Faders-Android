@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ControllerOptionsMenu : OptionsMenu
+public class ControllerOptionsMenu : MonoBehaviour
 {
-    private ControllerSettings _controllerConfig;
+    private AxisControlSettings _axisControlConfig;
 
     [SerializeField] private Slider _smoothnessField;
     [SerializeField] private Dropdown _releaseBehaviourButton;
@@ -13,12 +14,19 @@ public class ControllerOptionsMenu : OptionsMenu
     [SerializeField] private Button _resetValuesButton;
     [SerializeField] private Button _openOscOptionsButton;
 
-    private OscSelectionMenu _oscSelectionMenu;
+    private readonly Dictionary<Dropdown, string[]> _dropDownEntryNames = new ();
     private OscControllerSettings _oscSettingsPendingApplication;
 
-    private bool _shouldResetOscMenu;
     private bool _initialized;
-    private ControllerOptionsPanel _optionsPanel;
+
+    private Action _onDestroy;
+    private Action _resetValuesAction;
+
+    private void Awake()
+    {
+        PopulateDropdowns();
+        _resetValuesButton.onClick.AddListener(ResetValues);
+    }
 
     private void OnEnable()
     {
@@ -26,43 +34,46 @@ public class ControllerOptionsMenu : OptionsMenu
         ResetValues();
     }
 
-    private void InitializeUI()
+    public void Initialize(AxisControlSettings data, ControllerOptionsPanel optionsPanel, OscSelectionMenu oscMenu)
     {
-        PopulateDropdowns();
-        _resetValuesButton.onClick.AddListener(ResetValues);
-    }
+        if(_axisControlConfig != null)
+            throw new Exception($"{GetType().Name} can only be initialized once");
+        
+        _axisControlConfig = data ?? throw new ArgumentNullException(nameof(data));
 
-    public void Initialize(ControllerSettings data, ControllerOptionsPanel optionsPanel, OscSelectionMenu oscMenu)
-    {
-        _controllerConfig = data;
-        _oscSelectionMenu = oscMenu;
-        _optionsPanel = optionsPanel;
-        optionsPanel.OnWake += () => _shouldResetOscMenu = true;
-        optionsPanel.OnWake += () => _oscSettingsPendingApplication = null;
-        InitializeUI();
-        InitializeOscSelectionMenu(data.OscSettings);
+        oscMenu.Changed += OnOscMenuOnChanged;
+        optionsPanel.OnWake += ClearPendingChanges;
+
+        _onDestroy = () =>
+        {
+            oscMenu.Changed -= OnOscMenuOnChanged;
+            optionsPanel.OnWake -= ClearPendingChanges;
+        };
+
+        _resetValuesAction = optionsPanel.ResetUiFields;
+
+        _openOscOptionsButton.onClick.AddListener(() => oscMenu.OpenWith(_axisControlConfig.OscSettings));
+        
         ResetValues();
         _initialized = true;
     }
 
-    private void InitializeOscSelectionMenu(OscControllerSettings settings)
+    private void OnDestroy()
     {
-        _openOscOptionsButton.onClick.AddListener(() => OpenOscSelectionMenu(settings));
+        _onDestroy();
     }
 
-    private void OpenOscSelectionMenu(OscControllerSettings settings)
+    private void ClearPendingChanges()
     {
-        if(_shouldResetOscMenu)
-        {
-            _oscSelectionMenu.Initialize(settings, this);
-            _shouldResetOscMenu = false;
-        }
-        else if(_oscSelectionMenu.LastToEdit != this)
-        {
-            _oscSelectionMenu.Initialize(settings, this);
-        }
+        _oscSettingsPendingApplication = null;
+    }
 
-        _oscSelectionMenu.gameObject.SetActive(true);
+    void OnOscMenuOnChanged(OscControllerSettings settings)
+    {
+        if (settings != _axisControlConfig.OscSettings) return;
+
+        _oscSettingsPendingApplication = new OscControllerSettings(settings);
+        UpdateOscPreview(settings);
     }
 
     public void SetControllerValuesToFields()
@@ -74,24 +85,11 @@ public class ControllerOptionsMenu : OptionsMenu
 
         var smoothTime = _smoothnessField.value;
 
-        OscControllerSettings oscSettings;
+        var oscSettings = _oscSettingsPendingApplication != null 
+            ? new OscControllerSettings(_oscSettingsPendingApplication) 
+            : _axisControlConfig.OscSettings;
 
-        if(_oscSettingsPendingApplication == null)
-        {
-            oscSettings = _controllerConfig.OscSettings;
-        }
-        else
-        {
-            oscSettings = new OscControllerSettings(_oscSettingsPendingApplication);
-        }
-
-        _controllerConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
-    }
-
-    public void StageOscChangesToApply(OscControllerSettings settings)
-    {
-        _oscSettingsPendingApplication = new OscControllerSettings(settings);
-        UpdateOscPreview(settings);
+        _axisControlConfig.SetVariables(inputType, controlType, oscSettings, defaultValueType, curveType, smoothTime);
     }
 
     private void UpdateOscPreview(OscControllerSettings settings)
@@ -101,11 +99,11 @@ public class ControllerOptionsMenu : OptionsMenu
 
     private void PopulateDropdowns()
     {
-        DropDownEntryNames.Add(_releaseBehaviourButton, EnumUtility.GetControllerBehaviorTypeNameArray());
-        DropDownEntryNames.Add(_defaultValueDropdown, Enum.GetNames(typeof(DefaultValueType)));
-        DropDownEntryNames.Add(_curveTypeDropdown, Enum.GetNames(typeof(CurveType)));
+        _dropDownEntryNames.Add(_releaseBehaviourButton, EnumUtility.GetTypeNameArray<ReleaseBehaviorType>());
+        _dropDownEntryNames.Add(_defaultValueDropdown, EnumUtility.GetTypeNameArray<DefaultValueType>());
+        _dropDownEntryNames.Add(_curveTypeDropdown, EnumUtility.GetTypeNameArray<CurveType>());
 
-        foreach (var pair in DropDownEntryNames)
+        foreach (var pair in _dropDownEntryNames)
         {
             pair.Key.ClearOptions();
             foreach (var s in pair.Value)
@@ -117,13 +115,12 @@ public class ControllerOptionsMenu : OptionsMenu
 
     public void ResetValues()
     {
-        _oscSelectionMenu.Initialize(_controllerConfig.OscSettings, this);
-        _releaseBehaviourButton.SetValueWithoutNotify((int)_controllerConfig.ReleaseBehavior);
-        _defaultValueDropdown.SetValueWithoutNotify((int)_controllerConfig.DefaultType);
-        _curveTypeDropdown.SetValueWithoutNotify((int)_controllerConfig.Curve);
-
-        _smoothnessField.SetValueWithoutNotify(_controllerConfig.SmoothTime);
-        _optionsPanel.ResetUiFields();
-        UpdateOscPreview(_controllerConfig.OscSettings);
+        _releaseBehaviourButton.SetValueWithoutNotify((int)_axisControlConfig.ReleaseBehavior);
+        _defaultValueDropdown.SetValueWithoutNotify((int)_axisControlConfig.DefaultType);
+        _curveTypeDropdown.SetValueWithoutNotify((int)_axisControlConfig.Curve);
+        _smoothnessField.SetValueWithoutNotify(_axisControlConfig.SmoothTime);
+        _resetValuesAction();
+        
+        UpdateOscPreview(_axisControlConfig.OscSettings);
     }
 }

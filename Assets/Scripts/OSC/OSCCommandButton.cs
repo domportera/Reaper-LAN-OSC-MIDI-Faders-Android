@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+// ReSharper disable ConvertClosureToMethodGroup
 
 public class OscCommandButton : MonoBehaviour
 {
@@ -12,12 +13,12 @@ public class OscCommandButton : MonoBehaviour
     [FormerlySerializedAs("messagePreview")] [SerializeField]
     private Text _messagePreview;
 
-    public void Initialize(Action buttonAction, Action longPressAction, string title, string messagePreview)
+    public void Initialize(Action pressAction, Action longPressAction, string title, string messagePreview)
     {
-        _button.OnClick.AddListener(() => { buttonAction.Invoke(); });
-        _button.OnPointerHeld.AddListener(() => { longPressAction.Invoke(); });
-        this._title.text = title;
-        this._messagePreview.text = messagePreview;
+        _button.OnClick.AddListener(() => pressAction.Invoke());
+        _button.OnPointerHeld.AddListener(() => longPressAction.Invoke());
+        _title.text = title;
+        _messagePreview.text = messagePreview;
         name = title + " OSC button";
     }
 

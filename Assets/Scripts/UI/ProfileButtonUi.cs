@@ -3,7 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ProfileLoader : MonoBehaviour
+public class ProfileButtonUi : MonoBehaviour
 {
     [FormerlySerializedAs("highlightImage")] [SerializeField]
     private GameObject _highlightImage;
@@ -13,8 +13,6 @@ public class ProfileLoader : MonoBehaviour
     private ButtonExtended _button;
     [FormerlySerializedAs("root")] [SerializeField]
     private GameObject _root;
-
-    public bool IsActiveProfile { get; set; }
 
     public void ToggleHighlight(bool enable)
     {
@@ -26,9 +24,9 @@ public class ProfileLoader : MonoBehaviour
         _titleText.text = profileName;
 	}
 
-    public void SetButtonActions(UnityAction buttonAction, UnityAction holdAction)
+    public void SetButtonActions(UnityAction pressAction, UnityAction holdAction)
     {
-        _button.OnClick.AddListener(buttonAction);
+        _button.OnClick.AddListener(pressAction);
         _button.OnPointerHeld.AddListener(holdAction);
 	}
 
@@ -36,9 +34,4 @@ public class ProfileLoader : MonoBehaviour
 	{
         Destroy(_root);
 	}
-
-    public string GetName()
-    {
-        return _titleText.text;
-    }
 }

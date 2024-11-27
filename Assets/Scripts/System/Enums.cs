@@ -5,7 +5,21 @@ using System.Reflection;
 
 
 public enum DefaultValueType { Min, Mid, Max };
-public enum CurveType { Linear, Exponential, Logarithmic}
+public enum CurveType { Linear = 0, Exponential = 1, Logarithmic = 2 };
+
+public static class CurveTypeExtensions
+{
+    public static float GetExponent(this CurveType curveType) => Exponents[(int)curveType];
+
+    private static readonly float[] Exponents =
+    {
+        1f, // CurveType.Linear = 0
+        2f, // CurveType.Exponential = 1
+        0.5f, // CurveType.Logarithmic = 2
+    };
+}
+
+
 public enum InputMethod { Touch }
 
 public enum ValueRange
@@ -84,46 +98,13 @@ public static class EnumUtility
             return customAttribute.Description;
         return null;
     }
-    
-    public static string[] GetControllerBehaviorTypeNameArray()
+
+    public static string[] GetTypeNameArray<T>() where T : Enum
     {
         var names = new List<string>();
-        foreach (var behaviorType in (ReleaseBehaviorType[])Enum.GetValues(typeof(ReleaseBehaviorType)))
+        foreach (var val in (T[])Enum.GetValues(typeof(OscAddressType)))
         {
-            names.Add(behaviorType.GetDescription());
-        }
-
-        return names.ToArray();
-    }
-
-    public static string[] GetOscAddressTypeNameArray()
-    {
-        var names = new List<string>();
-        foreach (var address in (OscAddressType[])Enum.GetValues(typeof(OscAddressType)))
-        {
-            names.Add(address.GetDescription());
-        }
-
-        return names.ToArray();
-    }
-
-    public static string[] GetMidiChannelNameArray()
-    {
-        var names = new List<string>();
-        foreach (var channel in (MidiChannel[])Enum.GetValues(typeof(MidiChannel)))
-        {
-            names.Add(channel.GetDescription());
-        }
-
-        return names.ToArray();
-    }
-
-    public static string[] GetValueRangeNameArray()
-    {
-        var names = new List<string>();
-        foreach (var range in (ValueRange[])Enum.GetValues(typeof(ValueRange)))
-        {
-            names.Add(range.GetDescription());
+            names.Add(val.GetDescription() ?? val.ToString());
         }
 
         return names.ToArray();

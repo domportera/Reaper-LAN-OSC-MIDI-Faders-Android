@@ -6,7 +6,6 @@ using PopUpWindows;
 
 public abstract class ControllerOptionsPanel : MonoBehaviour
 {
-    private static ControlsManager _controlsManager;
     [SerializeField] protected InputField NameField;
     [SerializeField] protected Button ApplyButton;
     [SerializeField] protected Button CloseButton;
@@ -24,16 +23,6 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
 
     protected void Awake()
     {
-        if (!_controlsManager)
-        {
-            _controlsManager = FindFirstObjectByType<ControlsManager>();
-            if (!_controlsManager)
-            {
-                enabled = false;
-                Debug.LogError("ControlsManager not found");
-                return;
-            }
-        }
         NameField.onValueChanged.AddListener(RemoveProblemCharactersInNameField);
         ApplyButton.onClick.AddListener(Apply);
         CloseButton.onClick.AddListener(() => gameObject.SetActive(false));
@@ -55,13 +44,15 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
 
     public void ResetUiFields()
     {
-        var width = ConvertWidthToSliderValue(_controlData.GetWidth());
-        WidthSlider.SetValueWithoutNotify(width);
-        NameField.SetTextWithoutNotify(_controlData.GetName());
+        WidthSlider.SetValueWithoutNotify(_controlData.Width);
+        NameField.SetTextWithoutNotify(_controlData.Name);
     }
 
     protected void BaseInitialize(ControllerData data)
     {
+        if(IsInitialized)
+            throw new Exception($"{GetType().Name} can only be initialized once");
+        
         _controlData = data;
         InitializeWidthSlider();
         NameField.characterValidation = InputField.CharacterValidation.None;
@@ -84,7 +75,7 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         var width = ConvertSliderValueToWidth((int)WidthSlider.value);
         _controlData.SetWidth(width);
         UIManager.Instance.RefreshFaderLayoutGroup();
-        _controlsManager.RespawnController(_controlData);
+        ControlsManager.RespawnController(_controlData);
         PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
 
@@ -112,11 +103,11 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
     }
     #endregion Width
 
-    private bool VerifyUniqueName(string s)
+    private bool VerifyUniqueName(string potentialName)
     {
-        var invalid = _controlsManager.Controllers
-            .Where(x => x != _controlData)
-            .Any(x => x.GetName() == s);
+        var invalid = ControlsManager.ActiveProfile.AllControllers
+            .Where(data => data != _controlData)
+            .Any(data => data.Name == potentialName);
 
         if (!invalid) return true;
         

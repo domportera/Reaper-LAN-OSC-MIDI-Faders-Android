@@ -6,53 +6,43 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-
-using UnityEngine.Serialization;
 using PopUpWindows;
 using static UnityEngine.UI.Dropdown;
 
-public class OscSelectionMenu : OptionsMenu
+public class OscSelectionMenu : MonoBehaviour
 {
     #region UI elements
-    [FormerlySerializedAs("dawCommandsParent")] [SerializeField]
-    private RectTransform _dawCommandsParent;
-    [FormerlySerializedAs("userCommandsParent")] [SerializeField]
-    private RectTransform _userCommandsParent;
-    [FormerlySerializedAs("oscSettingsButtonPrefab")] [SerializeField]
-    private GameObject _oscSettingsButtonPrefab;
-    [FormerlySerializedAs("saveAsButton")] [SerializeField]
-    private Button _saveAsButton;
-    [FormerlySerializedAs("backButton")] [SerializeField]
-    private Button _backButton;
+
+    [SerializeField] private RectTransform _dawCommandsParent;
+    [SerializeField] private RectTransform _userCommandsParent;
+    [SerializeField] private GameObject _oscSettingsButtonPrefab;
+    [SerializeField] private Button _saveAsButton;
+    [SerializeField] private Button _backButton;
+
     #endregion UI elements
 
     #region Built-in OSC Message Option Fields
-    [FormerlySerializedAs("midiChannelDropdown")] [SerializeField]
-    private Dropdown _midiChannelDropdown;
-    [FormerlySerializedAs("addressTypeDropdown")] [SerializeField]
-    private Dropdown _addressTypeDropdown;
-    [FormerlySerializedAs("valueRangeDropdown")] [SerializeField]
-    private Dropdown _valueRangeDropdown;
-    [FormerlySerializedAs("ccChannelField")] [SerializeField]
-    private InputField _ccChannelField;
-    [FormerlySerializedAs("customAddressField")] [SerializeField]
-    private InputField _customAddressField;
-    [FormerlySerializedAs("oscPreview")] [SerializeField]
-    private Text _oscPreview;
-    [FormerlySerializedAs("minField")] [SerializeField]
-    private InputField _minField;
-    [FormerlySerializedAs("maxField")] [SerializeField]
-    private InputField _maxField;
+    [SerializeField] private Dropdown _midiChannelDropdown;
+    [SerializeField] private Dropdown _addressTypeDropdown;
+    [SerializeField] private Dropdown _valueRangeDropdown;
+    [SerializeField] private InputField _ccChannelField;
+    [SerializeField] private InputField _customAddressField;
+    [SerializeField] private Text _oscPreview;
+    [SerializeField] private InputField _minField;
+    [SerializeField] private InputField _maxField;
     #endregion Built-in OSC Message Option Fields
 
-    public OscControllerSettings OscSettings { get; private set; }
+    public OscControllerSettings ModifiedOscSettings { get; private set; }
     private OscControllerSettings _originalSettings;
 
-    public ControllerOptionsMenu LastToEdit { get; private set; }
+    public OscControllerSettings LastToEdit { get; private set; }
 
     private const string Subfolder = "OSCSettings";
     private const string FileExtension = ".OSCTemplate";
     private readonly Queue<Action> _actionQueue = new();
+    private readonly Dictionary<Dropdown, string[]> _dropDownEntryNames = new ();
+
+    public event Action<OscControllerSettings> Changed;
 
     private void Awake()
     {
@@ -75,12 +65,24 @@ public class OscSelectionMenu : OptionsMenu
         _actionQueue.Enqueue(action);
     }
 
-    public void Initialize(OscControllerSettings oscSettings, ControllerOptionsMenu optionsMenu)
+    public void OpenWith(OscControllerSettings oscSettings)
     {
-        OscSettings = new OscControllerSettings(oscSettings); //create copies so any edits aren't automatically applied
-        LastToEdit = optionsMenu;
-        _originalSettings = new OscControllerSettings(oscSettings);
-        SetFieldsToControllerValues(OscSettings);
+        if (oscSettings != LastToEdit)
+        {
+            ModifiedOscSettings =
+                new OscControllerSettings(oscSettings); //create copies so any edits aren't automatically applied
+            LastToEdit = oscSettings;
+            _originalSettings = new OscControllerSettings(oscSettings);
+            SetFieldsToControllerValues(ModifiedOscSettings);
+        }
+        
+        gameObject.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        LastToEdit = null;
+        ModifiedOscSettings = null;
     }
 
     private void InitializeOscEditingUIElements()
@@ -119,7 +121,7 @@ public class OscSelectionMenu : OptionsMenu
     {
         var warning = "Address cannot contain the following strings:";
         var containsError = false;
-        var bannedStrings = new string[] { OscControllerSettings.CcChannelString , OscControllerSettings.MidiChannelString };
+        var bannedStrings = new[] { OscControllerSettings.CcChannelString , OscControllerSettings.MidiChannelString };
 
         foreach(var s in bannedStrings)
         {
@@ -139,21 +141,20 @@ public class OscSelectionMenu : OptionsMenu
         }
         else
         {
-            OscSettings.SetCustomAddress(input);
+            ModifiedOscSettings.SetCustomAddress(input);
         }
     }
 
     private void BackButton()
     {
-        LastToEdit.StageOscChangesToApply(OscSettings);
         gameObject.SetActive(false);
     }
-
+    
     private void InitializeBuiltInMessagePresets()
     {
         foreach(var set in OscControllerSettings.DefaultOscTemplates)
         {
-            var template = new OscControllerSettingsTemplate(set.Key.GetDescription(), set.Value);
+            var template = new OscControllerSettingsTemplate(set.Key.GetDescription() ?? set.Key.ToString(), set.Value);
             CreateOscCommandButton(template, _dawCommandsParent);
         }
     }
@@ -162,7 +163,11 @@ public class OscSelectionMenu : OptionsMenu
     {
         var button = Instantiate(_oscSettingsButtonPrefab, parent, false).GetComponent<OscCommandButton>();
         Action longPressAction = parent == _userCommandsParent ? () => DeleteTemplatePrompt(template, button) : null;
-        button.Initialize(() => OscSelectionButtonPressed(template), longPressAction, template.Name, template.OscSettings.GetAddress());
+        button.Initialize(
+            pressAction: () => OscSelectionButtonPressed(template), 
+            longPressAction: longPressAction, 
+            title: template.Name, 
+            messagePreview: template.OscSettings.GetAddress());
         return button;
     }
 
@@ -201,13 +206,13 @@ public class OscSelectionMenu : OptionsMenu
 
     private void OscSelectionButtonPressed(OscControllerSettingsTemplate template)
     {
-        OscSettings = new OscControllerSettings(template.OscSettings);
+        ModifiedOscSettings = new OscControllerSettings(template.OscSettings);
 
         UnityAction confirm = () =>
         {
-            SetFieldsToControllerValues(OscSettings);
-            AddressTypeMenuChange(OscSettings);
-            _originalSettings = new OscControllerSettings(OscSettings);
+            SetFieldsToControllerValues(ModifiedOscSettings);
+            AddressTypeMenuChange(ModifiedOscSettings);
+            _originalSettings = new OscControllerSettings(ModifiedOscSettings);
         };
 
         if(!template.OscSettings.IsEqualTo(_originalSettings))
@@ -220,9 +225,9 @@ public class OscSelectionMenu : OptionsMenu
         }
     }
 
-    private bool ShouldEnableMinMaxFields(OscControllerSettings settings)
+    private static bool ShouldEnableMinMaxFields(OscControllerSettings settings)
     {
-        return settings.Range == ValueRange.CustomFloat || settings.Range == ValueRange.CustomInt;
+        return settings.Range is ValueRange.CustomFloat or ValueRange.CustomInt;
     }
 
     private void AddressTypeMenuChange(OscControllerSettings settings)
@@ -236,7 +241,7 @@ public class OscSelectionMenu : OptionsMenu
                 ToggleUIObject(_valueRangeDropdown, true);
                 ToggleUIObject(_ccChannelField, true);
                 ToggleUIObject(_customAddressField, false);
-                ToggleUIObject(_oscPreview.transform, true);
+                ToggleUIObject(_oscPreview, true);
                 ToggleUIObject(_midiChannelDropdown, true);
 
                 ToggleMinMaxFields(enableMinMax);
@@ -248,7 +253,7 @@ public class OscSelectionMenu : OptionsMenu
                 ToggleUIObject(_valueRangeDropdown, false);
                 ToggleUIObject(_ccChannelField, false);
                 ToggleUIObject(_customAddressField, false);
-                ToggleUIObject(_oscPreview.transform, true);
+                ToggleUIObject(_oscPreview, true);
                 ToggleUIObject(_midiChannelDropdown, true);
 
                 ToggleMinMaxFields(false);
@@ -270,7 +275,7 @@ public class OscSelectionMenu : OptionsMenu
                 ToggleUIObject(_ccChannelField, false);
                 ToggleUIObject(_midiChannelDropdown, false);
                 ToggleUIObject(_customAddressField, true);
-                ToggleUIObject(_oscPreview.transform, false);
+                ToggleUIObject(_oscPreview, false);
 
                 ToggleMinMaxFields(enableMinMax);
                 break;
@@ -280,21 +285,31 @@ public class OscSelectionMenu : OptionsMenu
         }
     }
 
+    private void ToggleUIObject(Component component, bool active, bool useParent = true)
+    {
+        if(useParent)
+            component.transform.parent.gameObject.SetActive(active);
+        else
+            component.gameObject.SetActive(active);
+    }
+
     private void InitializeUserTemplates()
     {
         var templates = LoadUserTemplates();
 
-        foreach(var t in templates)
+        foreach (var t in templates)
         {
             CreateOscCommandButton(t, _userCommandsParent);
         }
-    }
 
-    private static List<OscControllerSettingsTemplate> LoadUserTemplates()
-    {
-        var path = Path.Combine(Application.persistentDataPath, Subfolder);
-        var templates = FileHandler.LoadAllJsonObjects<OscControllerSettingsTemplate>(path, FileExtension);
-        return templates;
+        return;
+
+        static List<OscControllerSettingsTemplate> LoadUserTemplates()
+        {
+            var path = Path.Combine(Application.persistentDataPath, Subfolder);
+            var templates = FileHandler.LoadAllJsonObjects<OscControllerSettingsTemplate>(path, FileExtension);
+            return templates;
+        }
     }
 
     private void SaveAsButton()
@@ -308,8 +323,8 @@ public class OscSelectionMenu : OptionsMenu
 
         if(!invalid)
         {
-            var template = SaveTemplate(input, OscSettings);
-           // OSCCommandButton button = CreateOscCommandButton(template, _userCommandsParent);
+            var template = SaveTemplate(input, ModifiedOscSettings);
+            CreateOscCommandButton(template, _userCommandsParent);
             DoNextFrame(SortUserButtons);
         }
         else
@@ -341,22 +356,22 @@ public class OscSelectionMenu : OptionsMenu
     private void ChangeMidiChannel(int val)
     {
         var channel = (MidiChannel)val;
-        OscSettings.SetMidiChannel(channel);
+        ModifiedOscSettings.SetMidiChannel(channel);
         Debug.Log($"Set MIDI Channel as {channel}", this);
     }
 
     private void ChangeAddressType(int val)
     {
         var type = (OscAddressType)val;
-        OscSettings.SetOscAddressType(type);
-        AddressTypeMenuChange(OscSettings);
+        ModifiedOscSettings.SetOscAddressType(type);
+        AddressTypeMenuChange(ModifiedOscSettings);
         Debug.Log($"Set Address Type as {type}", this);
     }
 
     private void ChangeValueRange(int val)
     {
         var range = (ValueRange)val;
-        OscSettings.SetRange(range);
+        ModifiedOscSettings.SetRange(range);
         Debug.Log($"Set Value Range as {range}", this);
 
         var enableMinMax = range == ValueRange.CustomFloat || range == ValueRange.CustomInt;
@@ -372,23 +387,23 @@ public class OscSelectionMenu : OptionsMenu
         var ccNum = int.Parse(input);
         ccNum = Mathf.Clamp(ccNum, OscControllerSettings.MinCc, OscControllerSettings.MaxCc);
         _ccChannelField.SetTextWithoutNotify(ccNum.ToString());
-        OscSettings.SetCcNumber(ccNum);
+        ModifiedOscSettings.SetCcNumber(ccNum);
         Debug.Log($"Set CC Number to {ccNum}", this);
     }
 
     private void ChangeMin(string valAsString)
     {
         var val = float.Parse(valAsString);
-        if(OscSettings.Range == ValueRange.CustomInt)
+        if(ModifiedOscSettings.Range == ValueRange.CustomInt)
         {
             var intVal = (int)val;
-            OscSettings.SetMin(intVal);
+            ModifiedOscSettings.SetMin(intVal);
             _minField.SetTextWithoutNotify((intVal).ToString());
             Debug.Log($"Set Min as {intVal}", this);
         }
         else
         {
-            OscSettings.SetMin(val);
+            ModifiedOscSettings.SetMin(val);
             Debug.Log($"Set Min as {val}", this);
         }
 
@@ -397,16 +412,16 @@ public class OscSelectionMenu : OptionsMenu
     private void ChangeMax(string valAsString)
     {
         var val = float.Parse(valAsString);
-        if(OscSettings.Range == ValueRange.CustomInt)
+        if(ModifiedOscSettings.Range == ValueRange.CustomInt)
         {
             var intVal = (int)val;
-            OscSettings.SetMax(intVal);
+            ModifiedOscSettings.SetMax(intVal);
             _maxField.SetTextWithoutNotify((intVal).ToString());
             Debug.Log($"Set Max as {intVal}", this);
         }
         else
         {
-            OscSettings.SetMax(val);
+            ModifiedOscSettings.SetMax(val);
             Debug.Log($"Set Max as {val}", this);
         }
     }
@@ -415,17 +430,17 @@ public class OscSelectionMenu : OptionsMenu
     {
         ToggleUIObject(_minField, on);
         ToggleUIObject(_maxField, on);
+
+        if (!on) return;
         
-        if(on)
-        {
-            _minField.SetTextWithoutNotify(OscSettings.Min.ToString());
-            _maxField.SetTextWithoutNotify(OscSettings.Max.ToString());
-        }
+        _minField.SetTextWithoutNotify(ModifiedOscSettings.Min.ToString(CultureInfo.InvariantCulture));
+        _maxField.SetTextWithoutNotify(ModifiedOscSettings.Max.ToString(CultureInfo.InvariantCulture));
     }
 
     private void UpdateOscPreview()
     {
-        _oscPreview.text = OscSettings.GetAddress();
+        _oscPreview.text = ModifiedOscSettings.GetAddress();
+        Changed?.Invoke(LastToEdit);
     }
 
     private void SetFieldsToControllerValues(OscControllerSettings settings)
@@ -445,11 +460,11 @@ public class OscSelectionMenu : OptionsMenu
 
     private void PopulateDropdowns()
     {
-        DropDownEntryNames.Add(_addressTypeDropdown, EnumUtility.GetOscAddressTypeNameArray());
-        DropDownEntryNames.Add(_midiChannelDropdown, EnumUtility.GetMidiChannelNameArray());
-        DropDownEntryNames.Add(_valueRangeDropdown, EnumUtility.GetValueRangeNameArray());
+        _dropDownEntryNames.Add(_addressTypeDropdown, EnumUtility.GetTypeNameArray<OscAddressType>());
+        _dropDownEntryNames.Add(_midiChannelDropdown, EnumUtility.GetTypeNameArray<MidiChannel>());
+        _dropDownEntryNames.Add(_valueRangeDropdown, EnumUtility.GetTypeNameArray<ValueRange>());
 
-        foreach(var pair in DropDownEntryNames)
+        foreach(var pair in _dropDownEntryNames)
         {
             pair.Key.ClearOptions();
             foreach(var s in pair.Value)

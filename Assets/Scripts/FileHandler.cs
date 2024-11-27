@@ -27,7 +27,7 @@ public static class FileHandler
         return SaveTextFile(JsonUtility.ToJson(save, prettyPrint), directory, fileName, fileExtension, log);
     }
 
-    public static bool SaveTextFile(string text, FileInfo file, bool log = false)
+    private static bool SaveTextFile(string text, FileInfo file, bool log = false)
     {
         var directoryName = file.DirectoryName;
         var withoutExtension = Path.GetFileNameWithoutExtension(file.Name);
@@ -35,7 +35,7 @@ public static class FileHandler
         return SaveTextFile(text, directoryName, withoutExtension, extension, log);
     }
 
-    public static bool SaveTextFile(
+    private static bool SaveTextFile(
         string text,
         string directory,
         string fileName,
@@ -126,15 +126,14 @@ public static class FileHandler
         return ObjectFromJson<T>(LoadTextFile(directory, fullFileName));
     }
 
-    public static T ObjectFromJson<T>(string json)
+    private static T ObjectFromJson<T>(string json)
     {
         if (!string.IsNullOrWhiteSpace(json))
             return JsonUtility.FromJson<T>(json);
-        Debug.LogWarning("Attempting to create a json object from empty json text");
-        return default(T);
+        return default;
     }
 
-    public static string LoadTextFile(string directory, string fileName, string fileExtension)
+    private static string LoadTextFile(string directory, string fileName, string fileExtension)
     {
         var fullFileName = fileName + fileExtension;
         return LoadTextFile(directory, fullFileName);
@@ -247,8 +246,8 @@ public static class FileHandler
         return fileNameCharacters;
     }
 
-    public static readonly char[] InvalidFileNameChars =
+    private static readonly char[] InvalidFileNameChars =
         Path.GetInvalidPathChars().Concat(Path.GetInvalidFileNameChars()).Distinct().ToArray();
 
-    public static readonly char[] WhitespaceChars = { ' ', '\t', '\n', '\r' };
+    private static readonly char[] WhitespaceChars = { ' ', '\t', '\n', '\r' };
 }
