@@ -57,7 +57,7 @@ namespace Colors
             }
         }
 
-        public static void UpdateAppColors(ColorSetter setter)
+        private static void UpdateAppColors(ColorSetter setter)
         {
             setter.SetColors(CurrentColorProfile);
         }
@@ -79,7 +79,6 @@ namespace Colors
             CurrentColorProfile = ColorProfileDataHandler.LoadColorProfile(profileName, BuiltInPresets);
             Debug.Log($"Loaded Colors: {CurrentColorProfile.Name}\n{ColorProfile.DebugColorProfile(CurrentColorProfile)}");
             UpdateAppColors();
-            
         }
 
         public static void SaveCurrentColorsWithProfileName(string profileName)

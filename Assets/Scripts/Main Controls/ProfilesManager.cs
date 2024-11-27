@@ -83,6 +83,8 @@ public class ProfilesManager : MonoBehaviour
         AddToProfileButtons(defaultProfile);
 
         SortProfileButtons();
+        
+        ProfileChanged += profile => Debug.Log($"Profile changed to {profile.Name}", this);
         SetActiveProfile(GetOrUpdateDefaultProfile());
     }
 

@@ -47,11 +47,6 @@ namespace Colors
             _colorPreviewButtonDict = _colorTypeButtons.ToDictionary(x => x.SelectionButton, x => x);
             
             InitializeUI();
-
-            foreach (var p in _colorTypeButtons)
-            {
-                p.SelectionButton.onClick.AddListener(OnColorPreviewButtonPress);
-            }
             
             ColorController.ColorsLoaded += SetSlidersToCurrentColor;
         }
@@ -87,6 +82,11 @@ namespace Colors
             _revertButton.onClick.AddListener(ColorController.RevertColorProfile);
             _saveButton.onClick.AddListener(ColorController.SaveProfile);
 
+            foreach (var p in _colorTypeButtons)
+            {
+                p.SelectionButton.onClick.AddListener(OnColorPreviewButtonPress);
+            }
+            
             HighlightSelectedColorType(_currentColorType);
         }
 

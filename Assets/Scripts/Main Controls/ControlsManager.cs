@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using Colors;
 using UnityEngine;
 using UnityEngine.Serialization;
-using PopUpWindows;
 
 public class ControlsManager : MonoBehaviour
 {
@@ -86,6 +83,8 @@ public class ControlsManager : MonoBehaviour
                 Destroy(gameObj);
             }
         }
+        
+        ActiveProfile = profile;
         
         foreach(var c in profile.AllControllers)
         {
