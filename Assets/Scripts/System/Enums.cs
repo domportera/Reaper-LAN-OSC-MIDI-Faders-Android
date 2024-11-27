@@ -63,25 +63,28 @@ public enum OscAddressMode
     Midi, Custom
 }
 
+[Flags]
 public enum MidiChannel
 {
-    [Description("All")]        All,
-    [Description("Channel 1")]  One,
-    [Description("Channel 2")]  Two,
-    [Description("Channel 3")]  Three,
-    [Description("Channel 4")]  Four,
-    [Description("Channel 5")]  Five,
-    [Description("Channel 6")]  Six,
-    [Description("Channel 7")]  Seven,
-    [Description("Channel 8")]  Eight,
-    [Description("Channel 9")]  Nine,
-    [Description("Channel 10")] Ten,
-    [Description("Channel 11")] Eleven,
-    [Description("Channel 12")] Twelve,
-    [Description("Channel 13")] Thirteen,
-    [Description("Channel 14")] Fourteen,
-    [Description("Channel 15")] Fifteen,
-    [Description("Channel 16")] Sixteen
+    [Description("Channel 1")] One = 1,
+    [Description("Channel 2")] Two = 1 << 1,
+    [Description("Channel 3")] Three = 1 << 2,
+    [Description("Channel 4")] Four = 1 << 3,
+    [Description("Channel 5")] Five = 1 << 4,
+    [Description("Channel 6")] Six = 1 << 5,
+    [Description("Channel 7")] Seven = 1 << 6,
+    [Description("Channel 8")] Eight = 1 << 7,
+    [Description("Channel 9")] Nine = 1 << 8,
+    [Description("Channel 10")] Ten = 1 << 9,
+    [Description("Channel 11")] Eleven = 1 << 10,
+    [Description("Channel 12")] Twelve = 1 << 11,
+    [Description("Channel 13")] Thirteen = 1 << 12,
+    [Description("Channel 14")] Fourteen = 1 << 13,
+    [Description("Channel 15")] Fifteen = 1 << 14,
+    [Description("Channel 16")] Sixteen = 1 << 15,
+
+    [Description("All")] All = One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Eleven | Twelve |
+                               Thirteen | Fourteen | Fifteen | Sixteen
 };
 
 public static class EnumUtility
