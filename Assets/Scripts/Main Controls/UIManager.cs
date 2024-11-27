@@ -55,8 +55,8 @@ public partial class UIManager : MonoBehaviour
         _optionsPanel.SetActive(false);
 
         //options
-        _optionsButton.onClick.AddListener(ToggleOptionsMenu);
-        _closeOptionsButton.onClick.AddListener(ToggleOptionsMenu);
+        _optionsButton.onClick.AddListener(() => ToggleOptionsMenu(true));
+        _closeOptionsButton.onClick.AddListener(() => ToggleOptionsMenu(false));
         
         // sorting
         _faderPositionExitButton.onClick.AddListener(() => ToggleSortButtonVisibility(false));
@@ -131,9 +131,17 @@ public partial class UIManager : MonoBehaviour
     }
 
     //used by options button in scene
-    public void ToggleOptionsMenu()
+    public void ToggleOptionsMenu(bool active)
     {
-        _optionsPanel.SetActive(!_optionsPanel.activeInHierarchy);
+        var wasActive = _optionsPanel.activeSelf;
+
+        if (wasActive == active)
+        {
+            Debug.LogError("Tried to toggle options menu when it was already in that state");
+            return;
+        }
+        
+        _optionsPanel.SetActive(active);
     }
 
     #region Controller Options
