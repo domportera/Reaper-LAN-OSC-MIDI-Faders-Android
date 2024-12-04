@@ -92,6 +92,7 @@ public class ControlsManager : MonoBehaviour
         }
         
         ColorController.LoadAndSetColorProfile(profileName);
+        FixControllerSorting();
     }
 
     internal static void NewController(ControllerType type)
@@ -115,6 +116,23 @@ public class ControlsManager : MonoBehaviour
         var newController = InstantiateControllerUi(controlData);
         controlData.SetPosition(newController.transform.GetSiblingIndex());
         UIManager.Instance.ShowControllerOptions(controlData);
+    }
+
+    private static void FixControllerSorting()
+    {
+        // order transforms by order of their sorting index,
+        // then overwrite their indices with their new sibling index
+
+        var sorted = ControllerObjects.OrderBy(x => x.Key.SortPosition)
+            .ToArray();
+
+        int index = 0;
+        foreach (var (data, obj) in sorted)
+        {
+            data.SetPosition(index);
+            obj.transform.SetSiblingIndex(index);
+            ++index;
+        }
     }
 
     private static GameObject InstantiateControllerUi(ControllerData data)
@@ -160,18 +178,21 @@ public class ControlsManager : MonoBehaviour
     public static void RespawnController(ControllerData config)
     {
         DestroyController(config);
-        var control = InstantiateControllerUi(config);
+        _ = InstantiateControllerUi(config);
         
-         //todo: there are bound to be issues here with ordering when faders are deleted and stuff
-        control.transform.SetSiblingIndex(config.SortPosition);
+       FixControllerSorting(); 
     }
 
-    internal static void DestroyController(ControllerData config)
+    private static void DestroyController(ControllerData config)
     {
         Destroy(ControllerObjects[config]);
         ControllerObjects.Remove(config);
         UIManager.Instance.RemoveController(config);
-        
+    }
+
+    internal static void DeleteController(ControllerData config)
+    {
+        DestroyController(config);
         if (!ActiveProfile.RemoveController(config))
         {
             throw new Exception($"Failed to remove controller {config.Name} from profile {ActiveProfile.Name}");

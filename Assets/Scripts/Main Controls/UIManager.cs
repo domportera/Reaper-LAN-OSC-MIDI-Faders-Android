@@ -174,7 +174,7 @@ public partial class UIManager : MonoBehaviour
             text: $"Delete controller\n\"{group.ControllerData.Name}\"?", 
             confirm: () =>
             {
-                ControlsManager.DestroyController(data);
+                ControlsManager.DeleteController(data);
                 _controllerUIs.Remove(group);
                 group.DestroySelf();
             },

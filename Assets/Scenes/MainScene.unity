@@ -4828,7 +4828,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 33.580994, y: -28.973907}
+  m_AnchoredPosition: {x: 33.580933, y: -28.973907}
   m_SizeDelta: {x: 688.1, y: 130.5}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &328740436
@@ -9758,7 +9758,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 998485161}
   m_HandleRect: {fileID: 998485160}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -10277,7 +10277,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 194217662}
   m_HandleRect: {fileID: 194217661}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -11503,7 +11503,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -24892,6 +24892,16 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4444052603946622570, guid: 08c195d1a9110074eb4278701201a3f4,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4444052603946622570, guid: 08c195d1a9110074eb4278701201a3f4,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 367776140}
     - target: {fileID: 4444052603946622571, guid: 08c195d1a9110074eb4278701201a3f4,
         type: 3}
       propertyPath: m_Pivot.x
@@ -24997,16 +25007,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4444052603946622570, guid: 08c195d1a9110074eb4278701201a3f4,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4444052603946622570, guid: 08c195d1a9110074eb4278701201a3f4,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 367776140}
     - target: {fileID: 4444052603946622581, guid: 08c195d1a9110074eb4278701201a3f4,
         type: 3}
       propertyPath: m_Sprite
