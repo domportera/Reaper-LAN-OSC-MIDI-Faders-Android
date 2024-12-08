@@ -62,10 +62,6 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         }
     }
 
-    private void Start()
-    {
-    }
-
     private enum RectBounds { Left, Right, Top, Bottom }
 
     // Update is called once per frame
