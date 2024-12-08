@@ -128,24 +128,35 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
         var interactionPadding = _interactionPadding;
         
-        var xMin = GetRectLocalBounds(RectBounds.Left, _buttonTransform) + interactionPadding;
-        var xMax = GetRectLocalBounds(RectBounds.Right, _buttonTransform) - interactionPadding;
-        var yMin = GetRectLocalBounds(RectBounds.Bottom, _buttonTransform) + interactionPadding;
-        var yMax = GetRectLocalBounds(RectBounds.Top, _buttonTransform) - interactionPadding;
-
-        var verticalPosition = _verticalLine.localPosition;
-        verticalPosition = new Vector3(Mathf.Lerp(xMin, xMax, xPercent),
+        _buttonTransform.GetWorldCorners(_cornerArray);
+        
+        var min = Vector3.one * float.MaxValue;
+        var max = Vector3.one * float.MinValue;
+        
+        for (int i = 0; i < _cornerArray.Length; i++)
+        {
+            min = Vector3.Min(min, _cornerArray[i]);
+            max = Vector3.Max(max, _cornerArray[i]);
+        }
+        
+        min.x += interactionPadding;
+        max.x -= interactionPadding;
+        min.y += interactionPadding;
+        max.y -= interactionPadding;
+        
+        var verticalPosition = _verticalLine.position;
+        verticalPosition = new Vector3(Mathf.Lerp(min.x, max.x, xPercent),
             verticalPosition.y,
             verticalPosition.z);
         
-        var horizontalPosition = _horizontalLine.localPosition;
+        var horizontalPosition = _horizontalLine.position;
         horizontalPosition = new Vector3(horizontalPosition.x,
-            Mathf.Lerp(yMin, yMax, yPercent),
+            Mathf.Lerp(min.y, max.y, yPercent),
             horizontalPosition.z);
         
-        _verticalLine.localPosition = verticalPosition;
-        _horizontalLine.localPosition = horizontalPosition;
-        _centerDot.localPosition = new Vector3(verticalPosition.x, horizontalPosition.y, _centerDot.localPosition.z);
+        _verticalLine.position = verticalPosition;
+        _horizontalLine.position = horizontalPosition;
+        _centerDot.position = new Vector3(verticalPosition.x, horizontalPosition.y, _centerDot.position.z);
     }
 
     private void SetTargetPosition()
@@ -196,70 +207,33 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     private Vector2 GetNormalizedPositionWithinButton(Vector2 touchPos)
     {
         var rectTransform = _buttonTransform;
-        var rectScreenPosition = GetRectScreenPosition(rectTransform);
-        var position = rectTransform.position;
 
-        var scale = 1f;
+        rectTransform.GetWorldCorners(_cornerArray);
 
-        if (_hasCanvasScaler)
+        var min = Vector3.one * float.MaxValue;
+        var max = Vector3.one * float.MinValue;
+
+        for (int i = 0; i < _cornerArray.Length; i++)
         {
-            var currentResolution = new Vector2(Screen.width, Screen.height);
-            var resolution = _canvasScaler.referenceResolution;
-            var ratio = currentResolution / resolution;
-            scale = _canvasScaler.scaleFactor * Mathf.Min(ratio.x, ratio.y);
+            min = Vector3.Min(min, _cornerArray[i]);
+            max = Vector3.Max(max, _cornerArray[i]);
         }
         
-        var rect = rectTransform.rect;
-        var rectPivot = rectTransform.pivot;
-        var width = rect.width * scale;
-        var height = rect.height * scale;
-
-        var rawLeft = new Vector3(position.x - width * rectPivot.x, position.y, position.z);
-        var rawRight = new Vector3(position.x + width * (1 - rectPivot.x), position.y, position.z);
-        var rawTop = new Vector3(position.x, rectScreenPosition.y + height * (1 - rectPivot.y), position.z);
-        var rawBottom = new Vector3(position.x, rectScreenPosition.y - height * rectPivot.y, position.z);
+        min.x += _interactionPadding;
+        max.x -= _interactionPadding;
+        min.y += _interactionPadding;
+        max.y -= _interactionPadding;
         
-        var xMin = RectTransformUtility.WorldToScreenPoint(null, rawLeft).x + _interactionPadding;
-        var xMax = RectTransformUtility.WorldToScreenPoint(null, rawRight).x - _interactionPadding;
-        
-        var yMax = RectTransformUtility.WorldToScreenPoint(null, rawTop).y - _interactionPadding;
-        var yMin = RectTransformUtility.WorldToScreenPoint(null, rawBottom).y + _interactionPadding;
-        
-        var xPercent = Mathf.InverseLerp(xMin, xMax, touchPos.x);
-        var yPercent = Mathf.InverseLerp(yMin, yMax, touchPos.y);
+        var minScreen = RectTransformUtility.WorldToScreenPoint(null, min);
+        var maxScreen = RectTransformUtility.WorldToScreenPoint(null, max);
+        var xPercent = Mathf.InverseLerp(minScreen.x, maxScreen.x, touchPos.x);
+        var yPercent = Mathf.InverseLerp(minScreen.y, maxScreen.y, touchPos.y);
 
         return new Vector2(xPercent, yPercent);
     }
 
-    private float GetRectLocalBounds(RectBounds side, RectTransform rect)
-    {
-        var pivot = rect.pivot;
-        var width = rect.rect.width;
-        var height = rect.rect.height;
-        
-        switch (side)
-        {
-            case RectBounds.Left:
-                return -width * pivot.x;
-            case RectBounds.Right:
-                return width * (1 - pivot.x);
-            case RectBounds.Top:
-                return height * (1 - pivot.y); ;
-            case RectBounds.Bottom:
-                return -height * pivot.y; ;
-            default:
-                Debug.LogError($"Rect bound {side} not implemented", this);
-                return 0;
-        }
-    }
-
-    private static Vector2 GetRectScreenPosition(RectTransform rect)
-    {
-        return RectTransformUtility.WorldToScreenPoint(null, rect.position);
-    }
-
     #region Sorting
-    public void InitializeSorting()
+    private void InitializeSorting()
     {
         _sortLeftButton.onClick.AddListener(() =>
         {
@@ -281,12 +255,8 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         }
     }
 
-    public void SortPosition(bool right)
-    {
-        transform.SetSiblingIndex(right ? transform.GetSiblingIndex() + 1 : transform.GetSiblingIndex() - 1);
-    }
-
     public RectTransform RectTransform => _rootTransform;
+    private readonly Vector3[] _cornerArray = new Vector3[4]; 
 
     #endregion Sorting
 
