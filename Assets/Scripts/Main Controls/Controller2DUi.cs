@@ -35,7 +35,6 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     [SerializeField] private Button _sortRightButton;
 
     private readonly List<int> _touchIds = new();
-    private bool HasTouch => _touchIds.Count > 0;
 
     [SerializeField] private float _interactionPadding = 20f;
 
@@ -68,7 +67,7 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     private void Update()
     {
         SetTargetPosition();
-        var dt = Time.deltaTime;
+        var dt = Time.unscaledDeltaTime;
         _verticalAxisController.Update(dt);
         _horizontalAxisController.Update(dt);
         MoveSliders();
@@ -151,9 +150,6 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
     private void SetTargetPosition()
     {
-        if (!HasTouch)
-            return;
-
         if (!TryGetExistingTouch(out var touchPos))
         {
             _horizontalAxisController.Release();

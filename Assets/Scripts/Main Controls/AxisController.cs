@@ -51,8 +51,8 @@ public sealed class AxisController
     #region Mod Value Manipulation
     public void SetValue(float val)
     {
+        _arrivedAtTarget = _arrivedAtTarget && Mathf.Approximately(val, _targetControllerValue);
         _targetControllerValue = val;
-        _arrivedAtTarget = false;
     }
 
     private float MapValueToCurve(float value, bool inverse)
