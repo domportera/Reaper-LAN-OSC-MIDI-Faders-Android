@@ -11,6 +11,9 @@ namespace System
         private static int _port = 9000;
         
         public static bool HasFunctionalClient => _client != null;
+        
+        public static int Port => _port;
+        public static IPAddress Ip => _ip;
 
         static OSCSystem()
         {

@@ -34,6 +34,9 @@ public class IPSetter : MonoBehaviour
         _portField.onEndEdit.AddListener(SetPort);
 
         Load();
+
+        _ipAddressField.SetTextWithoutNotify(OSCSystem.Ip.ToString());
+        _portField.SetTextWithoutNotify(OSCSystem.Port.ToString());
     }
 
     private void Load()
@@ -42,14 +45,12 @@ public class IPSetter : MonoBehaviour
         {
             var ip = PlayerPrefs.GetString(IPAddressPlayerPref);
             SetIP(ip);
-            _ipAddressField.SetTextWithoutNotify(ip);
         }
 
         if (PlayerPrefs.HasKey(PortPlayerPref))
         {
             var port = PlayerPrefs.GetInt(PortPlayerPref);
             SetPort(port);
-            _portField.SetTextWithoutNotify(port.ToString());
         }
     }
 
