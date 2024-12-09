@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using PopUpWindows;
 using UnityEngine;
 using UnityEngine.Events;
@@ -145,16 +146,22 @@ public partial class UIManager : MonoBehaviour
     }
 
     #region Controller Options
-    public void SpawnControllerOptions(ControllerData config, GameObject control)
+    public void SpawnControllerOptions(ControllerData config, GameObject control, out Action destroyFunc)
     {
-        //check if any other controller buttons exist for this, then destroy all its contents
-        _ = RemoveController(config);
-
-        InitializeControllerOptions(config, control);
+        var group = InitializeControllerOptions(config, control);
         SwitchOptionsButtonSorting(_sortOptionsByName);
+        
+        destroyFunc = () => DestroyUiGroup(group);
+
+        void DestroyUiGroup(ControllerUIGroup group)
+        {
+            _controllerUIs.Remove(group);
+            group.DestroySelf();
+            group.DeletionRequested -= OnDeletionRequested;
+        }
     }
 
-    private void InitializeControllerOptions(ControllerData config, GameObject control)
+    private ControllerUIGroup InitializeControllerOptions(ControllerData config, GameObject control)
     {
         var parent = (RectTransform)_sliderOptionsButtonLayout.transform;
 
@@ -171,6 +178,7 @@ public partial class UIManager : MonoBehaviour
         buttonGroup.DeletionRequested += OnDeletionRequested;
 
         _controllerUIs.Add(buttonGroup);
+        return buttonGroup;
     }
 
     private void OnDeletionRequested(object sender, EventArgs e)
@@ -182,9 +190,8 @@ public partial class UIManager : MonoBehaviour
             text: $"Delete controller\n\"{group.ControllerData.Name}\"?", 
             confirm: () =>
             {
-                ControlsManager.DeleteController(data);
-                _controllerUIs.Remove(group);
-                group.DestroySelf();
+                data.DeletionRequested = true;
+                data.InvokeDestroyed();
             },
             cancel: null, 
             confirmButtonLabel: "Delete", 
@@ -254,17 +261,5 @@ public partial class UIManager : MonoBehaviour
         _optionsButton.gameObject.SetActive(!visible);
         _optionsPanel.SetActive(!visible);
         _faderPositionExitButton.gameObject.SetActive(visible);
-    }
-
-    public bool RemoveController(ControllerData config)
-    {
-        var uiGroup = GetButtonGroupByConfig(config, removeIfFound: true);
-
-        if (uiGroup == null)
-            return false;
-        
-        uiGroup.DestroySelf();
-        uiGroup.DeletionRequested -= OnDeletionRequested;
-        return true;
     }
 }

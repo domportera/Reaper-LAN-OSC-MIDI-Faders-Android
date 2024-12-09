@@ -27,6 +27,7 @@ public class ControlsManager : MonoBehaviour
     #endregion MonoBehaviour
 
     private static readonly Dictionary<ControllerData, GameObject> ControllerObjects = new();
+    private static readonly Dictionary<ControllerData, Action> ControllerDestroyFunctions = new();
     private static readonly Queue<Action> ActionQueue = new();
     private static ProfilesManager _profilesManagerInstance;
     private static RectTransform _controllerParentInstance;
@@ -78,9 +79,8 @@ public class ControlsManager : MonoBehaviour
             Debug.Log($"Unloading {ActiveProfile.Name}");
             while (ControllerObjects.Count > 0)
             {
-                var (controllerData, gameObj) = ControllerObjects.Last();
-                ControllerObjects.Remove(controllerData);
-                Destroy(gameObj);
+                var (controllerData, _) = ControllerObjects.Last();
+                DestroyControllerObjects(controllerData);
             }
         }
         
@@ -140,6 +140,7 @@ public class ControlsManager : MonoBehaviour
         //spawn this type
         var control = CreateAndInitializeControllerUi(data);
         ControllerObjects.Add(data, control);
+        data.DeletionRequested = false;
 
         if(!data.Enabled)
         {
@@ -147,10 +148,10 @@ public class ControlsManager : MonoBehaviour
             ActionQueue.Enqueue(() => control.SetActive(false));
         }
 
-        UIManager.Instance.SpawnControllerOptions(data, control);
+        UIManager.Instance.SpawnControllerOptions(data, control, out var destroyFunc);
+        ControllerDestroyFunctions.Add(data, destroyFunc);
 
         return control;
-
 
         static GameObject CreateAndInitializeControllerUi(ControllerData config)
         {
@@ -177,25 +178,26 @@ public class ControlsManager : MonoBehaviour
 
     public static void RespawnController(ControllerData config)
     {
-        DestroyController(config);
+        DestroyControllerObjects(config);
         _ = InstantiateControllerUi(config);
-        
        FixControllerSorting(); 
     }
 
-    private static void DestroyController(ControllerData config)
+    private static void DestroyControllerObjects(ControllerData config)
     {
-        Destroy(ControllerObjects[config]);
-        ControllerObjects.Remove(config);
-        UIManager.Instance.RemoveController(config);
-    }
-
-    internal static void DeleteController(ControllerData config)
-    {
-        DestroyController(config);
-        if (!ActiveProfile.RemoveController(config))
+        if (config.DeletionRequested && !ActiveProfile.RemoveController(config))
         {
             throw new Exception($"Failed to remove controller {config.Name} from profile {ActiveProfile.Name}");
+        }
+        
+        if (ControllerDestroyFunctions.Remove(config, out var func))
+        {
+            func.Invoke();
+        }
+        
+        if(ControllerObjects.Remove(config, out var obj))
+        {
+            Destroy(obj);
         }
     }
 

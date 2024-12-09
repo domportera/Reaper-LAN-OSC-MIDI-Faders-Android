@@ -88,6 +88,11 @@ public abstract class ControllerData
     public event EventHandler<int> PositionChanged;
     public event EventHandler<float> WidthChanged;
     
+    public event EventHandler DestroyRequested;
+
+    [NonSerialized]
+    public bool DeletionRequested;
+    public void InvokeDestroyed() => DestroyRequested?.Invoke(this, EventArgs.Empty);
 }
 
 
