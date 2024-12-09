@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PopUpWindows;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -53,8 +52,7 @@ namespace Main_Controls
                 {
                     b.Button.onClick.AddListener(() =>
                     {
-                        UniClipboard.SetText(b.Address);
-                        PopUpController.Instance.QuickNoticeWindow($"Copied {b.Address} to clipboard!");
+                        Application.OpenURL(b.Address);
                     });
                 }
             }

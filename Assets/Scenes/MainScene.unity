@@ -16776,7 +16776,7 @@ MonoBehaviour:
     Link: https://github.com/keijiro/OscJack
   - Button: {fileID: 465727299}
     Link: https://github.com/yasirkula/UnityNativeFilePicker
-  - Button: {fileID: 2118137441}
+  - Button: {fileID: 0}
     Link: https://github.com/sanukin39/UniClipboard
   - Button: {fileID: 266912985}
     Link: https://github.com/yasirkula/UnityIngameDebugConsole
@@ -16786,9 +16786,9 @@ MonoBehaviour:
     Link: https://github.com/domportera/Reaper-LAN-OSC-MIDI-Faders-Android
   _donationButtons:
   - Button: {fileID: 393371853}
-    Address: domportera@gmail.com
+    Address: https://paypal.me/domportera
   - Button: {fileID: 2023924546}
-    Address: $domportera
+    Address: https://cash.app/$domportera
 --- !u!4 &1631675894
 Transform:
   m_ObjectHideFlags: 0
@@ -20658,7 +20658,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1795750640}
-  - {fileID: 2118137442}
   - {fileID: 266912984}
   - {fileID: 465727297}
   m_Father: {fileID: 780356382}
@@ -21134,177 +21133,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 2
---- !u!1001 &2118137440
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2051733896}
-    m_Modifications:
-    - target: {fileID: 2351738901980112069, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_Name
-      value: Clipboard Button
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112069, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 16
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 360
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 975.25305
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112071, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738901980112071, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: NewController
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738902262498205, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_Text
-      value: UniClipboard by wataru.sanuki
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738902262498205, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_FontData.m_MaxSize
-      value: 59
-      objectReference: {fileID: 0}
-    - target: {fileID: 5622194818375863979, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: colorType
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 602fe415d177c8547ae2aa9408670eab, type: 3}
---- !u!114 &2118137441 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2351738901980112071, guid: 602fe415d177c8547ae2aa9408670eab,
-    type: 3}
-  m_PrefabInstance: {fileID: 2118137440}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!224 &2118137442 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2351738901980112070, guid: 602fe415d177c8547ae2aa9408670eab,
-    type: 3}
-  m_PrefabInstance: {fileID: 2118137440}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2125271595
 GameObject:
   m_ObjectHideFlags: 0
