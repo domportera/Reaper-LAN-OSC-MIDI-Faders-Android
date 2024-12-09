@@ -125,7 +125,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 48, y: 48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5524197207968796701
 CanvasRenderer:
@@ -423,7 +423,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 8acbf270cc513104f9d15116cdb36718, type: 3}
     m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 1
@@ -603,7 +603,7 @@ MonoBehaviour:
   _verticalLine: {fileID: 5524197208815705176}
   _centerDot: {fileID: 5524197207968796703}
   _valueText: {fileID: 643772965158048949}
-  _buttonTransform: {fileID: 5524197209181307796}
+  _buttonTransform: {fileID: 237029986080551635}
   _eventTrigger: {fileID: 5813877591898776043}
   _showBorder: 0
   _border: {fileID: 5524197208049706957}
@@ -611,7 +611,7 @@ MonoBehaviour:
   _controlImages: []
   _sortLeftButton: {fileID: 3221423554757889560}
   _sortRightButton: {fileID: 2122668265727317847}
-  _interactionPadding: 20
+  _interactionPadding: 24
 --- !u!1 &7722639272393996091
 GameObject:
   m_ObjectHideFlags: 0
@@ -1048,12 +1048,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 8acbf270cc513104f9d15116cdb36718, type: 3}
     m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 1
     m_MinSize: 0
-    m_MaxSize: 96
+    m_MaxSize: 48
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

@@ -16776,8 +16776,6 @@ MonoBehaviour:
     Link: https://github.com/keijiro/OscJack
   - Button: {fileID: 465727299}
     Link: https://github.com/yasirkula/UnityNativeFilePicker
-  - Button: {fileID: 0}
-    Link: https://github.com/sanukin39/UniClipboard
   - Button: {fileID: 266912985}
     Link: https://github.com/yasirkula/UnityIngameDebugConsole
   - Button: {fileID: 1404189501}
