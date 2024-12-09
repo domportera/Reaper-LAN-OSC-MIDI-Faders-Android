@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Globalization;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ public sealed class FaderControlUi : MonoBehaviour, ISortingMember
     [SerializeField] private Slider _slider;
     [SerializeField] private EventTrigger _eventTrigger;
     [SerializeField] private Text _label;
+    [SerializeField] private Text _valueText;
     [SerializeField] private Button _sortLeftButton;
     [SerializeField] private Button _sortRightButton;
 
@@ -42,6 +44,7 @@ public sealed class FaderControlUi : MonoBehaviour, ISortingMember
     {
         _axisController.Update(Time.deltaTime);
         _slider.SetValueWithoutNotify(_axisController.SmoothValue);
+        _valueText.text = _axisController.LatestSentValue;
     }
 
     private void InitializeFaderInteraction()

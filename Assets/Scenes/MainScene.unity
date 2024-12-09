@@ -11690,6 +11690,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1045249167}
     m_Modifications:
+    - target: {fileID: 2351738902262498205, guid: 602fe415d177c8547ae2aa9408670eab,
+        type: 3}
+      propertyPath: m_Text
+      value: Back
+      objectReference: {fileID: 0}
     - target: {fileID: 2783735042206615430, guid: 08c195d1a9110074eb4278701201a3f4,
         type: 3}
       propertyPath: m_Texture
@@ -11804,11 +11809,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2351738902262498205, guid: 602fe415d177c8547ae2aa9408670eab,
-        type: 3}
-      propertyPath: m_Text
-      value: Back
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12347,27 +12347,27 @@ MonoBehaviour:
     Background: {r: 0.13995524, g: 0.12871972, b: 0.1764706, a: 1}
     Secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
     Primary: {r: 0.58431375, g: 0.4147482, b: 0.4147482, a: 1}
-    Tertiary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
+    Tertiary: {r: 1, g: 0.9292453, b: 0.9537373, a: 1}
   - ProfileName: "Modern\r"
     Background: {r: 0.16980802, g: 0.12841214, b: 0.19607843, a: 1}
     Secondary: {r: 0.46666667, g: 0.69411767, b: 0.6862745, a: 1}
     Primary: {r: 0.69411767, g: 0.27492502, b: 0.29465184, a: 1}
-    Tertiary: {r: 0.414568, g: 0.67300004, b: 0.6640886, a: 1}
+    Tertiary: {r: 0.58147913, g: 0.6886792, b: 0.6838065, a: 1}
   - ProfileName: "Ghost\r"
     Background: {r: 0.046013072, g: 0.04885505, b: 0.08627451, a: 1}
     Secondary: {r: 0.43, g: 0.45, b: 0.87, a: 1}
     Primary: {r: 0.16, g: 0.15, b: 0.34, a: 1}
-    Tertiary: {r: 0.43, g: 0.45, b: 0.87, a: 1}
+    Tertiary: {r: 0.5690637, g: 0.58240575, b: 0.8679245, a: 1}
   - ProfileName: "Bisa\r"
     Background: {r: 1, g: 0.989481, b: 0.9843137, a: 1}
     Secondary: {r: 0.7719628, g: 0.62675893, b: 0.81960785, a: 1}
     Primary: {r: 1, g: 0.83557093, b: 0.827451, a: 1}
-    Tertiary: {r: 0.8235294, g: 0.68235296, b: 0.87058824, a: 1}
+    Tertiary: {r: 0.84438413, g: 0.7737629, b: 0.8679245, a: 1}
   - ProfileName: "Red\r"
     Background: {r: 0.20392157, g: 0, b: 0, a: 1}
     Secondary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
     Primary: {r: 0.69411767, g: 0.27492502, b: 0.27492502, a: 1}
-    Tertiary: {r: 1, g: 0.79607844, b: 0.8680507, a: 1}
+    Tertiary: {r: 1, g: 0.8820755, b: 0.9228955, a: 1}
   - ProfileName: "Sky Blue\r"
     Background: {r: 0.6088581, g: 0.8078013, b: 0.9764706, a: 1}
     Secondary: {r: 0.48066127, g: 0.68814707, b: 0.92156863, a: 1}
@@ -12382,17 +12382,17 @@ MonoBehaviour:
     Background: {r: 0.13725491, g: 0.011075379, b: 0.0048442907, a: 1}
     Secondary: {r: 0.9098039, g: 0.59583235, b: 0.8765598, a: 1}
     Primary: {r: 0.34117648, g: 0.1337947, b: 0.2460248, a: 1}
-    Tertiary: {r: 0.8392157, g: 0.4475817, b: 0.79774845, a: 1}
+    Tertiary: {r: 0.8490566, g: 0.40450338, b: 0.8001557, a: 1}
   - ProfileName: "Cloudburst\r"
     Background: {r: 1, g: 1, b: 1, a: 1}
     Secondary: {r: 0, g: 0.61453265, b: 0.87058824, a: 1}
     Primary: {r: 0.7418685, g: 0.91069406, b: 0.9411765, a: 1}
-    Tertiary: {r: 0, g: 0.47095722, b: 0.6901961, a: 1}
+    Tertiary: {r: 0, g: 0.45668942, b: 0.6698113, a: 1}
   - ProfileName: "Woodland\r"
     Background: {r: 0.043137256, g: 0.33333334, b: 0.16862746, a: 1}
     Secondary: {r: 0.6836023, g: 0.8773585, b: 0.45109472, a: 1}
     Primary: {r: 0.19607843, g: 0.6745098, b: 0.44313726, a: 1}
-    Tertiary: {r: 0.68235296, g: 0.8352941, b: 0.5019608, a: 1}
+    Tertiary: {r: 0.7178727, g: 0.8396226, b: 0.5742702, a: 1}
   - ProfileName: "Dusk\r"
     Background: {r: 0.18431373, g: 0.105882354, b: 0.25490198, a: 1}
     Secondary: {r: 0.9411765, g: 0.34901962, b: 0.25490198, a: 1}
@@ -12407,7 +12407,7 @@ MonoBehaviour:
     Background: {r: 0, g: 0, b: 0, a: 1}
     Secondary: {r: 0.41079584, g: 0.83137256, b: 0.4602755, a: 1}
     Primary: {r: 0.17997748, g: 0.34117648, b: 0.16322953, a: 1}
-    Tertiary: {r: 0.5961246, g: 0.85882354, b: 0.6084869, a: 1}
+    Tertiary: {r: 0.63576895, g: 0.8584906, b: 0.6457416, a: 1}
 --- !u!224 &1229979897 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 504021911910472798, guid: 81ef0c4e70dab9a44a5af93bfaf1e317,
@@ -17651,6 +17651,10 @@ PrefabInstance:
     - target: {fileID: 11452418, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: enableSearchbar
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11452418, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
+      propertyPath: popupVisibility
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 11452418, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: receiveLogcatLogsInAndroid

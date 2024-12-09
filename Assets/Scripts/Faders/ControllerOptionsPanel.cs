@@ -76,7 +76,6 @@ public abstract class ControllerOptionsPanel : MonoBehaviour
         _controlData.SetWidth(width);
         UIManager.Instance.RefreshFaderLayoutGroup();
         ControlsManager.RespawnController(_controlData);
-        PopUpController.Instance.QuickNoticeWindow("Settings applied!");
     }
 
     #region Width

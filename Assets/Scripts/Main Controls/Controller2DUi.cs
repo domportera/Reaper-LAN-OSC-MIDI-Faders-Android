@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
     private RectTransform _horizontalLine;
     [SerializeField] private RectTransform _verticalLine;
     [SerializeField] private RectTransform _centerDot;
+    [SerializeField] private Text _valueText;
 
     private AxisController _horizontalAxisController;
     private AxisController _verticalAxisController;
@@ -38,8 +40,6 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
 
     [SerializeField] private float _interactionPadding = 20f;
 
-    private CanvasScaler _canvasScaler;
-    private bool _hasCanvasScaler;
 
     private void Awake()
     {
@@ -47,21 +47,7 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
             _rootTransform = GetComponent<RectTransform>();
         
         _border.SetActive(_showBorder);
-        
-        var parent = _buttonTransform.parent;
-        while (parent != null)
-        {
-            if (parent.TryGetComponent(out _canvasScaler))
-            {
-                _hasCanvasScaler = true;
-                break;
-            }
-            
-            parent = parent.parent;
-        }
     }
-
-    private enum RectBounds { Left, Right, Top, Bottom }
 
     // Update is called once per frame
     private void Update()
@@ -71,6 +57,9 @@ public sealed class Controller2DUi : MonoBehaviour, ISortingMember
         _verticalAxisController.Update(dt);
         _horizontalAxisController.Update(dt);
         MoveSliders();
+        const string fmt = "({0}, {1})";
+        var culture = CultureInfo.CurrentCulture;
+        _valueText.text = string.Format(fmt, _horizontalAxisController.LatestSentValue, _verticalAxisController.LatestSentValue);
     }
 
     public void Initialize(Controller2DData data)

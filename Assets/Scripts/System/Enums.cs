@@ -105,7 +105,7 @@ public static class EnumUtility
     public static string[] GetTypeNameArray<T>() where T : Enum
     {
         var names = new List<string>();
-        foreach (var val in (T[])Enum.GetValues(typeof(OscAddressType)))
+        foreach (var val in (T[])Enum.GetValues(typeof(T)))
         {
             names.Add(val.GetDescription() ?? val.ToString());
         }

@@ -10,6 +10,30 @@ public sealed class AxisController
     private float _targetControllerValue;
     private bool _arrivedAtTarget = false;
 
+    public string LatestSentValue
+    {
+        get
+        {
+            if (_previousValueStr != null && !_hasSentNewValue) 
+                return _previousValueStr;
+            
+            _previousValueStr = _axisControlSettings.OscSettings.Range switch
+            {
+                ValueRange.SevenBit or ValueRange.EightBit or ValueRange.CustomInt => _latestSentValue.ToString(
+                    "000"),
+                ValueRange.FourteenBit => _latestSentValue.ToString("00000"),
+                ValueRange.Float or ValueRange.CustomFloat => _latestSentValue.ToString("0.000"),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            return _previousValueStr;
+        }
+    }
+    
+    private float _latestSentValue;
+    private string _previousValueStr;
+    private bool _hasSentNewValue = false;
+
     private float DefaultValue
     {
         get
@@ -118,7 +142,7 @@ public sealed class AxisController
         switch (_axisControlSettings.ReleaseBehavior)
         {
             case ReleaseBehaviorType.PitchWheel:
-                SetValue(MapValueToCurve(DefaultValue, true));
+                SetValue(DefaultValue);
                 break;
             default:
                 return;
@@ -136,14 +160,22 @@ public sealed class AxisController
         var isFloat = OscSettings.Range is ValueRange.CustomFloat or ValueRange.Float;
         var oscSettings = _axisControlSettings.OscSettings;
         var address = oscSettings.GetAddress();
+        float latestSentValue;
         if (isFloat)
         {
-            OSCSystem.Send(address, oscSettings.GetValueFloat(curveMappedValue));
+            var val = oscSettings.GetValueFloat(curveMappedValue);
+            OSCSystem.Send(address, val);
+            latestSentValue = val;
         }
         else
         {
-            OSCSystem.Send(address, oscSettings.GetValueInt(curveMappedValue));
+            var val = oscSettings.GetValueInt(curveMappedValue);
+            OSCSystem.Send(address, val);
+            latestSentValue = val;
         }
+        
+        _hasSentNewValue = !Mathf.Approximately(_latestSentValue, latestSentValue);
+        _latestSentValue = latestSentValue;
     }
 
     private IEnumerator SendModValueMultipleTimes(int numberOfTimes)

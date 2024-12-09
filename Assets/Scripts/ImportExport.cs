@@ -40,14 +40,14 @@ public class ImportExport : MonoBehaviour
 
     private void Awake()
     {
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_ANDROID
         _exportPath =
- Path.Combine(Application.persistentDataPath.Substring(0, Application.persistentDataPath.IndexOf("Android")),"Download", "Reaper Fader Backups");
+ Path.Combine(Application.persistentDataPath.Substring(0, Application.persistentDataPath.IndexOf("Android")),"Download", Application.productName);
         NativeFilePicker.RequestPermission();
         Debug.Log("Backup export path set: " + _exportPath);
 #else
         //I am using a path other than persistent data path on Windows to prevent previous backups from being zipped up into subsequent backups
-        _exportPath = Path.Combine(Environment.ExpandEnvironmentVariables(@"%PROGRAMDATA%"), "Reaper Faders");
+        _exportPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.productName);
         Debug.LogWarning(
             "Using windows-specific export path. If using a non-windows development environment, you may want to change this.",
             this);
