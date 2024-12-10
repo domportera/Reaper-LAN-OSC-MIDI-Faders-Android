@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Colors;
-using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.Serialization;
 
