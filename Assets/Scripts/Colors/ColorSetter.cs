@@ -1,26 +1,25 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Colors
 {
+	[RequireComponent(typeof(MaskableGraphic))]
 	public class ColorSetter : MonoBehaviour
 	{
 		[SerializeField, FormerlySerializedAs("colorType")]
 		private ColorType _colorType;
-
-		private MaskableGraphic _textOrImage;
-
-		private bool _canColor = true;
-		private bool HasComponent => _textOrImage != null;
-
-		private void Awake()
-		{
-			GetColoredComponents();
-		}
+		
+		private MaskableGraphic _graphic;
 
 		private void Start()
 		{
+			if (!TryGetComponent(out _graphic))
+			{
+				throw new Exception("ColorSetter must have a MaskableGraphic component");
+			}
+
 			ColorController.AddToControls(this);
 		}
 
@@ -31,18 +30,7 @@ namespace Colors
 
 		internal void SetColors(ColorProfile colors)
 		{
-			GetColoredComponents();
-			if (!_canColor || !HasComponent) return;
-
-			_textOrImage.color = colors.GetColor(_colorType);
-		}
-
-		private void GetColoredComponents()
-		{
-			if (_textOrImage)
-				return;
-			
-			_textOrImage = GetComponent<MaskableGraphic>();
+			_graphic.color = colors.GetColor(_colorType);
 		}
 	}
 }

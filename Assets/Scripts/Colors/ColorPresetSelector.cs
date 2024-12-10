@@ -19,15 +19,7 @@ namespace Colors
         private PresetPaletteImage[] _paletteImages = Array.Empty<PresetPaletteImage>();
         public bool IsBuiltIn { get; private set; }
 
-        private ColorProfile _colorPreset;
-        public ColorProfile Preset
-        {
-            get { return _colorPreset; }
-            private set
-            {
-                _colorPreset = value;
-            }
-        }
+        public ColorProfile Preset { get; private set; }
 
         public void Initialize(ColorProfile preset, Action buttonFunction, Action buttonHeldFunction, bool isBuiltIn)
         {

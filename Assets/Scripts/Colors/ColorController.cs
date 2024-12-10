@@ -12,28 +12,38 @@ namespace Colors
         private static readonly List<ColorSetter> ColorSetters = new();
 
         public static event Action ColorsLoaded;
-
-        private static BuiltInColorPresets _builtInColorPresets;
-
-        internal static BuiltInColorPresets BuiltInPresets =>
-            _builtInColorPresets ??= BuiltInColorPresets.Instance;
+        public static event Action PresetApplied;
 
         public static ColorProfile CurrentColorProfile
         {
-            get => _currentColorProfile ?? throw new NullReferenceException("Current Color Profile is null!");
+            get
+            {
+                if(_currentColorProfile != null)
+                    return _currentColorProfile;
+
+                // calls set below
+                CurrentColorProfile = ColorProfileDataHandler.LoadColorProfile(ControlsManager.ActiveProfile.Name);
+                return _currentColorProfile;
+            }
             private set {
                 _currentColorProfile = value ?? throw new NullReferenceException("Current Color Profile cannot be set to null!");
+                UpdateAppColors();
                 Debug.Log($"Set Current Color Profile: {_currentColorProfile.Name}");
             }
         }
 
         #endregion Color Profile Variables
+
+        static ColorController()
+        {
+            ProfilesManager.ProfileSaved += SaveCurrentColorsWithProfileName;
+            ProfilesManager.ProfileChanged += LoadAndSetColorProfile;
+        }
         
         public static void AddToControls(ColorSetter setter)
         {
             ColorSetters.Add(setter);
-
-            UpdateAppColors(setter);
+            setter.SetColors(CurrentColorProfile);
         }
 
         public static void RemoveFromControls(ColorSetter setter)
@@ -41,7 +51,7 @@ namespace Colors
             ColorSetters.Remove(setter);
         }
 
-        public static void UpdateAppColors()
+        private static void UpdateAppColors()
         {
             foreach (var c in ColorSetters)
             {
@@ -57,38 +67,42 @@ namespace Colors
             }
         }
 
-        private static void UpdateAppColors(ColorSetter setter)
-        {
-            setter.SetColors(CurrentColorProfile);
-        }
-
         public static void UpdateColorProfile(ColorType type, Color color)
         {
             CurrentColorProfile.SetColor(type, color);
-        }
-
-        public static void RevertColorProfile()
-        {
-            ColorProfileDataHandler.LoadColorProfile(CurrentColorProfile.Name, BuiltInPresets);
             UpdateAppColors();
         }
-        
 
-        public static void LoadAndSetColorProfile(string profileName)
+        public static void ReloadColorProfile()
         {
-            CurrentColorProfile = ColorProfileDataHandler.LoadColorProfile(profileName, BuiltInPresets);
+            CurrentColorProfile = ColorProfileDataHandler.LoadColorProfile(CurrentColorProfile.Name);
+        }
+
+        private static void LoadAndSetColorProfile(ProfileSaveData profile)
+        {
+            var profileName = profile.Name;
+            CurrentColorProfile = ColorProfileDataHandler.LoadColorProfile(profileName);
             Debug.Log($"Loaded Colors: {CurrentColorProfile.Name}\n{ColorProfile.DebugColorProfile(CurrentColorProfile)}");
-            UpdateAppColors();
+            ColorsLoaded?.Invoke();
         }
 
-        public static void SaveCurrentColorsWithProfileName(string profileName)
+        private static void SaveCurrentColorsWithProfileName(ProfileSaveData profile)
         {
+            var profileName = profile.Name;
+            
             // only save colors along with profiles if the current color set has been changed from default
-            var hasNewColors = !ColorProfileDataHandler.ColorProfileIsDefault(CurrentColorProfile, BuiltInPresets);
+            var hasNewColors = !ColorProfileDataHandler.ColorProfileIsDefault(CurrentColorProfile);
             if (!hasNewColors)
                 return;
 
-            ColorProfileDataHandler.SaveColorProfileByNewName(profileName, CurrentColorProfile);
+            var colorProfile = CurrentColorProfile;
+            if (profileName != CurrentColorProfile.Name)
+            {
+                colorProfile = new ColorProfile(CurrentColorProfile, profileName);
+                CurrentColorProfile = colorProfile;
+            }
+            
+            ColorProfileDataHandler.SaveProfile(colorProfile);
         }
 
         public static void SetColorsFromPreset(ColorProfile preset)
@@ -99,16 +113,17 @@ namespace Colors
             }
 
             UpdateAppColors();
+            PresetApplied?.Invoke();
         }
 
-        public static void SaveDefaultProfile()
+        public static void SetProfileAsDefault()
         {
-            ColorProfileDataHandler.SaveDefaultProfile(CurrentColorProfile);
+            ColorProfileDataHandler.SetProfileDefault(CurrentColorProfile);
         }
 
         public static void SaveProfile()
         {
-            ColorProfileDataHandler.SaveDefaultProfile(CurrentColorProfile);
+            ColorProfileDataHandler.SaveProfile(CurrentColorProfile);
         }
     }
 }

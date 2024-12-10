@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Colors
@@ -26,13 +27,11 @@ namespace Colors
 		/// <summary>
 		/// Create a duplicate color profile with a new name
 		/// </summary>
-		public ColorProfile(ColorProfile template, string name = null)
+		public ColorProfile(ColorProfile template, string name) 
+			: this(name ?? template.ProfileName, template.Background, template.Primary, template.Secondary, template.Tertiary)
 		{
-			ProfileName = name ?? template.ProfileName;
-			Background = template.Background;
-			Primary = template.Primary;
-			Secondary = template.Secondary;
-			Tertiary = template.Tertiary;
+			if(template.ProfileName == name)
+				throw new Exception("Duplicate profile names are not allowed!");
 		}
 
 		public ColorProfile(string name, Color background, Color primary, Color secondary, Color tertiary)

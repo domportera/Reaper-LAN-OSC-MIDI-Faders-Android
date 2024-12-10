@@ -1,46 +1,22 @@
-using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Colors
 {
     [ExecuteAlways]
-    internal class BuiltInColorPresets : MonoBehaviour
+    [CreateAssetMenu(fileName = "BuiltInColorPresets", menuName = "Colors/BuiltInColorPresets", order = 0)]
+    public class BuiltInColorPresets : ScriptableObject, IReadOnlyList<ColorProfile>
     {
-        private static BuiltInColorPresets _instance;
-        internal static BuiltInColorPresets Instance
-        {
-            get
-            {
-                if(_instance == null)
-                    _instance = Resources.FindObjectsOfTypeAll<BuiltInColorPresets>().Single();
-                
-                return _instance;
-            }
-
-            private set
-            {
-                if(value == _instance) return;
-                
-                if (value != null && _instance != null)
-                {
-                    const string message = "Only one instance of BuiltInColorPresets can exist.";
-                    Debug.LogError(message, _instance);
-                    Debug.LogError(message, value);
-                    throw new System.Exception(message);
-                }
-                
-                _instance = value;
-            }
-        }
-        
         [field: SerializeField, Header("Built-in Themes")]
-        internal ColorProfile[] ColorProfiles { get; private set; }
-        internal ColorProfile Default => ColorProfiles[0];
+        public ColorProfile[] ColorProfiles { get; private set; }
+        public ColorProfile Default => ColorProfiles[0];
+        public IEnumerator<ColorProfile> GetEnumerator() => ((IEnumerable<ColorProfile>)ColorProfiles).GetEnumerator();
 
+        IEnumerator IEnumerable.GetEnumerator() => ColorProfiles.GetEnumerator();
 
-        private void Awake()
-        {
-            Instance = this;
-        }
+        public int Count => ColorProfiles.Length;
+
+        public ColorProfile this[int index] => ColorProfiles[index];
     }
 }

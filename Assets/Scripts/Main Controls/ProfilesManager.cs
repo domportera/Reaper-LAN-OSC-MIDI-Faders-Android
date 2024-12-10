@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Colors;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,19 +34,20 @@ public class ProfilesManager : MonoBehaviour
     private GameObject _profileLoadButtonPrefab;
     [SerializeField] private Transform _profileButtonParent;
 
-    private static Dictionary <ProfileSaveData, ProfileButtonUi> _profileButtons = new();
+    private static readonly Dictionary <ProfileSaveData, ProfileButtonUi> ProfileButtons = new();
     //saving variables
     public const string DefaultSaveName = "Default";
     private const string ProfileNameSaveName = "Profiles"; //name of json file that stores all profile names
     private static ProfilesMetadata _profileMetadata;
 
     private static string _basePath;
-    private const string ControlsExtension = ".controls";
-    private const string MetadataExtension = ".profiles";
+    private const string ControlsExtension = ".json";
+    private const string MetadataExtension = ".json";
 
     private static ProfilesManager _singleInstance;
     
     public static event Action<ProfileSaveData> ProfileChanged;
+    public static event Action<ProfileSaveData> ProfileSaved;
 
     private void Awake()
     {
@@ -148,7 +148,7 @@ public class ProfilesManager : MonoBehaviour
         var defaultProfileName = _profileMetadata.DefaultProfileName;
         ProfileSaveData defaultProfile = null;
 
-        foreach(var profile in _profileButtons.Keys)
+        foreach(var profile in ProfileButtons.Keys)
         {
             if(profile.Name == defaultProfileName)
             {
@@ -179,14 +179,14 @@ public class ProfilesManager : MonoBehaviour
             holdAction: () => DeleteConfirmation(profile));
         
         buttonScript.ToggleHighlight(false);
-        _profileButtons.Add(profile, buttonScript);
+        ProfileButtons.Add(profile, buttonScript);
 
         Debug.Log($"Adding profile button {profileName}", this);
     }
 
     private void SortProfileButtons()
     {
-        foreach(var (profile, ui) in _profileButtons.OrderBy(x => x.Key.Name))
+        foreach(var (profile, ui) in ProfileButtons.OrderBy(x => x.Key.Name))
         {
             if (profile.IsBuiltInDefault) continue; // keeps default on top
 
@@ -200,12 +200,12 @@ public class ProfilesManager : MonoBehaviour
     private void SetActiveProfile(ProfileSaveData profileData)
     {
         ProfileChanged?.Invoke(profileData);
-        foreach (var p in _profileButtons.Values)
+        foreach (var p in ProfileButtons.Values)
         {
             p.ToggleHighlight(false);
         }
 
-        var buttonUi = _profileButtons[profileData];
+        var buttonUi = ProfileButtons[profileData];
         buttonUi.ToggleHighlight(true);
         _titleText.text = $"<b>{profileData.Name}</b>";
     }
@@ -221,13 +221,11 @@ public class ProfilesManager : MonoBehaviour
 
     private void SaveAs(string saveName)
     {
-        var profileName = saveName;
-
-        if (!SaveProfileAs(profileName, out var newProfile)) return;
+        if (!SaveProfileAs(saveName, out var newProfile)) return;
         
         AddToProfileButtons(newProfile);
         SortProfileButtons();
-        ColorController.SaveCurrentColorsWithProfileName(profileName);
+        ProfileSaved?.Invoke(newProfile);
         SetActiveProfile(newProfile);
     }
 
@@ -244,7 +242,7 @@ public class ProfilesManager : MonoBehaviour
         if (!DeleteProfile(profile)) 
             return;
 
-        if (!_profileButtons.Remove(profile, out var ui))
+        if (!ProfileButtons.Remove(profile, out var ui))
         {
             Debug.LogError($"Failed to remove {profile.Name} from profile buttons", this);
             return;
@@ -314,7 +312,7 @@ public class ProfilesManager : MonoBehaviour
 
     private static bool SaveProfileAs(string profileName, [NotNullWhen(true)] out ProfileSaveData newProfile)
     {
-        if (profileName == DefaultSaveName || _profileButtons.Keys.Any(x => x.Name == profileName))
+        if (profileName == DefaultSaveName || ProfileButtons.Keys.Any(x => x.Name == profileName))
         {
             PopUpController.Instance.ErrorWindow("Profile with this name already exists, please use another.");
             newProfile = null;

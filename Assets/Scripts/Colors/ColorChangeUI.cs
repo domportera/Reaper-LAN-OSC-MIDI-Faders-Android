@@ -11,7 +11,6 @@ namespace Colors
     public class ColorChangeUI : MonoBehaviour
     {
         [SerializeField] private ColorPresetUI _presetUI;
-        [SerializeField] private BuiltInColorPresets _builtInColorPresets;
         
         [SerializeField] private Slider _hueSlider;
         [SerializeField] private Slider _saturationSlider;
@@ -49,20 +48,17 @@ namespace Colors
             InitializeUI();
             
             ColorController.ColorsLoaded += SetSlidersToCurrentColor;
+            ColorController.PresetApplied += SetSlidersToCurrentColor;
         }
 
-        // Start is called before the first frame update
-        private void Start()
+        private void OnDestroy()
         {
-            ColorController.UpdateAppColors();
+            ColorController.ColorsLoaded -= SetSlidersToCurrentColor;
+            ColorController.PresetApplied -= SetSlidersToCurrentColor;
         }
 
         private void InitializeUI()
         {
-            _hueSlider.onValueChanged.AddListener((_) => OnSliderChange());
-            _saturationSlider.onValueChanged.AddListener((_) => OnSliderChange());
-            _valueSlider.onValueChanged.AddListener((_) => OnSliderChange());
-            
             _hueSlider.minValue = 0;
             _saturationSlider.minValue = 0;
             _valueSlider.minValue = 0;
@@ -74,12 +70,16 @@ namespace Colors
             _hueSlider.wholeNumbers = true;
             _saturationSlider.wholeNumbers = true;
             _valueSlider.wholeNumbers = true;
+            
+            _hueSlider.onValueChanged.AddListener((_) => OnSliderChange());
+            _saturationSlider.onValueChanged.AddListener((_) => OnSliderChange());
+            _valueSlider.onValueChanged.AddListener((_) => OnSliderChange());
 
             _openButton.onClick.AddListener(ChooseColorWindow);
             _closeButton.onClick.AddListener(() => { ToggleColorControlWindow(false); });
 
-            _setAsDefaultButton.onClick.AddListener(ColorController.SaveDefaultProfile);
-            _revertButton.onClick.AddListener(ColorController.RevertColorProfile);
+            _setAsDefaultButton.onClick.AddListener(ColorController.SetProfileAsDefault);
+            _revertButton.onClick.AddListener(ColorController.ReloadColorProfile);
             _saveButton.onClick.AddListener(ColorController.SaveProfile);
 
             foreach (var p in _colorTypeButtons)
@@ -143,7 +143,6 @@ namespace Colors
         {
             var preview = _colorTypeButtonDict[_currentColorType];
             ColorController.UpdateColorProfile(preview.ColorType, GetColorFromSliders());
-            ColorController.UpdateAppColors();
         }
 
         private Color GetColorFromSliders()

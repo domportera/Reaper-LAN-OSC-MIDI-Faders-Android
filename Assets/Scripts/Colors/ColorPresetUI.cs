@@ -9,29 +9,18 @@ namespace Colors
     public class ColorPresetUI : MonoBehaviour
     {
         [Header("Color Preset UI")]
-        [SerializeField]
-        private GameObject _colorPresetPrefab;
-        [SerializeField] private Transform _builtInPresetParent;
-        [SerializeField] private Transform _userPresetParent;
+        [SerializeField] private GameObject _colorPresetPrefab;
+        [SerializeField] private GridLayoutGroup _presetParent;
         [SerializeField] private Button _enablePresetWindowButton;
         [SerializeField] private Button _closePresetWindowButton;
         [SerializeField] private GameObject _presetWindow;
         [SerializeField] private Button _savePresetButton;
         [SerializeField] private ColorPresetSelectorSorter _userPresetSorter;
-        [SerializeField] private BuiltInColorPresets _builtInColorPresets;
-
-        [Header("Other UI References")] [SerializeField]
-        private ColorChangeUI _colorChangeUI;
 
         private readonly List<ColorPresetSelector> _userPresetSelectors = new();
-        
+
         // Start is called before the first frame update
         private void Awake()
-        {
-            InitializePresetUI();
-        }
-
-        private void Start()
         {
             InitializePresetUI();
         }
@@ -42,6 +31,9 @@ namespace Colors
             _enablePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(true); });
             _closePresetWindowButton.onClick.AddListener(() => { TogglePresetWindow(false); });
             _savePresetButton.onClick.AddListener(CreateSaveWindow);
+            
+            var presetPrefabSize = _colorPresetPrefab.GetComponent<RectTransform>().rect.size;
+            _presetParent.cellSize = presetPrefabSize;
         }
 
         internal void TogglePresetWindow(bool on)
@@ -52,28 +44,28 @@ namespace Colors
         private void PopulatePresetSelectors()
         {
             //populate built in preset selectors
-            foreach (var c in _builtInColorPresets.ColorProfiles)
+            foreach (var c in ColorProfileDataHandler.BuiltInColorPresets)
             {
                 AddPresetSelector(c, true);
             }
 
             //populate user presets
-            var presetNames = ColorPresetDataHandler.GetPresetNames();
+            var presetNames = ColorProfileDataHandler.GetPresetNames();
             Array.Sort(presetNames);
             foreach(var presetName in presetNames)
             {
-                var preset = ColorPresetDataHandler.LoadPreset(presetName);
+                var preset = ColorProfileDataHandler.LoadPreset(presetName);
                 AddPresetSelector(preset, false);
             }
         }
 
-        private void AddPresetSelector(ColorProfile preset, bool isBuiltIn = false)
+        private void AddPresetSelector(ColorProfile preset, bool isBuiltIn)
         {
             var selector = CreatePresetSelector(preset);
-            var parent = isBuiltIn ? _builtInPresetParent : _userPresetParent;
-            selector.transform.SetParent(parent, false);
+            var parent = _presetParent;
+            selector.transform.SetParent(parent.transform, false);
 
-            selector.Initialize(preset, () => PresetSelection(preset), () => CreateDeleteWindow(selector), isBuiltIn);
+            selector.Initialize(preset, () => ColorController.SetColorsFromPreset(preset), () => CreateDeleteWindow(selector), isBuiltIn);
 
             if(!isBuiltIn)
             {
@@ -85,12 +77,6 @@ namespace Colors
         {
             _userPresetSelectors.Remove(selectorToRemove);
             Destroy(selectorToRemove.gameObject);
-        }
-
-        private void PresetSelection(ColorProfile preset)
-        {
-            ColorController.SetColorsFromPreset(preset);
-            _colorChangeUI.SetSlidersToCurrentColor();
         }
 
         private ColorPresetSelector CreatePresetSelector(ColorProfile preset)
@@ -107,15 +93,19 @@ namespace Colors
             if (!selector.IsBuiltIn)
             {
                 PopUpController.Instance.ConfirmationWindow($"Are you sure you want to delete \"{selector.Preset.Name}\" color preset?",
-                    confirm: () => ColorPresetDataHandler.DeletePreset(selector, onDeleted: () => 
+                    confirm: () => ColorProfileDataHandler.DeletePreset(selector.Preset, onDeleted: () => 
                         RemoveUserPresetSelector(selector)), null, "Delete");
+            }
+            else
+            {
+                PopUpController.Instance.ErrorWindow($"Can't delete built in color preset.");
             }
         }
 
         private void CreateSaveWindow()
         {
             PopUpController.Instance.TextInputWindow(inputLabel: "Enter Name:",
-                confirm: (presetName) => ColorPresetDataHandler.SavePreset(presetName, ColorController.CurrentColorProfile, AddPresetSelectorAfterSave), 
+                confirm: (presetName) => ColorProfileDataHandler.SavePreset(presetName, ColorController.CurrentColorProfile, AddPresetSelectorAfterSave), 
                 cancel: null,
                 confirmButtonLabel: "Save");
         }
@@ -123,7 +113,7 @@ namespace Colors
 
         private void AddPresetSelectorAfterSave(ColorProfile preset)
         {
-            AddPresetSelector(preset);
+            AddPresetSelector(preset, false);
             _userPresetSorter.SortChildren(_userPresetSelectors);
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Colors;
+using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -34,6 +35,7 @@ public class ControlsManager : MonoBehaviour
     private static Dictionary<ControllerType, GameObject> _controllerPrefabsInstance;
     
     internal static ProfileSaveData ActiveProfile;
+    
 
     #region Default Controller Values
 
@@ -91,7 +93,6 @@ public class ControlsManager : MonoBehaviour
             _ = InstantiateControllerUi(c);
         }
         
-        ColorController.LoadAndSetColorProfile(profileName);
         FixControllerSorting();
     }
 
