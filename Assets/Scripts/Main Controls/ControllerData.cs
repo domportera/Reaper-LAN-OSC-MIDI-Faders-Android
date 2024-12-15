@@ -88,11 +88,22 @@ public abstract class ControllerData
     public event EventHandler<int> PositionChanged;
     public event EventHandler<float> WidthChanged;
     
-    public event EventHandler DestroyRequested;
+    [NonSerialized]
+    private EventHandler _onDestroyRequested;
+    public EventHandler OnDestroyRequested
+    {
+        set
+        {
+            if(value != null && _onDestroyRequested != null)
+                throw new InvalidOperationException("DestroyRequested event can only be set once");
+            
+            _onDestroyRequested = value;
+        }
+    }
 
     [NonSerialized]
     public bool DeletionRequested;
-    public void InvokeDestroyed() => DestroyRequested?.Invoke(this, EventArgs.Empty);
+    public void InvokeDestroyed() => _onDestroyRequested?.Invoke(this, EventArgs.Empty);
 }
 
 

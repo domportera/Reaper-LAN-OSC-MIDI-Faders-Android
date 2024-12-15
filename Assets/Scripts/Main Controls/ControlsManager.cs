@@ -26,7 +26,6 @@ public class ControlsManager : MonoBehaviour
     #endregion MonoBehaviour
 
     private static readonly Dictionary<ControllerData, GameObject> ControllerObjects = new();
-    private static readonly Dictionary<ControllerData, Action> ControllerDestroyFunctions = new();
     private static readonly Queue<Action> ActionQueue = new();
     private static ProfilesManager _profilesManagerInstance;
     private static RectTransform _controllerParentInstance;
@@ -72,15 +71,13 @@ public class ControlsManager : MonoBehaviour
 
     private static void ApplyProfile(ProfileSaveData profile)
     {
-        var profileName = profile.Name;
-        
         if (ActiveProfile != null)
         {
             Debug.Log($"Unloading {ActiveProfile.Name}");
             while (ControllerObjects.Count > 0)
             {
                 var (controllerData, _) = ControllerObjects.Last();
-                DestroyControllerObjects(controllerData);
+                controllerData.InvokeDestroyed();
             }
         }
         
@@ -139,7 +136,7 @@ public class ControlsManager : MonoBehaviour
         //spawn this type
         var control = CreateAndInitializeControllerUi(data);
         ControllerObjects.Add(data, control);
-        data.DeletionRequested = false;
+        data.DeletionRequested = false; // unnecessary, but since it is a public property, can't be too careful
 
         if(!data.Enabled)
         {
@@ -148,7 +145,24 @@ public class ControlsManager : MonoBehaviour
         }
 
         UIManager.Instance.SpawnControllerOptions(data, control, out var destroyFunc);
-        ControllerDestroyFunctions.Add(data, destroyFunc);
+        data.OnDestroyRequested = (sender, _) =>
+        {
+            destroyFunc.Invoke();
+            var controlData = (ControllerData)sender;
+            controlData.OnDestroyRequested = null;
+
+            if (controlData.DeletionRequested && !ActiveProfile.RemoveController(controlData))
+            {
+                throw new Exception($"Failed to remove controller {controlData.Name} from profile {ActiveProfile.Name}");
+            }
+            
+            controlData.DeletionRequested = false;
+
+            if (ControllerObjects.Remove(controlData, out var obj))
+            {
+                Destroy(obj);
+            }
+        };
 
         return control;
 
@@ -177,27 +191,9 @@ public class ControlsManager : MonoBehaviour
 
     public static void RespawnController(ControllerData config)
     {
-        DestroyControllerObjects(config);
+        config.InvokeDestroyed();
         _ = InstantiateControllerUi(config);
        FixControllerSorting(); 
-    }
-
-    private static void DestroyControllerObjects(ControllerData config)
-    {
-        if (config.DeletionRequested && !ActiveProfile.RemoveController(config))
-        {
-            throw new Exception($"Failed to remove controller {config.Name} from profile {ActiveProfile.Name}");
-        }
-        
-        if (ControllerDestroyFunctions.Remove(config, out var func))
-        {
-            func.Invoke();
-        }
-        
-        if(ControllerObjects.Remove(config, out var obj))
-        {
-            Destroy(obj);
-        }
     }
 
     //used to pair prefabs with their control type
